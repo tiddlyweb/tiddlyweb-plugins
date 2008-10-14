@@ -1,0 +1,35 @@
+
+<h2 id='twotergretting'>Hello {{ user }}</h2>
+
+<div id='twoterbookmarklet'>Use this <a href="{% include "bookmarklet.html" %}">Twoter</a> bookmarklet.</div>
+
+<ul id='twotelist'>
+    <li>Your Recent Twotes as:
+        <a href="{{ recent_url }}">HTML</a>,
+        <a href="{{ recent_wiki }}">TiddlyWiki</a>
+        <a href="{{ recent_wiki_d }}">(download)</a>,
+        <a href="{{ recent_feed }}">Atom</a>,
+        <a href="{{ recent_json }}">JSON</a>
+    </li>
+    <li>All Your Twotes as:
+        <a href="{{ all_url }}">HTML</a>,
+        <a href="{{ all_wiki }}">TiddlyWiki</a>
+        <a href="{{ all_wiki_d }}">(download)</a>,
+        <a href="{{ all_json }}">JSON</a>
+    </li>
+</ul>
+
+<h3>Add another Twote</h3>
+
+<div id='twoteform'>
+<form method="POST">
+    Title: <input type="text" name="title"><br>
+    URL: <input type="text" name="url"><br>
+    Snip: <textarea name="snip"></textarea><br>
+    <input type="submit"><br>
+</form>
+</div>
+
+<p id='twoterdesc'>Twoter is a simple system to save bookmarked clippings of text from around the internet into TiddlyWeb so you can use those clippings in your TiddlyWikis. Either fill in the form above by hand, or use the bookmarklet. Just drag the bookmarklet to your toolbar and in another tab, highlight some text and click the bookmark. The text, title of the page, and url will be saved into a Tiddler that you can access.</p>
+
+
