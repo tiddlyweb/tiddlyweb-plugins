@@ -21,14 +21,14 @@ import os
 from google.appengine.ext.webapp import template
 
 
-from tiddlyweb.auth import UserRequiredError
+from tiddlyweb.model.policy import Policy, UserRequiredError
 from tiddlyweb.web.http import HTTP302
 from tiddlyweb.web.util import server_base_url, recipe_url
 
 from tiddlyweb.store import NoRecipeError, NoBagError, NoTiddlerError
-from tiddlyweb.recipe import Recipe
-from tiddlyweb.bag import Bag, Policy
-from tiddlyweb.tiddler import Tiddler
+from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.tiddler import Tiddler
 
 from tiddlyweb import control
 

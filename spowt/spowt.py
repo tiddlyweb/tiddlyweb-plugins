@@ -5,11 +5,11 @@ import urllib
 from jinja2 import Environment, FileSystemLoader
 
 from tiddlyweb.web.http import HTTP302, HTTP409
-from tiddlyweb.recipe import Recipe
-from tiddlyweb.bag import Bag
-from tiddlyweb.user import User
+from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.user import User
 from tiddlyweb.store import NoUserError, NoRecipeError, NoBagError
-from tiddlyweb.auth import ForbiddenError, UserRequiredError
+from tiddlyweb.model.policy import ForbiddenError, UserRequiredError
 from tiddlyweb.web.util import server_base_url, recipe_url
 
 template_env = Environment(loader=FileSystemLoader('.'))
