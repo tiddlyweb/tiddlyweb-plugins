@@ -17,9 +17,11 @@
 
         <form action="/spowt" method="POST">
             <input type="text" name="wikiname"><br />
-            <input type="radio" name="perms" value="open"><strong>Open:</strong> Read and Write for Anyone.<br />
+            <input type="radio" name="perms" value="open" checked><strong>Open:</strong> Read and Write for Anyone.<br />
+            <input type="radio" name="perms" value="authrw"><strong>Authenticated RW:</strong> Read and Write for Any Authenticated User.<br />
             <input type="radio" name="perms" value="closed"><strong>Closed:</strong> Read and Write for Only You.<br />
             <input type="radio" name="perms" value="read"><strong>Read-Only:</strong> Readable by Anyone. Writable by You.<br />
+            <input type="radio" name="perms" value="authw"><strong>Authenticated W:</strong> Readable by Anyone. Writable by Any Authenticated User.<br />
             <input type="submit">
         </form>
 

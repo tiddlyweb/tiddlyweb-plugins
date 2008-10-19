@@ -12,29 +12,29 @@ Get information about it at http://jinja.pocoo.org/2/
 This is being developed outside the TiddlyWeb source
 tree to see what needs to happen to make tiddlyweb
 work well as a library. For current work some symlinks
-needs to be made:
+needs to be made (choose the right paths for your 
+situation):
 
 lrwxr-xr-x  1 cdent  cdent  21 Oct 10 18:59 ./cherrypy -> ../TiddlyWeb/cherrypy
 lrwxr-xr-x  1 cdent  cdent  16 Oct 10 18:38 ./lib -> ../TiddlyWeb/lib
 lrwxr-xr-x  1 cdent  cdent  22 Oct 10 18:38 ./tiddlyweb -> ../TiddlyWeb/tiddlyweb
 lrwxr-xr-x  1 cdent  cdent  21 Oct 10 18:39 ./urls.map -> ../TiddlyWeb/urls.map
+lrwxr-xr-x  1 cdent  cdent  21 Oct 10 18:39 ./manager -> ../TiddlyWeb/manager
 
-Also, to get around a bug without tiddlywebconfig.py
-is read by tiddlyweb.config, we need a _copy_ (not
-symlink) of ../TiddlyWeb/manager in this directory.
-
-You will need to create a tiddlyweb bag:
+You will need to create a tiddlyweb bag (alternatively
+if you understand make, have a look at the Makefile in
+the same directory as this README):
 
     ./manager bag tiddlyweb
     ^D
 
 And then add the required plugins to that bag. You can
-use lib/from_svn:
+use the from-svn plugin:
 
-    lib/from_svn \
-        tiddlyweb http://svn.tiddlywiki.org/Trunk/verticals/tiddlywebclient/plugins/TiddlyWebAdaptorPlugin.js
-        tiddlyweb http://svn.tiddlywiki.org/Trunk/verticals/tiddlywebclient/plugins/TiddlyWebAutoSavePlugin.js
-        tiddlyweb http://svn.tiddlywiki.org/Trunk/verticals/tiddlywebclient/plugins/TiddlyWebSpowtDefaulterPlugin.js
+    ./manager from_svn tiddlyweb \
+        http://svn.tiddlywiki.org/Trunk/verticals/tiddlywebclient/plugins/TiddlyWebAdaptorPlugin.js
+        http://svn.tiddlywiki.org/Trunk/verticals/tiddlywebclient/plugins/TiddlyWebAutoSavePlugin.js
+        http://svn.tiddlywiki.org/Trunk/verticals/tiddlywebclient/plugins/TiddlyWebSpowtDefaulterPlugin.js
 
 Then if you run 
 
