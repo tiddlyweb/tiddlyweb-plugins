@@ -9,7 +9,7 @@ config = {
         'css_uri': 'http://peermore.com/tiddlyweb.css',
         'system_plugins': ['spowt'],
         'auth_systems': ['openid'],
-        'manager_plugins': ['fromsvn','lister'],
+        'manager_plugins': ['fromsvn'],
         }
     
 
