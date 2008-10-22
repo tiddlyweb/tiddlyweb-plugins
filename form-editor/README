@@ -1,0 +1,14 @@
+
+This plugin shows a way to add an editor link to any server
+side page that is displaying an individual tiddler as HTML.
+
+It overrides tiddlyweb.web.wsgi.HTMLPresent.footer_extra
+to add the link, and adds a WSGI app at /formedtor.
+
+Formeditor is just a simple texteditor that allows you to
+change the text of a tiddler.
+
+Not that at the moment you can only have one plugin that
+overrides edit_link. Otherwise you get some recursion problems.
+Workin on fixing it.
+
