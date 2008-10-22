@@ -23,6 +23,7 @@ def get(environ, start_response):
     tiddler we are currently working with
     and produce an editor for it.
     """
+    usersign = environ['tiddlyweb.usersign']
     try:
         tiddler_name = environ['tiddlyweb.query'].get('tiddler', [''])[0]
         recipe_name = environ['tiddlyweb.query'].get('recipe', [''])[0]
@@ -49,10 +50,14 @@ def get(environ, start_response):
         except NoBagError, exc:
             raise HTTP404('unable to edit %s: %s' % (tiddler.title, exc))
 
+    bag = Bag(tiddler.bag)
     try:
         store.get(tiddler)
-    except NoTiddlerError, exc:
+        store.get(bag)
+    except (NoTiddlerError, NoBagError), exc:
         raise HTTP404('tiddler %s not found: %s' % (tiddler.title, exc))
+
+    bag.policy.allows(usersign, 'write')
 
     output_bag = Bag('output', tmpbag=True)
     output_bag.add_tiddler(tiddler)
