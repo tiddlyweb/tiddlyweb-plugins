@@ -1,6 +1,6 @@
 """
-A small web app for generating an editor for
-a single Tiddler.
+A plugin providing  web app for generating a
+tiddlywiki based editor for a single Tiddler.
 """
 
 import urllib
@@ -13,6 +13,8 @@ from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.store import NoTiddlerError, NoBagError, NoRecipeError
 from tiddlyweb.web.sendtiddlers import send_tiddlers
 from tiddlyweb.web.util import tiddler_url
+
+from tiddlyweb.web.wsgi import HTMLPresenter
 
 
 def get(environ, start_response):
@@ -70,7 +72,7 @@ def get(environ, start_response):
     output_bag.add_tiddler(site_title_tiddler)
     output_bag.add_tiddler(site_subtitle_tiddler)
 
-    for required_tiddler in environ['tiddlyweb.config'].get('editor_tiddlers', []):
+    for required_tiddler in environ['tiddlyweb.config'].get('tiddlyeditor_tiddlers', []):
         r_tiddler = Tiddler(required_tiddler[1], required_tiddler[0])
         store.get(r_tiddler)
         output_bag.add_tiddler(r_tiddler)
@@ -80,15 +82,19 @@ def get(environ, start_response):
 
 
 def edit_link(self, environ):
-
-    if 'editor_tiddlers' in environ['tiddlyweb.config']:
+    if 'tiddlyeditor_tiddlers' in environ['tiddlyweb.config']:
         tiddler_name = environ['wsgiorg.routing_args'][1].get('tiddler_name', None)
         recipe_name = environ['wsgiorg.routing_args'][1].get('recipe_name', '')
         bag_name = environ['wsgiorg.routing_args'][1].get('bag_name', '')
         revision = environ['wsgiorg.routing_args'][1].get('revision', None)
 
         if tiddler_name and not revision:
-            return '<div id="edit"><a href="/edit?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
+            return '<div id="edit"><a href="/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
                     % (tiddler_name, bag_name, recipe_name)
-
     return ''
+
+HTMLPresenter.footer_extra = edit_link
+
+def init(config):
+    config['selector'].add('/tiddlyeditor', GET=get)
+

@@ -1,0 +1,13 @@
+
+This plugin shows a way to add an editor link to any server
+side page that is displaying an individual tiddler as HTML.
+
+It overrides tiddlyweb.web.wsgi.HTMLPresent.footer_extra
+to add the link, and adds a WSGI app at /tiddlyedtor.
+
+For that editor to work the system needs to know about 
+some tiddlers that it will use to create the TiddlyWiki
+that does the editing. These go into tiddlywebconfig.py
+in the 'tiddlyeditor_tiddlers' slot. See the tiddlywebconfig.py
+in this directory.
+
