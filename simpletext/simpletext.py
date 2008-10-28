@@ -11,8 +11,11 @@ Bugs:
 
 import os
 import os.path
+import urllib
 
-from  tiddlyweb.stores.text import Store as Text, _encode_filename
+from tiddlyweb.stores.text import Store as Text, _encode_filename
+from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.recipe import Recipe
 
 class Store(Text):
 
@@ -20,6 +23,19 @@ class Store(Text):
         self.environ = environ
         if not os.path.exists(self._store_root()):
             os.mkdir(self._store_root())
+
+    def list_bags(self):
+        bags = self._dirs_in_dir(self._store_root())
+
+        return [Bag(urllib.unquote(bag).decode('utf-8')) for bag in bags]
+
+    def list_recipes(self):
+        recipes = [file.replace('.recipe', '') for file in self._files_in_dir(self._store_root()) if file.endswith('.recipe')]
+
+        return [Recipe(urllib.unquote(recipe).decode('utf-8')) for recipe in recipes]
+
+    def _dirs_in_dir(self, path):
+        return [dir for dir in self._files_in_dir(path) if os.path.isdir(os.path.join(path, dir))]
 
     def _recipe_path(self, recipe):
         return os.path.join(self._store_root(), _encode_filename(recipe.name) + '.recipe')
@@ -29,6 +45,9 @@ class Store(Text):
             return os.path.join(self._store_root(), _encode_filename(bag_name))
         except (AttributeError, StoreEncodingError), exc:
             raise NoBagError('No bag name: %s' % exc)
+
+    def _user_path(self, user):
+        return os.path.join(self._store_root(), user.usersign + '.user')
 
     def _tiddlers_dir(self, bag_name):
         return self._bag_path(bag_name)

@@ -16,13 +16,13 @@ from simpletext import Store as SimpleText
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
+from tiddlyweb.model.user import User
 
 def setup_module(module):
     module.config = config
     module.store = Store('simpletext', environ={'tiddlyweb.config': config})
 
 def test_get_store():
-
     assert type(store.storage) == SimpleText
 
 def test_store_exists():
@@ -57,6 +57,20 @@ def test_store_bag():
     store.get(loaded_bag)
     assert loaded_bag.desc == bag.desc
 
+def test_store_user():
+    user = User('testuser')
+    user.set_password('testpass')
+    user.add_role('testrole')
+
+    store.put(user)
+
+    assert os.path.exists('store/testuser.user')
+
+    loaded_user = User('testuser')
+    store.get(loaded_user)
+
+    assert loaded_user.check_password('testpass')
+
 def test_store_tiddler():
     tiddler = Tiddler('tiddler1')
     tiddler.text = 'i am tiddler 1'
@@ -79,3 +93,15 @@ def test_list_tiddlers():
 
     assert len(tiddlers) == 1
     assert 'tiddler1' in [tiddler.title for tiddler in tiddlers]
+
+def test_list_bags():
+    bags = store.list_bags()
+
+    assert len(bags) == 1
+    assert 'bag1' in [bag.name for bag in bags]
+
+def test_list_recipes():
+    recipes = store.list_recipes()
+
+    assert len(recipes) == 1
+    assert 'recipe1' in [recipe.name for recipe in recipes]
