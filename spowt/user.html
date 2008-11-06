@@ -1,29 +1,22 @@
-<html>
-    <head>
-        <title>Hello {{ user }}</title>
-    </head>
-    <body>
-        <h1>Hello {{ user }}</h1>
-        <p>Now that you've logged in you can create some stuff.</p>
+<div id="content">
+    <p>Now that you've logged in you can create some stuff.</p>
 
-        <p>Here's what you've got so far:</p>
-        <ul>
-            {% for wiki in wikis %}
-            <li><a href="{{ wiki.url }}">{{ wiki.name }}</a>: {{ wiki.description }}: <a href="{{ wiki.url }}/tiddlers.wiki">As a Wiki</a></li>
-            {% endfor %}
-        </ul>
+    <p>Here's what you've got so far:</p>
+    <ul>
+        {% for wiki in wikis %}
+        <li><a href="{{ wiki.url }}">{{ wiki.name }}</a>: {{ wiki.description }}: <a href="{{ wiki.url }}/tiddlers.wiki">As a Wiki</a></li>
+        {% endfor %}
+    </ul>
 
-        <p>Make a new one:</p>
+    <p>Make a new one:</p>
 
-        <form action="/spowt" method="POST">
-            <input type="text" name="wikiname"><br />
-            <input type="radio" name="perms" value="open" checked><strong>Open:</strong> Read and Write for Anyone.<br />
-            <input type="radio" name="perms" value="authrw"><strong>Authenticated RW:</strong> Read and Write for Any Authenticated User.<br />
-            <input type="radio" name="perms" value="closed"><strong>Closed:</strong> Read and Write for Only You.<br />
-            <input type="radio" name="perms" value="read"><strong>Read-Only:</strong> Readable by Anyone. Writable by You.<br />
-            <input type="radio" name="perms" value="authw"><strong>Authenticated W:</strong> Readable by Anyone. Writable by Any Authenticated User.<br />
-            <input type="submit">
-        </form>
-
-    </body>
-</html>
+    <form action="/spowt" method="POST">
+        <input type="text" name="wikiname"><br />
+        <input type="radio" name="perms" value="open" checked><strong>Open:</strong> Read and Write for Anyone.<br />
+        <input type="radio" name="perms" value="authrw"><strong>Authenticated RW:</strong> Read and Write for Any Authenticated User.<br />
+        <input type="radio" name="perms" value="closed"><strong>Closed:</strong> Read and Write for Only You.<br />
+        <input type="radio" name="perms" value="read"><strong>Read-Only:</strong> Readable by Anyone. Writable by You.<br />
+        <input type="radio" name="perms" value="authw"><strong>Authenticated W:</strong> Readable by Anyone. Writable by Any Authenticated User.<br />
+        <input type="submit">
+    </form>
+</div>

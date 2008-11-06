@@ -21,6 +21,7 @@ def spowt(environ, start_response):
     if username == 'GUEST':
         start_response('200 OK', [('Content-Type', 'text/html')])
         template = template_env.get_template('root.html')
+        environ['tiddlyweb.title'] = 'Welcome to Spowt'
         return template.generate()
     else:
         raise HTTP302('%s/spowt/%s' % (server_base_url(environ), urllib.quote(username)))
@@ -125,8 +126,9 @@ def userpage(environ, start_response):
         wikis = []
 
     start_response('200 OK', [('Content-Type', 'text/html')])
+    environ['tiddlyweb.title'] = 'Hello %s' % user
     template = template_env.get_template('user.html')
-    return template.generate(user=user, wikis=wikis)
+    return template.generate(wikis=wikis)
 
 
 def root(environ, start_response):
