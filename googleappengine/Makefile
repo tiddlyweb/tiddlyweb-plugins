@@ -1,6 +1,6 @@
 
-TIDDLYBASE=/Users/cdent/src/osmo/tiddlywiki/association/serversides/tiddlyweb/core
-PLUGINDIR=/Users/cdent/src/osmo/tiddlywiki/contributors/ChrisDent/experimental/tiddlyweb-plugins
+TIDDLYBASE=/Users/cdent/src/tiddlywiki/association/serversides/tiddlyweb/core
+PLUGINDIR=/Users/cdent/sc/tiddlywiki/contributors/ChrisDent/experimental/tiddlyweb-plugins
 
 links: baselinks googlelinks pluginlinks
 
