@@ -18,8 +18,7 @@ import logging
 import cgi
 
 import os
-from google.appengine.ext.webapp import template
-
+from jinja2 import Environment, FileSystemLoader
 
 from tiddlyweb.model.policy import Policy, UserRequiredError
 from tiddlyweb.web.http import HTTP302
@@ -31,6 +30,8 @@ from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
 
 from tiddlyweb import control
+
+template_env = Environment(loader=FileSystemLoader('.'))
 
 def base(environ, start_response):
     """
@@ -83,8 +84,9 @@ def user(environ, start_response):
     start_response('200 OK', [
         ('Content-Type', 'text/html')
         ])
-    path = os.path.join(os.path.dirname(__file__), 'user.html')
-    return [template.render(path, template_values)]
+    template = template_env.get_template('user.html')
+    return template.generate(template_values)
+
 
 def submit(environ, start_response):
     """
@@ -99,10 +101,7 @@ def submit(environ, start_response):
     recent_recipe = _check_recipe('recent', environ, user)
     all_recipe = _check_recipe('all', environ, user)
 
-    length = environ['CONTENT_LENGTH']
-    content = environ['wsgi.input'].read(int(length))
-
-    tiddler = _make_tiddler(content, user)
+    tiddler = _make_tiddler(environ, user)
 
     bag = control.determine_bag_for_tiddler(all_recipe, tiddler)
     tiddler.bag = bag.name
@@ -125,11 +124,11 @@ def submit(environ, start_response):
 
     raise HTTP302, '%s/twoter/%s' % (server_base_url(environ), urllib.quote(user))
 
-def _make_tiddler(content, user):
+def _make_tiddler(environ, user):
     """
     Slice and dice the input to make it into a tiddler.
     """
-    posted_data = cgi.parse_qs(content)
+    posted_data = environ['tiddlyweb.query']
     charset = posted_data.get('charset', ['UTF-8'])[0]
     url = posted_data.get('url', [''])[0]
     title = posted_data.get('title', [''])[0]
@@ -182,7 +181,7 @@ def _check_bag(name, environ, user):
                 read=[uni_user], write=[uni_user],
                 delete=[uni_user], create=[uni_user])
         bag.policy = policy
-        bag.desc = 'Twotes for %s', uni_user;
+        bag.desc = 'Twotes for %s' % uni_user;
         store.put(bag)
     return bag
 
