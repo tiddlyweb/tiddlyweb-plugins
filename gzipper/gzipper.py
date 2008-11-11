@@ -45,7 +45,6 @@ class Gzipper(object):
         s = buffer.getvalue()
         buffer.close()
 
-        print s
         return [s]
 
 
