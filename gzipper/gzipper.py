@@ -27,25 +27,75 @@ class Gzipper(object):
             # nothing for us to do, so this middleware will
             # be a no-op:
             return self.application(environ, start_response)
-        def replacement_start_response(status, headers, exc_info=None):
-            _remove_header(headers, 'content-length')
+        wrapper = GzipWrapper(start_response, self.compress_level)
+        app_iter = self.application(environ, wrapper.gzip_start_response)
+
+        if app_iter:
+            wrapper.finish_response(app_iter)
+
+        return wrapper.write()
+
+
+class GzipWrapper(object):
+
+    def __init__(self, start_response, compress_level):
+        self.start_response = start_response
+        self.compress_level = compress_level
+        self.buffer = StringIO()
+        self.compressible = False
+        self.content_length = None
+
+    def gzip_start_response(self, status, headers, exc_info=None):
+        self.headers = headers
+        ct = _header_value(headers, 'content-type')
+        ce = _header_value(headers, 'content-encoding')
+        self.compressible = False
+        if ct and (ct.startswith('text/') or ct.startswith('application/')) \
+                and 'zip' not in ct:
+            self.compressible = True
+        if ce:
+            self.compressible = False
+        if self.compressible:
             headers.append(('content-encoding', 'gzip'))
-            return start_response(status, headers, exc_info)
+        _remove_header(headers, 'content-length')
+        self.headers = headers
+        self.status = status
+        return self.buffer.write
 
-        app_iter = self.application(environ, replacement_start_response)
+    def finish_response(self, app_iter):
+        if self.compressible:
+            output = gzip.GzipFile(mode='wb', compresslevel=self.compress_level,
+                    fileobj=self.buffer)
+        else:
+            output = self.buffer
 
-        buffer = StringIO()
-        gzipped = gzip.GzipFile(mode='wb', compresslevel=self.compress_level, fileobj=buffer)
+        try:
+            for s in app_iter:
+                output.write(s)
+            if self.compressible:
+                output.close()
+        finally:
+            if hasattr(app_iter, 'close'):
+                    app_iter.close()
+        content_length = self.buffer.tell()
+        self.headers.append(('content-length', content_length))
+        self.start_response(self.status, self.headers)
 
-        for s in app_iter:
-            gzipped.write(s)
-        gzipped.close()
-
-        buffer.seek(0)
-        s = buffer.getvalue()
-        buffer.close()
-
+    def write(self):
+        out = self.buffer
+        out.seek(0)
+        s = out.getvalue()
+        out.close()
         return [s]
+
+
+def _header_value(headers, name):
+    name = name.lower()
+    try:
+        found_value = [value for header,value in headers if header.lower() == name][0]
+    except IndexError:
+        found_value = None
+    return found_value
 
 
 def _remove_header(headers, name):
