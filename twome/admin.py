@@ -14,7 +14,7 @@ from tiddlyweb.model.user import User
 from jinja2 import Environment, FileSystemLoader
 template_env = Environment(loader=FileSystemLoader('templates'))
 
-from plugins import do_html, require_role, entitle
+from twplugins import do_html, require_role, entitle
 
 
 @do_html()

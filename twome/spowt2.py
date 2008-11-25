@@ -8,7 +8,7 @@ import urllib
 from jinja2 import Environment, FileSystemLoader
 template_env = Environment(loader=FileSystemLoader('templates'))
 
-from plugins import entitle, do_html
+from twplugins import entitle, do_html
 
 from tiddlyweb.web.http import HTTP302, HTTP409
 from tiddlyweb.model.recipe import Recipe

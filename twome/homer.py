@@ -10,7 +10,7 @@ from tiddlyweb.web.wsgi import HTMLPresenter
 def home(environ, start_response):
     template = template_env.get_template('home.html')
     environ['tiddlyweb.title'] = environ['tiddlyweb.config']['hometitle']
-    roles = environ['tiddlyweb.usersign']['roles']
+    roles = environ['tiddlyweb.usersign'].get('roles', [])
     admin = 'ADMIN' in roles
     start_response('200 OK', [('Content-Type', 'text/html')])
     return template.generate(
@@ -25,7 +25,7 @@ def replace_handler(selector, path, new_handler):
 
 
 def header_extra(self, environ):
-    return '<span id="homer" style="float:right"><a href="/">Home</a></span>'
+    return '<span id="homer" style="float:righto><a href="/">Home</a></span>'
 
 
 HTMLPresenter.header_extra = header_extra
