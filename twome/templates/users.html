@@ -1,0 +1,15 @@
+
+<div id="content">
+<table border=1>
+    <tr><th>Sign</th><th>Roles</th></tr>
+{% for user in users %}
+<tr>
+    <td>{{ user.usersign }}</td>
+    <td>{% for role in user.roles %}
+        '{{ role }}'
+        {% endfor %}</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>

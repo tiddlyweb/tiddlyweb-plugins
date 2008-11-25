@@ -1,0 +1,15 @@
+
+<div id="content">
+<table border=1>
+    <tr><th>Name</th><th>Policy</th><th>Bags</th><th>Tiddlers</th></tr>
+{% for recipe in recipes %}
+<tr>
+    <td>{{ recipe.name }}</td>
+    <td>Policy</td>
+    <td>Bags</td>
+    <td>Tiddlers</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>

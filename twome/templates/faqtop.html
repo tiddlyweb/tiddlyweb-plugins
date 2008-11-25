@@ -1,0 +1,18 @@
+
+<div id="content">
+<div><a href="/faq">FAQ Home</a></div>
+
+<ul>
+    {% for tag in categories %}
+    <li><a href="/faq/{{ tag }}">{{ tag }}</a>
+    <ul>
+        {% for tiddler in info[tag] %}
+        <li><a href="{{ tiddler.fields.url }}">{{ tiddler.title }}</a></li>
+        {% endfor %}
+    </ul>
+    </li>
+    {% endfor %}
+</ul>
+
+</div>
+

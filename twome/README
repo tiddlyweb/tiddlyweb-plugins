@@ -1,0 +1,19 @@
+
+A collection of plugins and etc for making a web site that
+is based on TiddlyWeb. Things to consider:
+
+* a home page
+* a tool for making your own TiddlyWeb served TiddlyWiki
+  that has particular editing capabilities (see spowt)
+* a documentation engine which presents tiddlers faqas (answers)
+* an admin interface that allows one to see what's on the 
+  server and do some useful stuff
+
+So that leads us to think we've got some things:
+
+* homer.py
+* spowt2.py
+* faqtwer.py
+* admin.py
+
+We'll want jinga nearby to make this happen.

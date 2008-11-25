@@ -1,0 +1,43 @@
+<div id="content">
+<link rel='stylesheet' type='text/css' href='/static/homer.css' />
+<div id='right'>
+<p>TiddlyWeb is, at base, a tool for storing small pieces of content
+known as tiddlers. Since it is based on familiar principles of the open
+web it is capable of many things. It is most often used to create and
+provide a server side store for TiddlyWikis.</p>
+
+<p>You are currently logged in as user {{ user }}. If you don't like
+that, <a href="/challenge?tiddlyweb_redirect=/">log in</a> as someone else.
+You don't need to be logged in unless you want to edit</p>
+
+<p>TiddlyWeb is open source software produced by an association of <a href="http://peermore.com/">Peermore Limited</a>,
+<a href="http://osmosoft.com/">Osmosoft</a> and <a href="http://unamesa.org">UnaMesa</a>
+with help from contributors scattered around the internet. You may enjoy reading the
+<a href="http://svn.tiddlywiki.org/Trunk/association/serversides/tiddlyweb/core/docs/CREDITS">CREDITS</a>
+file.<p>
+
+<p>
+<a href="http://peermore.com/"><img alt="peermore logo" src="/static/peermore.png" /></a>
+<a href="http://osmosoft.com/"><img alt="osmosoft logo" src="/static/osmosoft.png" /></a>
+<a href="http://unamesa.org/"><img alt="unamesa logo" src="/static/unamesa.png" /></a>
+</p>
+</div>
+<div id='left'>
+    <ul>
+        <li><a href="/news">News</a></li>
+        <li><a href="http://tiddlyweb.peermore.com/dist">Download</a></li>
+        <li><a
+            href="http://svn.tiddlywiki.org/Trunk/association/serversides/tiddlyweb/core">Source</a></li>
+        <li><a href="/docs">Documentation</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/spowt2">Get One Now</a></li>
+        {% if admin %}
+        <li><a href="/admin">Administrate</a></li>
+        {% endif %}
+    </ul>
+
+</div>
+
+<div style="clear:both"></div>
+
+</div>

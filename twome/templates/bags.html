@@ -1,0 +1,13 @@
+
+<div id="content">
+<table border=1>
+    <tr><th>Name</th><th>Policy</th><th>Tiddlers</th></tr>
+{% for bag in bags %}
+<tr>
+    <td>{{ bag.name }}</td>
+    <td>Policy</td>
+    <td>Tiddlers</td>
+</tr>
+{% endfor %}
+</table>
+</div>
