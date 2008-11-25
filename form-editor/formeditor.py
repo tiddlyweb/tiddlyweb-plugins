@@ -3,7 +3,6 @@ A plugin providing  web app for generating a
 tiddlywiki based editor for a single Tiddler.
 """
 
-import cgi
 import urllib
 
 from tiddlyweb import control
@@ -67,11 +66,11 @@ def get(environ, start_response):
         ])
 
     return """
-<form method="POST">
+<form action="/formeditor" method="POST">
 <textarea name="text" rows="10" cols="50">
 %s
 </textarea>
-<input type="hidden" name="tiddler" value="%s">
+<input type="hidden" name="title" value="%s">
 <input type="hidden" name="bag" value="%s">
 <input type="submit">
 <a href="%s">Cancel</a>
@@ -81,11 +80,9 @@ def get(environ, start_response):
 
 def post(environ, start_response):
     usersign = environ['tiddlyweb.usersign']
-    length = environ['CONTENT_LENGTH']
-    content = environ['wsgi.input'].read(int(length))
-    text = cgi.parse_qs(content).get('text', [''])[0]
-    title = cgi.parse_qs(content).get('tiddler', [''])[0]
-    bag = cgi.parse_qs(content).get('bag', [''])[0]
+    text = environ['tiddlyweb.query'].get('text', [''])[0]
+    title = environ['tiddlyweb.query'].get('title', [''])[0]
+    bag = environ['tiddlyweb.query'].get('bag', [''])[0]
 
     store = environ['tiddlyweb.store']
 
