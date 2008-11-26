@@ -5,10 +5,11 @@
 /bagname/1,2,3,4
 """
 import sys
-sys.path.append('.')
+sys.path.insert(0, '.')
 
 import os
 import os.path
+import shutil
 
 from tiddlyweb.config import config
 from tiddlyweb.store import Store
@@ -19,6 +20,9 @@ from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.model.user import User
 
 def setup_module(module):
+    if os.path.exists('store'):
+        shutil.rmtree('store')
+
     module.config = config
     module.store = Store('simpletext', environ={'tiddlyweb.config': config})
 
@@ -105,3 +109,10 @@ def test_list_recipes():
 
     assert len(recipes) == 1
     assert 'recipe1' in [recipe.name for recipe in recipes]
+
+def test_list_users():
+    users = store.list_users()
+
+    assert len(users) == 1
+    usernames = [user.usersign for user in users]
+    assert 'testuser' in usernames

@@ -16,6 +16,7 @@ import urllib
 from tiddlyweb.stores.text import Store as Text, _encode_filename
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.user import User
 
 class Store(Text):
 
@@ -33,6 +34,11 @@ class Store(Text):
         recipes = [file.replace('.recipe', '') for file in self._files_in_dir(self._store_root()) if file.endswith('.recipe')]
 
         return [Recipe(urllib.unquote(recipe).decode('utf-8')) for recipe in recipes]
+
+    def list_users(self):
+        users = [file.replace('.user', '') for file in self._files_in_dir(self._store_root()) if file.endswith('.user')]
+
+        return [User(urllib.unquote(user).decode('utf-8')) for user in users]
 
     def _dirs_in_dir(self, path):
         return [dir for dir in self._files_in_dir(path) if os.path.isdir(os.path.join(path, dir))]
