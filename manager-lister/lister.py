@@ -17,6 +17,16 @@ def _store():
     return Store(config['server_store'][0], environ={'tiddlyweb.config': config})
 
 @make_command()
+def lusers(args):
+    """List all the users on the system"""
+    store = _store()
+    users = store.list_users()
+    for user in users:
+        store.get(user)
+        print user.usersign, user.list_roles()
+
+
+@make_command()
 def lbags(args):
     """List all the bags on the system"""
     store = _store()
