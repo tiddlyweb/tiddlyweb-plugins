@@ -53,6 +53,3 @@ def ltiddlers(args):
 def init(config_in):
     global config
     config = config_in
-
-
-
