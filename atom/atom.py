@@ -108,7 +108,7 @@ class Serialization(HTMLSerialization):
                 )
 
     def _tiddler_datetime(self, date_string):
-        return datetime.datetime(*(time.strptime(date_string, '%Y%m%d%H%M')[0:6]))
+        return datetime.datetime(*(time.strptime(date_string, '%Y%m%d%H%M%S')[0:6]))
 
     def _server_url(self):
         try:
