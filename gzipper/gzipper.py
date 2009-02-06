@@ -10,6 +10,7 @@ Gzip-encodes the response.
 """
 
 import gzip
+import logging
 
 try:
     from cStringIO import StringIO
@@ -55,7 +56,10 @@ class GzipWrapper(object):
             self.compressible = True
         if ce:
             self.compressible = False
+        if status is not '200':
+            self.compressible = False
         if self.compressible:
+            logging.debug('setting content-encoding to gzip')
             headers.append(('content-encoding', 'gzip'))
         _remove_header(headers, 'content-length')
         self.headers = headers
@@ -110,19 +114,5 @@ def _remove_header(headers, name):
         i += 1
     return result
 
-# You will need the following tiddlywebconfig.py (or a 
-# derivation thereof.
-# from gzipper import Gzipper
-# from tiddlyweb.web.http import HTTPExceptor
-# from tiddlyweb.web.wsgi import StoreSet, EncodeUTF8, SimpleLog, HTMLPresenter, PermissionsExceptor
-# 
-# config = {
-#         'server_response_filters': [
-#             HTMLPresenter,
-#             PermissionsExceptor,
-#             HTTPExceptor,
-#             EncodeUTF8,
-#             SimpleLog,
-#             Gzipper
-#             ],
-#         }
+def init(config):
+    config['server_response_filters'].append(Gzipper)
