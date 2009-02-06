@@ -10,6 +10,9 @@ path in which we can find the static files.
 
 And we need to add 'static' to the system_plugins
 list.
+
+URL of the files that are found will be
+/<static_dir>/filename.
 """
 
 import mimetypes
@@ -22,6 +25,9 @@ DEFAULT_MIME_TYPE = 'application/octet-stream'
 def static(environ, start_response):
     pathname = environ['tiddlyweb.config']['static_dir']
     filename = environ['wsgiorg.routing_args'][1]['static_file']
+
+    if '../' in filename:
+        raise HTTP404('%s inavlid' % filename)
 
     full_path = os.path.join(pathname, filename)
     (mime_type, encoding) = mimetypes.guess_type(full_path)
@@ -42,4 +48,4 @@ def static(environ, start_response):
 
 def init(config):
     print "initializing static"
-    config['selector'].add('/static/{static_file:segment}', GET=static)
+    config['selector'].add('/%s/{static_file:segment}' % config['static_dir'], GET=static)
