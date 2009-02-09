@@ -1,0 +1,11 @@
+
+<h1>{{ message }} {{ name }}</h1>
+
+<h2>We have some bags:</h2>
+
+<ul>
+    {% for bag in bags %}
+    <li>{{ bag.name }}</li>
+    {% endfor %}
+</ul>
+
