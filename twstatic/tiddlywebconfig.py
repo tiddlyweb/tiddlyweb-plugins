@@ -8,7 +8,8 @@ tiddlyweb plugin.
 config = {
         'css_uri': '/static/tiddlyweb.css',
         'system_plugins': ['static'],
-        'static_dir': './static',
+        'static_dir': 'static',
+        'debug_level': 'DEBUG',
         }
     
 

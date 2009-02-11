@@ -37,7 +37,10 @@ def static(environ, start_response):
     if not os.path.exists(full_path):
         raise HTTP404('%s not found' % full_path)
 
-    static_file = file(full_path)
+    try:
+        static_file = file(full_path)
+    except IOError, exc:
+        raise HTTP404('%s not found: %s' % (full_path, exc))
 
     start_response('200 OK', [
         ('Content-Type', mime_type)
@@ -48,4 +51,4 @@ def static(environ, start_response):
 
 def init(config):
     print "initializing static"
-    config['selector'].add('/%s/{static_file:segment}' % config['static_dir'], GET=static)
+    config['selector'].add('/%s/{static_file:any}' % config['static_dir'], GET=static)
