@@ -1,0 +1,6 @@
+
+An in memory cache for (eventually) any store
+used with tiddlyweb. Decorates an existing store.
+
+This does not work yet, as it only works in one process
+which means cache invalidation is broken.
