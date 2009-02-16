@@ -41,7 +41,7 @@ def get(environ, start_response):
     else:
         recipe = Recipe(recipe_name)
         try:
-            store.get(recipe)
+            recipe = store.get(recipe)
             tiddler.bag = control.determine_tiddler_bag_from_recipe(recipe, tiddler).name
             tiddler.recipe = recipe.name
         except NoRecipeError, exc:
@@ -51,8 +51,8 @@ def get(environ, start_response):
 
     bag = Bag(tiddler.bag)
     try:
-        store.get(tiddler)
-        store.get(bag)
+        tiddler = store.get(tiddler)
+        bag = store.get(bag)
     except (NoTiddlerError, NoBagError), exc:
         raise HTTP404('tiddler %s not found: %s' % (tiddler.title, exc))
 
@@ -91,7 +91,7 @@ def post(environ, start_response):
     tiddler.modifier = usersign['name']
     bag = Bag(bag)
     try:
-        store.get(bag)
+        bag = store.get(bag)
     except NoBagError, exc:
         raise HTTP404('tiddler %s not found: %s' % (tiddler.title, exc))
 

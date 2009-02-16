@@ -17,9 +17,8 @@ FAQ_BAG = 'faqs'
 def faq(environ, start_response):
     store = environ['tiddlyweb.store']
     bag = Bag(FAQ_BAG)
-    store.get(bag)
-    tiddlers = bag.list_tiddlers()
-    [store.get(tiddler) for tiddler in tiddlers]
+    bag = store.get(bag)
+    tiddlers = [store.get(tiddler) for tiddler in bag.list_tiddlers()]
     categorical = {}
     for tiddler in tiddlers:
         tiddler.fields['url'] = tiddler_url(environ, tiddler)

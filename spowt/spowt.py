@@ -42,7 +42,7 @@ def new_wiki(environ, start_response):
     if wikiname:
         bag = Bag(wikiname)
         try:
-            store.get(bag)
+            bag = store.get(bag)
             raise HTTP409('The bag already exists')
         except NoBagError:
             bag.desc = 'hello'
@@ -70,7 +70,7 @@ def new_wiki(environ, start_response):
 
         recipe = Recipe(wikiname)
         try:
-            store.get(recipe)
+            recipe = store.get(recipe)
             raise HTTP409('That recipe already exists')
         except NoRecipeError:
             recipe.desc = 'hello'
@@ -82,7 +82,7 @@ def new_wiki(environ, start_response):
         user = User(username)
         note = ''
         try:
-            store.get(user)
+            user = store.get(user)
             note = user.note
         except NoUserError:
             pass
@@ -107,7 +107,7 @@ def userpage(environ, start_response):
     store = environ['tiddlyweb.store']
     user_data = User(user)
     try:
-        store.get(user_data)
+        user_data = store.get(user_data)
         wikinames = user_data.note.split('\n')
 
         wikis = []
@@ -116,7 +116,7 @@ def userpage(environ, start_response):
                 if not len(name):
                     continue
                 recipe = Recipe(name)
-                store.get(recipe)
+                recipe = store.get(recipe)
                 url = recipe_url(environ, recipe)
                 wikis.append(dict(
                     name=name,

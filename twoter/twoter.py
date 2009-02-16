@@ -113,7 +113,7 @@ def submit(environ, start_response):
     addendum = 2
     while 1:
         try:
-            store.get(tester_tiddler)
+            tester_tiddler = store.get(tester_tiddler)
             new_title = '%s-%s' % (original_title, addendum)
             tiddler.title = new_title
             tester_tiddler.title = new_title
@@ -153,7 +153,7 @@ def _check_recipe(name, environ, user):
     recipe_name = recipe_name.replace('.', '_')
     try:
         recipe = Recipe(recipe_name)
-        store.get(recipe)
+        recipe = store.get(recipe)
     except NoRecipeError:
         bag = _check_bag('all', environ, user)
         recipe.set_recipe([
@@ -174,7 +174,7 @@ def _check_bag(name, environ, user):
     name = name.replace('.', '_')
     try:
         bag = Bag(name)
-        store.get(bag)
+        bag = store.get(bag)
     except NoBagError:
         uni_user = unicode(user)
         policy = Policy(owner=uni_user, manage=[uni_user],

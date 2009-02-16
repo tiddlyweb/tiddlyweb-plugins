@@ -44,7 +44,7 @@ def test_store_recipe():
     assert os.path.exists('store/recipe1.recipe')
 
     loaded_recipe = Recipe('recipe1')
-    store.get(loaded_recipe)
+    loaded_recipe = store.get(loaded_recipe)
     assert loaded_recipe.desc == recipe.desc
 
 def test_store_bag():
@@ -58,7 +58,7 @@ def test_store_bag():
     assert os.path.exists('store/bag1/policy')
 
     loaded_bag = Bag('bag1')
-    store.get(loaded_bag)
+    loaded_bag = store.get(loaded_bag)
     assert loaded_bag.desc == bag.desc
 
 def test_store_user():
@@ -71,7 +71,7 @@ def test_store_user():
     assert os.path.exists('store/testuser.user')
 
     loaded_user = User('testuser')
-    store.get(loaded_user)
+    loaded_user = store.get(loaded_user)
 
     assert loaded_user.check_password('testpass')
 
@@ -86,12 +86,12 @@ def test_store_tiddler():
     assert os.path.exists('store/bag1/tiddler1/1')
 
     loaded_tiddler = Tiddler('tiddler1', 'bag1')
-    store.get(loaded_tiddler)
+    loaded_tiddler = store.get(loaded_tiddler)
     assert loaded_tiddler.text == tiddler.text
 
 def test_list_tiddlers():
     bag = Bag('bag1')
-    store.get(bag)
+    bag = store.get(bag)
 
     tiddlers = bag.list_tiddlers()
 

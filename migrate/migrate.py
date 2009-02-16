@@ -48,13 +48,13 @@ def migrate_users(source, target):
 def migrate_bags(source, target):
     print "migrate bags"
     for bag in source.list_bags():
-        source.get(bag)
+        bag = source.get(bag)
         tiddlers = bag.list_tiddlers()
         target.put(bag)
         for tiddler in tiddlers:
             for revision in source.list_tiddler_revisions(tiddler):
                 tiddler.revision = revision
-                source.get(tiddler)
+                tiddler = source.get(tiddler)
                 print "putting tiddler %s in bag %s" % (tiddler.title, tiddler.bag)
                 target.put(tiddler)
 

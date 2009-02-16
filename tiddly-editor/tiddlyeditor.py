@@ -42,7 +42,7 @@ def get(environ, start_response):
     else:
         recipe = Recipe(recipe_name)
         try:
-            store.get(recipe)
+            recipe = store.get(recipe)
             tiddler.bag = control.determine_tiddler_bag_from_recipe(recipe, tiddler).name
             tiddler.recipe = recipe.name
         except NoRecipeError, exc:
@@ -52,8 +52,8 @@ def get(environ, start_response):
 
     bag = Bag(tiddler.bag)
     try:
-        store.get(tiddler)
-        store.get(bag)
+        tiddler = store.get(tiddler)
+        bag = store.get(bag)
     except (NoTiddlerError, NoBagError), exc:
         raise HTTP404('tiddler %s not found: %s' % (tiddler.title, exc))
 
@@ -79,7 +79,7 @@ def get(environ, start_response):
 
     for required_tiddler in environ['tiddlyweb.config'].get('tiddlyeditor_tiddlers', []):
         r_tiddler = Tiddler(required_tiddler[1], required_tiddler[0])
-        store.get(r_tiddler)
+        r_tiddler = store.get(r_tiddler)
         output_bag.add_tiddler(r_tiddler)
 
     environ['tiddlyweb.type'] = 'text/x-tiddlywiki'

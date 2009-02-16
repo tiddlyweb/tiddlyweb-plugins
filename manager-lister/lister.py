@@ -22,7 +22,7 @@ def lusers(args):
     store = _store()
     users = store.list_users()
     for user in users:
-        store.get(user)
+        user = store.get(user)
         print user.usersign, user.list_roles()
 
 
@@ -32,7 +32,7 @@ def lbags(args):
     store = _store()
     bags = store.list_bags()
     for bag in bags:
-        store.get(bag)
+        bag = store.get(bag)
         print bag.name, bag.policy.owner
 
 
@@ -42,7 +42,7 @@ def lrecipes(args):
     store = _store()
     recipes = store.list_recipes()
     for recipe in recipes:
-        store.get(recipe)
+        recipe = store.get(recipe)
         print recipe.name, recipe.policy.owner
 
 
@@ -52,11 +52,11 @@ def ltiddlers(args):
     store = _store()
     bags = store.list_bags()
     for bag in bags:
-        store.get(bag)
+        bag = store.get(bag)
         print bag.name, bag.policy.owner
         tiddlers = bag.list_tiddlers()
         for tiddler in tiddlers:
-            store.get(tiddler)
+            tiddler = store.get(tiddler)
             print '  ', tiddler.title, tiddler.modifier
 
 
