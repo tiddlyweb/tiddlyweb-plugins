@@ -1,5 +1,5 @@
 
-import copy
+import logging
 import memcache
 
 from tiddlyweb.store import Store as StoreBoss
@@ -31,7 +31,7 @@ class Store(StorageInterface):
 
     def recipe_get(self, recipe):
         key = _recipe_key(recipe)
-        cached_recipe = MC.get(key)
+        cached_recipe = _get(key)
         if cached_recipe:
             recipe = cached_recipe
         else:
@@ -52,7 +52,7 @@ class Store(StorageInterface):
 
     def bag_get(self, bag):
         key = _bag_key(bag)
-        cached_bag = MC.get(key)
+        cached_bag = _get(key)
         if cached_bag:
             bag = cached_bag
         else:
@@ -74,7 +74,7 @@ class Store(StorageInterface):
     def tiddler_get(self, tiddler):
         key = _tiddler_key(tiddler)
         if not tiddler.revision or tiddler.revision == 0:
-            cached_tiddler = MC.get(key)
+            cached_tiddler = _get(key)
             if cached_tiddler:
                 tiddler = cached_tiddler
             else:
@@ -97,7 +97,7 @@ class Store(StorageInterface):
 
     def user_get(self, user):
         key = _user_key(user)
-        cached_user = MC.get(key)
+        cached_user = _get(key)
         if cached_user:
             user = cached_user
         else:
@@ -141,3 +141,10 @@ def _recipe_key(recipe):
     key = 'recipe:%s' % recipe.name
     return key.encode('UTF-8')
 
+def _get(key):
+    object = MC.get(key)
+    if object:
+        logging.debug('cache hit for %s' % key)
+    else:
+        logging.debug('cache miss for %s' % key)
+    return object
