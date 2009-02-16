@@ -1,6 +1,38 @@
 
-An in memory cache for (eventually) any store
+A memcached based cache for (eventually) any store
 used with tiddlyweb. Decorates an existing store.
 
-This does not work yet, as it only works in one process
-which means cache invalidation is broken.
+This has not been fully tested yet.
+
+To use you need several things. This is fairly complex stuff
+so don't expect to be able to turn it on and make it go (yet).
+
+* a memcached server
+* the python-memcached module
+* the following changes to your tiddlywebconfig.py:
+
+config = {
+        # set the server_store to be the caching.py module
+        'server_store': ['caching', {}],
+        # the host and port of one or more memcached servers.
+        # this is separate from server_store in case there are
+        # other things that want to use a memcached server
+        'memcache_hosts': ['127.0.0.1:11211'],
+        # the configuration of the base store which is 
+        # being cached by the caching store. It's structure
+        # is the same as server_store.
+        'cached_store': ['text', {'store_root': 'store'}],
+        }
+
+If you run this code against the TiddlyWeb core tests you should
+be aware that some of them will fail because the cache is not
+flushed between runs, so sometimes there are incorrect values
+in the cache.
+
+If you choose to use this in a production environment you will
+need to write some scripts which start, stop or clear the memcache
+cache upon each fresh start of the server. You must also keep in
+mind that if you edit data in your on disk store by hand, you need
+to remember to invalidate the in RAM cache through some mechanism.
+
+See above about this being fairly complex stuff.

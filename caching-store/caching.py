@@ -1,25 +1,14 @@
 
-from lrucache import LRUCache
-
-from cPickle import dumps, loads
+import copy
+import memcache
 
 from tiddlyweb.store import Store as StoreBoss
 from tiddlyweb.stores import StorageInterface
+from tiddlyweb.model.bag import Bag
 
-import copy
-from pprint import pprint
+from tiddlyweb.config import config
 
-original_set = LRUCache.__setitem__
-
-def set_with_copy(self, key, obj):
-    print "setting key %s" % key
-    pickle = dumps(obj)
-    return original_set(self, key, pickle)
-
-LRUCache.__setitem__ = set_with_copy
-
-CACHE = LRUCache(10000)
-
+MC = memcache.Client(config['memcache_hosts'])
 
 class Store(StorageInterface):
 
@@ -28,98 +17,98 @@ class Store(StorageInterface):
             environ = {}
         self.environ = environ
 
-        internal_store_config = {
+        internal_store_environ  = {
                 'tiddlyweb.config': {
-                    'server_store': ['text', {'store_root': 'store'}],
+                    'server_store': config['cached_store'],
                     }
                 }
-        self.cached_store = StoreBoss('text', environ=internal_store_config)
+        self.cached_store = StoreBoss('text', environ=internal_store_environ)
 
     def recipe_delete(self, recipe):
         key = _recipe_key(recipe)
-        if key in CACHE:
-            del CACHE[key]
+        MC.delete(key)
         self.cached_store.delete(recipe)
 
     def recipe_get(self, recipe):
         key = _recipe_key(recipe)
-        if key in CACHE:
-            print 'getting %s' % key
-            recipe = loads(CACHE[key])
+        cached_recipe = MC.get(key)
+        if cached_recipe:
+            recipe = cached_recipe
         else:
             recipe = self.cached_store.get(recipe)
-            CACHE[key] = recipe
+            MC.set(key, recipe)
         return recipe
 
     def recipe_put(self, recipe):
         key = _recipe_key(recipe)
         self.cached_store.put(recipe)
-        CACHE[key] = recipe
+        MC.delete(key)
 
     def bag_delete(self, bag):
         key = _bag_key(bag)
-        if key in CACHE:
-            del CACHE[key]
+        if MC.delete(key):
+            MC.delete_multi([_tiddler_key(tiddler) for tiddler in bag.list_tiddlers()])
         self.cached_store.delete(bag)
 
     def bag_get(self, bag):
         key = _bag_key(bag)
-        if key in CACHE:
-            print 'getting %s' % key
-            bag = loads(CACHE[key])
+        cached_bag = MC.get(key)
+        if cached_bag:
+            bag = cached_bag
         else:
             bag = self.cached_store.get(bag)
-            CACHE[key] = bag
+            MC.set(key, bag)
         return bag
 
     def bag_put(self, bag):
         key = _bag_key(bag)
         self.cached_store.put(bag)
-        CACHE[key] = bag
-
-    def user_delete(self, user):
-        key = _user_key(user)
-        if key in CACHE:
-            del CACHE[key]
-        self.cached_store.delete(user)
-
-    def user_get(self, user):
-        key = _user_key(user)
-        if key in CACHE:
-            print 'getting %s' % key
-            user = loads(CACHE[key])
-        else:
-            user = self.cached_store.get(user)
-            CACHE[key] = user
-        return user
-
-    def user_put(self, user):
-        key = _user_key(user)
-        self.cached_store.put(user)
-        CACHE[key] = user
+        MC.delete(key)
 
     def tiddler_delete(self, tiddler):
         key = _tiddler_key(tiddler)
-        if key in CACHE:
-            del CACHE[key]
+        if MC.delete(key):
+            MC.delete(_bag_key(Bag(tiddler.bag)))
         self.cached_store.delete(tiddler)
 
     def tiddler_get(self, tiddler):
         key = _tiddler_key(tiddler)
-        if not tiddler.revision or tiddler.revision == 0 and key in CACHE:
-            print 'getting %s' % key
-            tiddler = loads(CACHE[key])
+        if not tiddler.revision or tiddler.revision == 0:
+            cached_tiddler = MC.get(key)
+            if cached_tiddler:
+                tiddler = cached_tiddler
+            else:
+                tiddler = self.cached_store.get(tiddler)
+                MC.set(key, tiddler)
         else:
             tiddler = self.cached_store.get(tiddler)
-            CACHE[key] = tiddler
         return tiddler
 
     def tiddler_put(self, tiddler):
         key = _tiddler_key(tiddler)
         self.cached_store.put(tiddler)
-        bag_name = tiddler.bag
-        del CACHE['bag:' + bag_name]
-        CACHE[key] = tiddler
+        MC.delete(_bag_key(Bag(tiddler.bag)))
+        MC.delete(key)
+
+    def user_delete(self, user):
+        key = _user_key(user)
+        MC.delete(key)
+        self.cached_store.delete(user)
+
+    def user_get(self, user):
+        key = _user_key(user)
+        cached_user = MC.get(key)
+        if cached_user:
+            user = cached_user
+        else:
+            user = self.cached_store.get(user)
+            MC.set(key, user)
+        return user
+
+    def user_put(self, user):
+        key = _user_key(user)
+        self.cached_store.put(user)
+        MC.delete(key)
 
     def list_recipes(self):
         return self.cached_store.list_recipes()
@@ -137,14 +126,18 @@ class Store(StorageInterface):
         return self.cached_store.search(search_query)
 
 def _tiddler_key(tiddler):
-    return 'tiddler:%s/%s' % (tiddler.bag, tiddler.title)
+    key = 'tiddler:%s/%s' % (tiddler.bag, tiddler.title)
+    return key.encode('UTF-8')
 
 def _user_key(user):
-    return 'user:%s' % user.name
+    key = 'user:%s' % user.usersign
+    return key.encode('UTF-8')
 
 def _bag_key(bag):
-    return 'bag:%s' % bag.name
+    key = 'bag:%s' % bag.name
+    return key.encode('UTF-8')
 
 def _recipe_key(recipe):
-    return 'recipe:%s' % recipe.name
+    key = 'recipe:%s' % recipe.name
+    return key.encode('UTF-8')
 
