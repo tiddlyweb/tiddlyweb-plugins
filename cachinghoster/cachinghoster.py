@@ -44,7 +44,7 @@ def tiddler_written_handler(self, tiddler):
         logging.debug('attempting to unlink cache')
         [os.unlink(os.path.join(WIKI_CACHE_DIR, file)) for file in
                 os.listdir(WIKI_CACHE_DIR) if not file.startswith('.')]
-    except IOError, exc:
+    except (IOError, OSError), exc:
         logging.warn('unable to unlink in %s: %s' % (WIKI_CACHE_DIR, exc))
 
 # note this is a dependency on the text store, which is _bad_
@@ -76,7 +76,7 @@ def home(environ, start_response):
             ('Content-Type', 'text/html; charset=UTF-8'),
             ('Etag', out_etag),
             ])
-    except IOError, exc:
+    except (IOError, OSError), exc:
         logging.debug('cache miss for %s: %s' % (recipe_name, exc))
         environ['wsgiorg.routing_args'][1]['recipe_name'] = recipe_name
         environ['tiddlyweb.type'] = 'text/x-tiddlywiki'
@@ -118,7 +118,7 @@ def _write_cache(name, etag, output):
 def init(config):
     try:
         os.mkdir(WIKI_CACHE_DIR)
-    except OSError, exc:
+    except (IOError, OSError), exc:
         logging.warn('unable to create %s: %s' % (WIKI_CACHE_DIR, exc))
     replace_handler(config['selector'], '/', dict(GET=home))
 
