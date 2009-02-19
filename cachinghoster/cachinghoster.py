@@ -112,7 +112,14 @@ def _write_cache(name, etag, output):
     file.write(content.encode('UTF-8'))
     file.close()
     logging.debug('attempt to write %s to cache' % name)
-    os.symlink(os.path.abspath(etag_filename), os.path.abspath(link_filename))
+    destination_filename = os.path.abspath(link_filename)
+    try:
+        if os.path.exists(destination_filename):
+            os.unlink(destination_filename)
+        os.symlink(os.path.abspath(etag_filename), destination_filename)
+    except (IOError, OSError), exc:
+        logging.warn('unable to link %s <- %s: %s' % (etag_filename, link_filename, exc))
+
 
 
 def init(config):
