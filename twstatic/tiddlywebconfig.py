@@ -9,7 +9,7 @@ config = {
         'css_uri': '/static/tiddlyweb.css',
         'system_plugins': ['static'],
         'static_dir': 'static',
-        'debug_level': 'DEBUG',
+        'log_level': 'DEBUG',
         }
     
 
