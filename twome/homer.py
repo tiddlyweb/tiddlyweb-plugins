@@ -32,5 +32,4 @@ HTMLPresenter.header_extra = header_extra
 
 
 def init(config):
-    print "initializing homer"
     replace_handler(config['selector'], '/', dict(GET=home))

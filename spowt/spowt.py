@@ -143,7 +143,6 @@ def replace_handler(selector, path, new_handler):
 
 
 def init(config):
-    print "initializing spowt"
     #replace_handler(config['selector'], '/', dict(GET=spowt))
     config['selector'].add('/spowt', GET=spowt, POST=new_wiki)
     config['selector'].add('/spowt/{user:segment}', GET=userpage)

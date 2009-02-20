@@ -41,5 +41,4 @@ def static(environ, start_response):
 
 
 def init(config):
-    print "initializing static"
     config['selector'].add('/static/{static_file:segment}', GET=static)

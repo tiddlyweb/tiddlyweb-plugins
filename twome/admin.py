@@ -63,7 +63,6 @@ def users(environ, start_respons):
 
 
 def init(config):
-    print "initializing admin"
     config['selector'].add('/admin', GET=admin)
     config['selector'].add('/admin/recipes', GET=recipes)
     config['selector'].add('/admin/bags', GET=bags)

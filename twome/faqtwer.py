@@ -40,6 +40,5 @@ def faq(environ, start_response):
 
 
 def init(config):
-    print "initializing faqtwer"
     config['selector'].add('/faq', GET=faq)
     config['selector'].add('/faq/{category}', GET=faq)

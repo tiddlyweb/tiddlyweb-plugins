@@ -50,5 +50,4 @@ def static(environ, start_response):
 
 
 def init(config):
-    print "initializing static"
     config['selector'].add('/%s/{static_file:any}' % config['static_dir'], GET=static)
