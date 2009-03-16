@@ -1,0 +1,12 @@
+
+Give a JSON report on the current state of the server:
+
+* current user
+* tiddlyweb version
+
+Other things to consider for future versions:
+
+* store being used
+* available serializations
+* available challengers
+* available extractors
