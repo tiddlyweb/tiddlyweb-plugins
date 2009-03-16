@@ -26,7 +26,7 @@ eventually work through tiddlywebconfig.py.
 import logging
 import os
 
-from twplugins import replace_handler
+from tiddlywebplugins import replace_handler
 from tiddlyweb.web.handler.recipe import get_tiddlers
 from tiddlyweb.web.http import HTTP304
 

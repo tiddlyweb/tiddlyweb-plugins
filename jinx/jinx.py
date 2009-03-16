@@ -2,7 +2,7 @@
 from jinja2 import Environment, FileSystemLoader
 template_env = Environment(loader=FileSystemLoader('templates'))
 
-from twplugins import do_html, entitle, require_any_user
+from tiddlywebplugins import do_html, entitle, require_any_user
 
 @do_html()
 @entitle('Hello World')

@@ -8,7 +8,7 @@ template_env = Environment(loader=FileSystemLoader('templates'))
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.web.util import tiddler_url
 
-from twplugins import do_html, entitle
+from tiddlywebplugins import do_html, entitle
 
 FAQ_BAG = 'faqs'
 
