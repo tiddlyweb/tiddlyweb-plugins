@@ -1,0 +1,39 @@
+<style>
+    #resource {
+        display: none;
+    }
+    #msg {
+        color: red;
+    }
+    .data + div {
+        display: none;
+    }
+    #resource > div > ul > li > p:last-child {
+        display: none;
+    }
+    #resource > div > ul > li > p:last-child > ul {
+        display: none;
+    }
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.js"
+        type="text/javascript"></script>
+<script src="/static/js/elmo.js"
+        type="text/javascript"></script>
+<script type="text/javascript">
+     $(function(){
+             elmo_init();
+     });
+</script>
+<div id="content">
+    <div id="msg"></div>
+    <div id="meat">
+        <h1>Click to Start.</h1>
+    </div>
+    <div id="resource">
+        <h2 class="data recipes">Recipes</h2>
+        <div><ul></ul></div>
+        <h2 class="data bags">Bags</h2>
+        <div><ul></ul></div>
+    </div>
+</div>
+
