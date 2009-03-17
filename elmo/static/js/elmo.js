@@ -26,13 +26,13 @@ function manage_resource(element, parent_resource) {
     var base_url = window.location.href;
     base_url = base_url.substring(0, base_url.lastIndexOf("/")) + '/' + parent_resource + '/' + resource;
     $.getJSON(base_url + '.json', '', function(data){
-        $(element).empty();
-        $(element).html('<a href="">Tiddlers</a>' + ' desc: ' + data.desc + '<ul></ul>');
-        $(element).find('a').click(function(event){
-            $(element).find('ul').toggle("fast", function(){
-                if($(this).is(":visible")) {
-                    get_tiddlers(this, element, base_url);
-                }
+        $(element).empty().
+            html('desc: ' + data.desc + '<br/><a href="">Tiddlers</a>' + '<ul></ul>').
+            find('a').click(function(event){
+                $(element).find('ul').toggle("fast", function(){
+                    if($(this).is(":visible")) {
+                        get_tiddlers(this, element, base_url);
+                    }
             });
             event.preventDefault();
             event.stopPropagation();
@@ -43,12 +43,11 @@ function manage_resource(element, parent_resource) {
 function get_tiddlers(link, where, url) {
     var tiddlers_url = url + '/tiddlers';
     $.getJSON(tiddlers_url + '.json', '', function(data){
-        //$(where).remove('ul');
-        //$(where).append('<ul></ul>');
         var list = $(where).find('ul');
         list.empty();
         $.each(data, function(i, item){
-            $(list).append('<li>' + item.title + '</li>');
+            // do more here
+            list.append('<li>' + item.title + '</li>');
         });
     });
 }
