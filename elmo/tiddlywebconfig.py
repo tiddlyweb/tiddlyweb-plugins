@@ -1,6 +1,6 @@
 config = {
         'system_plugins': ['static', 'elmo'],
         'static_dir': 'static',
-        'css_uri': 'http://peermore.com/tiddlyweb.css',
+        'css_uri': '/static/elmo.css',
         'log_level': 'DEBUG',
         }

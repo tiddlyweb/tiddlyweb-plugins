@@ -7,13 +7,13 @@ function manage_list_resource(element) {
     base_url = base_url.substring(0, base_url.lastIndexOf("/")) + '/' + resource;
     $.getJSON(base_url + '.json', '', function(data){
         var list = $(element).children('ul');
-        list.empty();
+        list.empty(); // why not chain this?
         $.each(data, function(i, item){
             list.append('<li><p>' + item + '</p><p></p></li>');
         });
-        list.find("li").click(function(event){
+        list.find("li").click(function(event) {
             $(this).find('p:last').toggle("fast", function() {
-                if ($(this).is(":visible")) {
+                if($(this).is(":visible")) {
                     manage_resource(this, resource);
                 }
             });

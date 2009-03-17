@@ -1,0 +1,21 @@
+@import "http://peermore.com/tiddlyweb.css";
+
+#resource {
+    display: none;
+}
+
+#msg {
+    color: red;
+}
+
+.data + div {
+    display: none;
+}
+
+#resource > div > ul > li > p:last-child {
+    display: none;
+}
+
+#resource > div > ul > li > p:last-child > ul {
+    display: none;
+}
