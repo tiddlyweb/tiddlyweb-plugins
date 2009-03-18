@@ -20,8 +20,7 @@ from tiddlyweb.model.user import User
 
 class Store(Text):
 
-    def __init__(self, environ={}):
-        self.environ = environ
+    def _init_store(self):
         if not os.path.exists(self._store_root()):
             os.mkdir(self._store_root())
 
