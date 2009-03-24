@@ -1,0 +1,36 @@
+
+tiddlywebweb is a plugin for TiddlyWeb that allows the use
+of a different TiddlyWeb instance as its datastore.
+
+It has been created for several reasons:
+
+* To demonstrate the extensibility and flexibility of the TiddlyWeb
+  system. Including "code A does not need to be near code B".
+* To stimulate the creation a python-based client side library for
+  accessing TiddlyWeb.
+* To prove (as in test) the system.
+* To enable a platform for performance testing.
+* To confirm HTTP cache header handling.
+* To do the luscious CSci wankery of self-hosting.
+
+The primary change is the creation of a StorageInterface that 
+uses httplib2 to talk to a different tiddlyweb server, sending 
+and receiving JSON.
+
+What we should end up with are:
+
+tiddlywebweb/tiddlywebstore.py: implements StorageInterface
+tiddlywebconfig.py: required configuration directives
+
+Look at test_me() in tiddlywebweb/tiddlywebstore.py for some
+sample test code that goes through the motions of retrieving
+content from http://tiddlyweb.peermore.com/, the TiddlyWeb
+home site.
+
+Likely issues include:
+
+* Authentication and Authorization completely left out for now.
+* Does TiddlyWeb cache well enough?
+
+See this blog posting for some relatively old information:
+http://cdent.tumblr.com/post/46209623/webs-of-tiddlywebs-with-tiddlywebweb
