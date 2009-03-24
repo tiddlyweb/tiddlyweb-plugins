@@ -1,0 +1,11 @@
+static.py is a simple plugin to deliver static content read from disk
+via the tiddlyweb code. This is only useful if you are using the 
+cherrypy webserver that ships with TiddlyWeb. If you are not, for 
+example if you are using Apache, then have that web server deliver 
+static content. It will be much more efficient.
+
+See the code for installation and configuration information.
+
+If you are not familiar with TiddlyWeb plugins see:
+
+   http://tiddlyweb.peermore.com/wiki/#plugins
