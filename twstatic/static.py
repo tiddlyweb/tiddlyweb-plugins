@@ -1,18 +1,27 @@
 """
 A TiddlyWeb plugin for delivering static files.
-Very simple at this point. It should handle
+Very simple at this point. It ought to handle
 caching headers, modification time and the like,
-but we don't care about that just yet.
+but thus far it does not. Please provide patches
+if you make those sorts of changes.
 
-To use this we need to set 'static_dir' in
-tiddlywebconfig.py to an absolute or relative
-path in which we can find the static files.
+To use this set 'static_dir' in tiddlywebconfig.py to
+an absolute or relative (to the instance) path in
+which we can find the static files.
 
-And we need to add 'static' to the system_plugins
-list.
+Add 'static' to the system_plugins list.
 
-URL of the files that are found will be
+The URL of the static files will be
 /<static_dir>/filename.
+
+Here is sample configuration to put in tiddlywebconfig.py
+
+    config = {
+            'css_uri': '/static/tiddlyweb.css',
+            'system_plugins': ['static'],
+            'static_dir': 'static',
+            'log_level': 'DEBUG',
+            }
 """
 
 import mimetypes
