@@ -40,7 +40,7 @@ class Store(StorageInterface):
             pass
         if count[0] == 'NO':
             return bag
-        if hasattr(bag, 'notiddlers') and bag.notiddlers:
+        if hasattr(bag, 'skinny') and bag.skinny:
             return bag
 
         typ, data = self.imap.search(None, 'ALL')
