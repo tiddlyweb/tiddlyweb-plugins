@@ -1,4 +1,4 @@
 
 config = {
-        'manager_plugins': ['lister'],
+        'twanager_plugins': ['lister'],
         }

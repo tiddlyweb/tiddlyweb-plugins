@@ -31,9 +31,13 @@ def lbags(args):
     """List all the bags on the system"""
     store = _store()
     bags = store.list_bags()
+    serializer = Serializer('json')
     for bag in bags:
         bag = store.get(bag)
-        print bag.name, bag.policy.owner
+        serializer.object = bag
+        print 'Name: %s' % bag.name
+        print serializer.to_string()
+        print
 
 
 @make_command()
