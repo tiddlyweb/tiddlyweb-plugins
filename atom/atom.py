@@ -28,6 +28,7 @@ from xml.sax.saxutils import XMLGenerator
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.serializations.html import Serialization as HTMLSerialization
 from tiddlyweb.wikklyhtml import wikitext_to_wikklyhtml
+from tiddlyweb.web.util import server_base_url
 
 class Serialization(HTMLSerialization):
 
@@ -49,20 +50,21 @@ class Serialization(HTMLSerialization):
         """
         tiddlers = bag.list_tiddlers()
         recipe = tiddlers[0].recipe
+        bag_name = tiddlers[0].bag
 
         if recipe:
             feed = Atom1Feed(
                     title=u'Tiddlers in Recipe %s' % recipe,
-                    link=u'%srecipes/%s/tiddlers' % (self._server_url(), iri_to_uri(recipe)),
+                    link=u'%s/recipes/%s/tiddlers' % (self._server_url(), iri_to_uri(recipe)),
                     language=u'en',
                     description=u'the tiddlers of recipe %s' % recipe
                     )
         else:
             feed = Atom1Feed(
-                    title=u'Tiddlers in Bag %s' % bag.name,
-                    link=u'%sbags/%s/tiddlers' % (self._server_url(), iri_to_uri(bag.name)),
+                    title=u'Tiddlers in Bag %s' % bag_name,
+                    link=u'%s/bags/%s/tiddlers' % (self._server_url(), iri_to_uri(bag_name)),
                     language=u'en',
-                    description=u'the tiddlers of bag %s' % bag.name
+                    description=u'the tiddlers of bag %s' % bag_name
                     )
         for tiddler in tiddlers:
             self._add_tiddler_to_feed(feed, tiddler)
@@ -72,10 +74,10 @@ class Serialization(HTMLSerialization):
 
     def tiddler_as(self, tiddler):
         if tiddler.recipe:
-            link = u'%srecipes/%s/tiddlers/%s' % \
+            link = u'%s/recipes/%s/tiddlers/%s' % \
                     (self._server_url(), iri_to_uri(tiddler.recipe), iri_to_uri(tiddler.title))
         else:
-            link = u'%sbags/%s/tiddlers/%s' % \
+            link = u'%s/bags/%s/tiddlers/%s' % \
                     (self._server_url(), iri_to_uri(tiddler.bag), iri_to_uri(tiddler.title))
         feed = Atom1Feed(
                 title=u'%s' % tiddler.title,
@@ -89,17 +91,17 @@ class Serialization(HTMLSerialization):
     def _add_tiddler_to_feed(self, feed, tiddler):
         if tiddler.recipe:
             tiddler_link = 'recipes/%s/tiddlers' % tiddler.recipe
-            link = u'%srecipes/%s/tiddlers/%s' % \
+            link = u'%s/recipes/%s/tiddlers/%s' % \
                     (self._server_url(), iri_to_uri(tiddler.recipe), iri_to_uri(tiddler.title))
         else:
             tiddler_link = 'bags/%s/tiddlers' % tiddler.bag
-            link = u'%sbags/%s/tiddlers/%s' % \
+            link = u'%s/bags/%s/tiddlers/%s' % \
                     (self._server_url(), iri_to_uri(tiddler.bag), iri_to_uri(tiddler.title))
 
         if tiddler.type and tiddler.type != 'None':
             description = 'Binary Content'
         else:
-            description = wikitext_to_wikklyhtml(self._server_url(), tiddler_link, tiddler.text)
+            description = wikitext_to_wikklyhtml(self._server_url() + '/', tiddler_link, tiddler.text)
         feed.add_item(title=tiddler.title,
                 link=link,
                 description=description,
@@ -111,22 +113,12 @@ class Serialization(HTMLSerialization):
         return datetime.datetime(*(time.strptime(date_string, '%Y%m%d%H%M%S')[0:6]))
 
     def _server_url(self):
-        try:
-            server_host = self.environ['tiddlyweb.config']['server_host']
-            port = str(server_host['port'])
-            if port == '80' or port == '443':
-                port = ''
-            else:
-                port = ':%s' % port
-            host = '%s://%s%s/' % (server_host['scheme'], server_host['host'], port)
-        except KeyError:
-            host = '/'
-        return host
+        return server_base_url(self.environ)
+
 
 """
 Atom feed generation from django.
 """
-
 class SimplerXMLGenerator(XMLGenerator):
     def addQuickElement(self, name, contents=None, attrs=None):
         "Convenience method for adding an element with no children"
