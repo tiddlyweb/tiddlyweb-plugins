@@ -26,54 +26,13 @@
 
 
 import wsgiref.handlers
-import urllib
 
-from tiddlyweb.web.serve import load_app, config
-from tiddlyweb.web.wsgi import SimpleLog
-
-
-class ScriptCleanup(object):
-
-    def __init__(self, application):
-        self.application = application
-
-    def __call__(self, environ, start_response):
-        environ['PATH_INFO'] = urllib.unquote(environ['PATH_INFO'])
-        return self.application(environ, start_response)
-
-app = None
-
-
-def google_app():
-    """
-    Only calculate the app once, otherwise we recalculate the
-    config settings with every request, which is not happy.
-    """
-    global app
-    if app:
-        return app
-
-    host = 'tiddlyweb.appspot.com'
-    port = 80
-    #host = 'localhost'
-    #port = 8000
-    filename = config['urls_map']
-
-    filters_in = config['server_request_filters']
-    filters_in.insert(0, ScriptCleanup)
-
-    filters_out = config['server_response_filters']
-    try:
-        filters_out.remove(SimpleLog)
-    except ValueError:
-        pass # it wasn't in there
-
-    app = load_app(host, port, filename)
-    return app
+from tiddlyweb.web.serve import load_app
 
 
 def main():
-    wsgiref.handlers.CGIHandler().run(google_app())
+    wsgiref.handlers.CGIHandler().run(load_app())
+
 
 if __name__ == '__main__':
     main()

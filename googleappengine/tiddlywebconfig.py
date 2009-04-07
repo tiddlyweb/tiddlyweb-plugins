@@ -1,3 +1,17 @@
+import os
+
+if os.environ['SERVER_SOFTWARE'].startswith('Dev'):
+    server_host = {
+            'scheme': 'http',
+            'host': 'localhost',
+            'port': '8000',
+            }
+else:
+    server_host = {
+            'scheme': 'http',
+            'host': 'tiddlyweb.appspot.com',
+            'port': '80',
+            }
 
 config = {
         'server_store': ['googledata', {}],
@@ -11,5 +25,6 @@ config = {
         'extractors': ['google_user_extractor'],
         'auth_systems': ['google_user_challenger'],
         'css_uri': '/static/tiddlyweb.css',
-        'system_plugins': ['twoter'],
+        #'system_plugins': ['twoter'],
+        'server_host': server_host,
         }
