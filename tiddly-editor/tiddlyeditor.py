@@ -62,24 +62,23 @@ def get(environ, start_response):
     output_bag = Bag('output', tmpbag=True)
     output_bag.add_tiddler(tiddler)
 
-    editor_tiddler = Tiddler('EditorMenu', 'tmp')
-    editor_tiddler.text = '![[Back to TiddlyWeb|%s]]' % tiddler_url(environ, tiddler)
-    output_bag.add_tiddler(editor_tiddler)
+    def add_magic_tiddler(bag, title, text):
+        tiddler = Tiddler(title, 'tmp')
+        tiddler.text = text
+        tiddler.tags = ['excludeLists']
+        bag.add_tiddler(tiddler)
 
-    default_tiddler = Tiddler('DefaultTiddlers', 'tmp')
-    default_tiddler.text = 'EditorMenu\n%s' % tiddler_name
-    output_bag.add_tiddler(default_tiddler)
-
-    site_title_tiddler = Tiddler('SiteTitle', 'tmp')
-    site_title_tiddler.text = 'Editor for %s' % tiddler_name
-    site_subtitle_tiddler = Tiddler('SiteSubtitle', 'tmp')
-    site_subtitle_tiddler.text = ''
-    output_bag.add_tiddler(site_title_tiddler)
-    output_bag.add_tiddler(site_subtitle_tiddler)
+    add_magic_tiddler(output_bag, 'MainMenu', '[[Back to TiddlyWeb|%s]]' % tiddler_url(environ, tiddler))
+    add_magic_tiddler(output_bag, 'DefaultTiddlers', '[[%s]]' % tiddler_name)
+    add_magic_tiddler(output_bag, 'SiteTitle', 'Editor for %s' % tiddler_name)
+    add_magic_tiddler(output_bag, 'SiteSubtitle', '')
+    add_magic_tiddler(output_bag, 'SideBarOptions', '')
 
     for required_tiddler in environ['tiddlyweb.config'].get('tiddlyeditor_tiddlers', []):
         r_tiddler = Tiddler(required_tiddler[1], required_tiddler[0])
         r_tiddler = store.get(r_tiddler)
+        if 'excludeLists' not in r_tiddler.tags:
+            r_tiddler.tags.append('excludeLists')
         output_bag.add_tiddler(r_tiddler)
 
     environ['tiddlyweb.type'] = 'text/x-tiddlywiki'
@@ -93,10 +92,11 @@ def edit_link(self, environ):
         recipe_name = environ['wsgiorg.routing_args'][1].get('recipe_name', '')
         bag_name = environ['wsgiorg.routing_args'][1].get('bag_name', '')
         revision = environ['wsgiorg.routing_args'][1].get('revision', None)
+        server_prefix = environ['tiddlyweb.config']['server_prefix']
 
         if tiddler_name and not revision:
-            return output + '<div id="edit"><a href="/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
-                    % (tiddler_name, bag_name, recipe_name)
+            return output + '<div id="edit"><a href="%s/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
+                    % (server_prefix, tiddler_name, bag_name, recipe_name)
     return output
 
 
