@@ -62,17 +62,17 @@ def get(environ, start_response):
     output_bag = Bag('output', tmpbag=True)
     output_bag.add_tiddler(tiddler)
 
-    editor_tiddler = Tiddler('EditorMenu')
+    editor_tiddler = Tiddler('EditorMenu', 'tmp')
     editor_tiddler.text = '![[Back to TiddlyWeb|%s]]' % tiddler_url(environ, tiddler)
     output_bag.add_tiddler(editor_tiddler)
 
-    default_tiddler = Tiddler('DefaultTiddlers')
+    default_tiddler = Tiddler('DefaultTiddlers', 'tmp')
     default_tiddler.text = 'EditorMenu\n%s' % tiddler_name
     output_bag.add_tiddler(default_tiddler)
 
-    site_title_tiddler = Tiddler('SiteTitle')
+    site_title_tiddler = Tiddler('SiteTitle', 'tmp')
     site_title_tiddler.text = 'Editor for %s' % tiddler_name
-    site_subtitle_tiddler = Tiddler('SiteSubtitle')
+    site_subtitle_tiddler = Tiddler('SiteSubtitle', 'tmp')
     site_subtitle_tiddler.text = ''
     output_bag.add_tiddler(site_title_tiddler)
     output_bag.add_tiddler(site_subtitle_tiddler)
@@ -99,9 +99,10 @@ def edit_link(self, environ):
                     % (tiddler_name, bag_name, recipe_name)
     return output
 
+
 HTMLPresenter.original_footer_extra = HTMLPresenter.footer_extra
 HTMLPresenter.footer_extra = edit_link
 
+
 def init(config):
     config['selector'].add('/tiddlyeditor', GET=get)
-
