@@ -1,6 +1,6 @@
 """
-A plugin providing  web app for generating a
-tiddlywiki based editor for a single Tiddler.
+A plugin providing a web app for generating a
+TiddlyWiki-based editor for a single tiddler.
 """
 
 import urllib
@@ -19,8 +19,7 @@ from tiddlyweb.web.wsgi import HTMLPresenter
 
 def get(environ, start_response):
     """
-    Using query parameters, determine the
-    tiddler we are currently working with
+    Using query parameters, determine the current tiddler
     and produce an editor for it.
     """
     usersign = environ['tiddlyweb.usersign']
