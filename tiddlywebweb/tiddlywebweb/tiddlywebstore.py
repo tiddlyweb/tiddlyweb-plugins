@@ -180,7 +180,7 @@ class Store(StorageInterface):
             return []
 
 def _encode_name(name):
-    name = urllib.quote(name.encode('UTF-8'))
+    name = urllib.quote(name.encode('UTF-8'), safe='') # encode /
     logging.debug(name)
     return name
 
