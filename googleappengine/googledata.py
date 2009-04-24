@@ -195,6 +195,8 @@ class Store(StorageInterface):
         gdtiddler.modifier = tiddler.modifier
         gdtiddler.modified = tiddler.modified
         gdtiddler.created = tiddler.created
+        if not tiddler.text:
+            tiddler.text = ''
         gdtiddler.text = tiddler.text
         gdtiddler.tags = tiddler.tags
         gdtiddler.type = tiddler.type
