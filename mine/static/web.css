@@ -8,8 +8,12 @@
     margin-bottom: 1em;
 }
 
-form {
+.container form {
     margin: .5em;
     padding: .5em;
     border: thin dotted black;
+}
+
+abbr {
+    border-top: thin dotted black;
 }

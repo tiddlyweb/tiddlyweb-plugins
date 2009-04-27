@@ -2,10 +2,12 @@
 A my wiki kind of thing.
 """
 
+import logging
 import urllib
 
 from jinja2 import Environment, FileSystemLoader
 
+from tiddlyweb.web.http import HTTP400, HTTP302
 from tiddlywebplugins import do_html, entitle
 
 
@@ -30,7 +32,7 @@ Create and manage <a href='http://tiddlyweb.peermore.com/wiki/#TiddlyWebWiki'>Ti
         template_name = 'mine.html'
         myrecipes = _my_recipes(environ, recipes)
         bags = _readable_bags(environ)
-        message = 'Hello!'
+        message = ''
     template = template_env.get_template(template_name)
     return template.generate(
             login_link=login_link,
@@ -39,6 +41,36 @@ Create and manage <a href='http://tiddlyweb.peermore.com/wiki/#TiddlyWebWiki'>Ti
             myrecipes=myrecipes,
             bags=bags,
             message=message)
+
+
+def manage_mine(environ, start_response):
+    """Handle POST"""
+    # put a try around this stuff eventually
+    logging.debug(environ)
+    creation = environ['tiddlyweb.query']['creatego'][0]
+    if creation == 'Quick!':
+        _quick_create(environ)
+    elif creation == 'Create Recipe':
+        _create_recipe(environ)
+    elif creation == 'Create Bag':
+        _create_bag(environ)
+    else:
+        raise HTTP400('Improper Form Submit')
+    home_uri = '%s/mine' % environ['tiddlyweb.config']['server_prefix']
+    raise HTTP302(home_uri)
+
+def _quick_create(environ):
+    pass
+
+def _create_recipe(environ):
+    pass
+
+def _create_bag(environ):
+    pass
+
+
+def init(config):
+    config['selector'].add('/mine', GET=mine, POST=manage_mine)
 
 
 def _readable_bags(environ):
@@ -53,6 +85,7 @@ def _readable_bags(environ):
         except(UserRequiredError, ForbiddenError):
             pass
     return kept_bags
+
 
 def _readable_recipes(environ):
     store = environ['tiddlyweb.store']
@@ -75,11 +108,3 @@ def _my_recipes(environ, recipes):
         if recipe.policy.owner == user:
             kept_recipes.append(recipe)
     return kept_recipes
-
-
-def manage_mine(environ, start_response):
-    pass
-
-
-def init(config):
-    config['selector'].add('/mine', GET=mine, POST=manage_mine)
