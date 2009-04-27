@@ -1,0 +1,20 @@
+<div class='container' id='create'>
+    <h2>Create</h2>
+    <form method='POST' action='{{ form_action }}'>
+        <label for='recipe_name'>Recipe:</label>
+        <input id='recipe_name' size='40' />
+        <label for='private'>private<a href=''>?</a></label>
+        <input type='checkbox' value='1' id='private'/>
+        <label for='autowiki'>autowiki<a href=''>?</a></label>
+        <input type='checkbox' value='1' id='autowiki'/><br/>
+        <label for='default_bag'>Default Content Bag:</label>
+        <input id='default_bag' size='40' />
+        <label for='bags'>Bags:</label>
+        <select id='bags' multiple='1'>
+            {% for bag in bags %}
+            <option>{{ bag.name }}</option>
+            {% endfor %}
+        </select><br />
+        <input type='submit' name='create' value='Create'/>
+    </form>
+</div>

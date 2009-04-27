@@ -1,0 +1,14 @@
+An administrative interface for people to make TiddlyWebWikis of
+their own, with access control set up as they like.
+
+Flow goes something like this:
+
+* Un-auth user is shown:
+** a list of recipes they can read, with links to tiddler list and wiki view
+** a login link
+* Auth user is shown:
+** a (different list) of recipes they can read, with links to tiddler list and wiki view
+** a list of recipes they own, with link to edit, delete
+** a create interface
+
+

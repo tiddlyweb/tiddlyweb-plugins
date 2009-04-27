@@ -1,0 +1,17 @@
+{% include 'message.html' %}
+
+{% include 'your_recipes.html' %}
+
+<div class='container' id='quick'>
+    <h2>Quick Create</h2>
+    <form method='POST' action='{{ form_action }}'>
+        <input type='submit' name='quick_create' value='Quick!'/>
+    </form>
+</div>
+
+{% include 'create.html' %}
+
+{% include 'visible.html' %}
+
+<a href='{{ login_link }}'>Login as someone else</a>
+<a href='{{ logout_link }}'>Logout</a>
