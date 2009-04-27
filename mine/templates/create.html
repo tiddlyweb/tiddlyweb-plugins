@@ -28,27 +28,29 @@
     </form>
     <form id='create_bag' method='POST' action='{{ form_action }}'>
         <label for='bag_name'>Bag:</label>
-        <input id='bag_name' size='40' /><br/>
+        <input id='bag_name' name='bag_name' size='40' /><br/>
+        <label for='bag_desc'>Description:</label>
+        <input id='bag_desc' name='bag_desc' size='40' /><br/>
         <label for='read'>Read:</label>
         <input type='radio' name='read' value='private' checked='1'/>M
-        <input type='radio' name='read' value='private'/>A
-        <input type='radio' name='read' value='private'/>P
-        <input id='read_text' size='60' /><br/>
+        <input type='radio' name='read' value='any'/>A
+        <input type='radio' name='read' value='public'/>P
+        <input name='read_text' size='60' /><br/>
         <label for='write'>Write:</label>
         <input type='radio' name='write' value='private' checked='1'/>M
-        <input type='radio' name='write' value='private'/>A
-        <input type='radio' name='write' value='private'/>P
-        <input id='write_text' size='60' /><br/>
+        <input type='radio' name='write' value='any'/>A
+        <input type='radio' name='write' value='public'/>P
+        <input name='write_text' size='60' /><br/>
         <label for='create'>Create:</label>
         <input type='radio' name='create' value='private' checked='1'/>M
-        <input type='radio' name='create' value='private'/>A
-        <input type='radio' name='create' value='private'/>P
-        <input id='create_text' size='60' /><br/>
+        <input type='radio' name='create' value='any'/>A
+        <input type='radio' name='create' value='public'/>P
+        <input name='create_text' size='60' /><br/>
         <label for='delete'>Delete:</label>
         <input type='radio' name='delete' value='private' checked='1'/>M
-        <input type='radio' name='delete' value='private'/>A
-        <input type='radio' name='delete' value='private'/>P
-        <input id='delete_text' size='60' /><br/>
+        <input type='radio' name='delete' value='any'/>A
+        <input type='radio' name='delete' value='public'/>P
+        <input name='delete_text' size='60' /><br/>
         <input type='submit' name='creatego' value='Create Bag'/>
     </form>
 
