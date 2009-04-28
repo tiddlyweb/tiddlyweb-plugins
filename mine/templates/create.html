@@ -6,7 +6,9 @@
     </form>
     <form id='create_recipe' method='POST' action='{{ form_action }}'>
         <label for='recipe_name'>Recipe:</label>
-        <input id='recipe_name' size='40' />
+        <input id='recipe_name' name='recipe_name' size='40' />
+        <label for='recipe_desc'>Description:</label>
+        <input id='recipe_desc' name='recipe_desc' size='40' /><br/>
         <input type='radio' name='privacy' value='private' checked='1'/><abbr
             title='Me Only'>M</abbr>
         <input type='radio' name='privacy' value='authenticated' /><abbr
@@ -15,11 +17,11 @@
             title='Publically Viewable'>P</abbr><br/>
         <label for='autowiki'><abbr title='Automatically Include System
                 Bag'>autowiki</abbr></label>
-        <input type='checkbox' value='1' id='autowiki'/><br/>
+        <input type='checkbox' value='1' name='autowiki' id='autowiki'/><br/>
         <label for='default_bag'>Default Content Bag:</label>
-        <input id='default_bag' size='40' />
+        <input id='default_bag' name='default_bag' size='40' />
         <label for='bags'>Bags:</label>
-        <select id='bags' multiple='1'>
+        <select id='bags' name='bags' multiple='1'>
             {% for bag in bags %}
             <option>{{ bag.name }}</option>
             {% endfor %}

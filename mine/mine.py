@@ -9,11 +9,15 @@ from jinja2 import Environment, FileSystemLoader
 
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.policy import UserRequiredError, ForbiddenError
-from tiddlyweb.web.http import HTTP400, HTTP302
+from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.store import NoBagError, NoRecipeError
+from tiddlyweb.web.http import HTTP409, HTTP400, HTTP302
 from tiddlywebplugins import do_html, entitle, require_any_user
 
 
 template_env = Environment(loader=FileSystemLoader('templates'))
+
+AUTOWIKI_BAGS = ['system']
 
 @do_html()
 @entitle('Mine!')
@@ -39,9 +43,9 @@ Create and manage <a href='http://tiddlyweb.peermore.com/wiki/#TiddlyWebWiki'>Ti
     return template.generate(
             login_link=login_link,
             logout_link=logout_link,
-            recipes=recipes,
-            myrecipes=myrecipes,
-            bags=bags,
+            recipes=sorted(recipes),
+            myrecipes=sorted(myrecipes),
+            bags=sorted(bags),
             message=message)
 
 
@@ -65,22 +69,60 @@ def _quick_create(environ):
     pass
 
 def _create_recipe(environ):
-    pass
+    """Take the form input and turn it into a recipe."""
+    # get bag_names before we flatten because it will be a list
+    bag_names = environ['tiddlyweb.query'].get('bags', [])
+    query_data = _flatten_form_data(environ['tiddlyweb.query'])
+    store = environ['tiddlyweb.store']
+    try:
+        new_recipe_name = query_data['recipe_name']
+
+        if _recipe_exists(store, new_recipe_name):
+            raise HTTP409('That recipe may not be created.')
+
+        new_recipe = Recipe(new_recipe_name)
+
+        username = environ['tiddlyweb.usersign']['name']
+        new_recipe.policy.owner = username
+        new_recipe.policy.manage = [username]
+        new_recipe.desc = query_data.get('recipe_desc', '')
+
+        privacy = query_data['privacy']
+        new_recipe.policy.read = _policy_form_to_entry(username, privacy)
+
+        bag_list = []
+
+        if query_data.get('autowiki', 0):
+            bag_list.extend(AUTOWIKI_BAGS)
+
+        # don't worry about default content bag yet
+        bag_list.extend(bag_names)
+        recipe_list = [[bag_name, ''] for bag_name in bag_list]
+        new_recipe.set_recipe(recipe_list)
+
+        store.put(new_recipe)
+    except KeyError, exc:
+        raise HTTP400('something went wrong processing for: %s' % exc)
+    return True
+
 
 def _create_bag(environ):
     """Take the form input and turn it into a bag."""
     query_data = _flatten_form_data(environ['tiddlyweb.query'])
     logging.debug(query_data)
+    store = environ['tiddlyweb.store']
     try:
-        new_bag = Bag(query_data['bag_name'])
+        new_bag_name = query_data['bag_name']
 
-        if _bag_exists(new_bag):
+        if _bag_exists(store, new_bag_name):
             raise HTTP409('That bag may not be created.')
+
+        new_bag = Bag(new_bag_name)
 
         username = environ['tiddlyweb.usersign']['name']
         new_bag.policy.owner = username
         new_bag.policy.manage = [username]
-        new_bag.desc = query_data['bag_desc']
+        new_bag.desc = query_data.get('bag_desc', '')
 
         for policy_type in ('read', 'write', 'create', 'delete'):
             texted = query_data.get(policy_type + '_text', None)
@@ -91,7 +133,6 @@ def _create_bag(environ):
                 set = query_data[policy_type]
                 new_bag.policy.__setattr__(policy_type, _policy_form_to_entry(username, set))
 
-        store = environ['tiddlyweb.store']
         store.put(new_bag)
     except KeyError, exc:
         raise HTTP400('something went wrong processing for: %s' % exc)
@@ -107,8 +148,22 @@ def _policy_form_to_entry(username, set_name):
         return []
 
 
-def _bag_exists(bag):
-    return False
+def _bag_exists(store, bag_name):
+    bag = Bag(bag_name)
+    try:
+        store.get(bag)
+    except NoBagError:
+        return False
+    return True
+
+
+def _recipe_exists(store, recipe_name):
+    recipe = Recipe(recipe_name)
+    try:
+        store.get(recipe)
+    except NoRecipeError:
+        return False
+    return True
 
 
 def _flatten_form_data(form_dict):
