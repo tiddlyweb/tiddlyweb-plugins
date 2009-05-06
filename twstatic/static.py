@@ -5,21 +5,33 @@ caching headers, modification time and the like,
 but thus far it does not. Please provide patches
 if you make those sorts of changes.
 
-To use this set 'static_dir' in tiddlywebconfig.py to
+To use this set 'static_file_dir' in tiddlywebconfig.py to
 an absolute or relative (to the instance) path in
-which we can find the static files.
+which we can find the static files. If you do not set it
+a default of 'static' (relative to the current dir) will
+be used.
+
+You also need to set 'static_url_dir' in tiddlywebconfig.py
+to a url path relative to the base or your tiddlyweb URL
+space. server_prefix and '/' will be prepended to the path.
+If you do not set static_url_dir, then 'static' will be used.
 
 Add 'static' to the system_plugins list.
 
 The URL of the static files will be
-/<static_dir>/filename.
+
+  <server_prefix>/<static_url_dir>/<filename>
+
+<filename> may include path separators, allowing you to have
+directories in your 'static_file_dir'
 
 Here is sample configuration to put in tiddlywebconfig.py
 
     config = {
             'css_uri': '/static/tiddlyweb.css',
             'system_plugins': ['static'],
-            'static_dir': 'static',
+            'static_url_dir': 'stuff/html',
+            'static_file_dir': '/home/foobar/mystuff',
             'log_level': 'DEBUG',
             }
 """
@@ -32,7 +44,7 @@ from tiddlyweb.web.http import HTTP404
 DEFAULT_MIME_TYPE = 'application/octet-stream'
 
 def static(environ, start_response):
-    pathname = environ['tiddlyweb.config']['static_dir']
+    pathname = environ['tiddlyweb.config']['static_file_dir']
     filename = environ['wsgiorg.routing_args'][1]['static_file']
 
     if '../' in filename:
@@ -59,4 +71,5 @@ def static(environ, start_response):
 
 
 def init(config):
-    config['selector'].add('/%s/{static_file:any}' % config['static_dir'], GET=static)
+    url_path = config.get('static_url_dir', 'static')
+    config['selector'].add('/%s/{static_file:any}' % url_path, GET=static)
