@@ -4,6 +4,10 @@ in some server setups wherein perfectly legit
 HTTP methods like PUT and DELETE are not allowed to
 pass through to TiddlyWeb.
 
+This can also happen when using some legacy browsers
+which will not allow PUT and DELETE in XmlHttpRequest
+calls.
+
 We do this by looking at, in order:
 
     X-HTTP-Method header
@@ -21,8 +25,8 @@ you must POST. This is consistent with idempotency
 conventions associated with HTTP methods.
 
 ONLY USE THIS MIDDLEWARE IF YOU CANNOT FIX YOUR
-SERVER. YOUR SERVER IS BROKEN IF YOU NEED TO USE
-THIS.
+SERVER OR YOUR BROWSER. YOUR SERVER AND BROWSER ARE
+BROKEN IF YOU NEED TO USE THIS.
 """
 
 import logging
