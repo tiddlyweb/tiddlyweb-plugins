@@ -27,6 +27,11 @@ conventions associated with HTTP methods.
 ONLY USE THIS MIDDLEWARE IF YOU CANNOT FIX YOUR
 SERVER OR YOUR BROWSER. YOUR SERVER AND BROWSER ARE
 BROKEN IF YOU NEED TO USE THIS.
+
+NOTE: This code will not magically handle tunneling 
+of methods. Client code must choose to do the tunneling.
+At this time TiddlyWeb client code such as TiddlyWebAdaptor
+does NOT tunnel.
 """
 
 import logging
