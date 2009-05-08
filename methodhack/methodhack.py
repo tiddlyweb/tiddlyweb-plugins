@@ -1,6 +1,6 @@
 """
 A TiddlyWeb plugin for working around limitations
-in some server setups wherein perfectly legit 
+in some server setups wherein perfectly legit
 HTTP methods like PUT and DELETE are not allowed to
 pass through to TiddlyWeb.
 
@@ -28,7 +28,7 @@ ONLY USE THIS MIDDLEWARE IF YOU CANNOT FIX YOUR
 SERVER OR YOUR BROWSER. YOUR SERVER AND BROWSER ARE
 BROKEN IF YOU NEED TO USE THIS.
 
-NOTE: This code will not magically handle tunneling 
+NOTE: This code will not magically handle tunneling
 of methods. Client code must choose to do the tunneling.
 At this time TiddlyWeb client code such as TiddlyWebAdaptor
 does NOT tunnel.
@@ -37,6 +37,7 @@ does NOT tunnel.
 import logging
 
 from tiddlyweb.web.query import Query
+
 
 class MethodHack(object):
     """
