@@ -1,6 +1,6 @@
-
 import simplejson
 import tiddlyweb
+
 
 def status(environ, start_response):
     data = _gather_data(environ)
@@ -10,8 +10,10 @@ def status(environ, start_response):
         ])
     return [output]
 
+
 def init(config):
     config['selector'].add('/status', GET=status)
+
 
 def _gather_data(environ):
     return {
