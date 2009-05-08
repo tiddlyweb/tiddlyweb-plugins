@@ -1,4 +1,7 @@
 This directory contains a collection of TiddlyWeb plugins. Some are quite
-mature, others are a big mess. Most have a README explaining their state.
+mature, others less so. Most have a README explaining their state.
+
+These plugins may be of use to, either to use directly or as examples
+of techniques to use when creating your own plugins.
 
 Look to http://tiddlyweb.peermore.com/ for more information.
