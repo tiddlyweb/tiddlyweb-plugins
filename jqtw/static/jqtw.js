@@ -13,7 +13,7 @@ TiddlyWeb = {
         recipe_tiddler_revisions: '{prefix}/recipes/{container_name}/tiddlers/{title}/revisions',
         bag_tiddler_revision: '{prefix}/bags/{container_name}/tiddlers/{title}/revisions/{id}',
         recipe_tiddler_revision: '{prefix}/recipes/{container_name}/tiddlers/{title}/revisions/{id}',
-        search: '{prefix}/search'
+        search: '{prefix}/search?q={query}'
     }
 };
 
@@ -138,6 +138,21 @@ TiddlyWeb.RecipeTiddler = function(recipe_name, title) {
 
 TiddlyWeb.extend(TiddlyWeb.RecipeTiddler, TiddlyWeb.Tiddler);
 
+//Search
+TiddlyWeb.Search = function(query) {
+    TiddlyWeb.Search.baseConstructor.call(this, query);
+    this.type = 'search';
+    this.query = query;
+}
+
+TiddlyWeb.extend(TiddlyWeb.Search, TiddlyWeb.Tiddlers);
+
+TiddlyWeb.Search.prototype.presenter = function() {
+    $(this.container_id).append('<p>' + this.type + ': ' + this.query + ': ' +
+            $.map(this.data, function(n)
+                {return n.title }).join(', ') + '</p>');
+}
+
 //TiddlerRevisions
 TiddlyWeb.TiddlerRevisions = function(container_type, container_name, title) {
     TiddlyWeb.TiddlerRevisions.baseConstructor.call(this, container_type, container_name);
@@ -169,6 +184,8 @@ TiddlyWeb.RecipeTiddlerRevisions = function(recipe_name, title) {
 TiddlyWeb.extend(TiddlyWeb.RecipeTiddlerRevisions, TiddlyWeb.TiddlerRevisions);
 
 function main() {
+    $('#bag').css('float', 'right').css('width', '45%');
+    $('#container').css('float', 'right').css('width', '45%');
     recipes = new TiddlyWeb.Recipes();
     recipes.get(1);
     bags = new TiddlyWeb.Bags();
@@ -190,4 +207,6 @@ function main() {
     revisions.get(1);
     revisions = new TiddlyWeb.RecipeTiddlerRevisions('default', 'TiddlyWebAdaptor');
     revisions.get(1);
+    search = new TiddlyWeb.Search('martin');
+    search.get(1);
 }
