@@ -44,7 +44,7 @@ from tiddlyweb.web.http import HTTP404
 DEFAULT_MIME_TYPE = 'application/octet-stream'
 
 def static(environ, start_response):
-    pathname = environ['tiddlyweb.config']['static_file_dir']
+    pathname = environ['tiddlyweb.config'].get('static_file_dir', 'static')
     filename = environ['wsgiorg.routing_args'][1]['static_file']
 
     if '../' in filename:
