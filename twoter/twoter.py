@@ -61,9 +61,8 @@ def user(environ, start_response):
     all_recipe = _check_recipe('all', environ, user)
 
     def recipe_href(recipe, extension):
-        return '%s/tiddlers%s?filter=%s' % (
-                recipe_url(environ, recipe), extension, urllib.quote('[sort[-modified]]')
-                )
+        return '%s/tiddlers%s?sort=-modified' % (
+                recipe_url(environ, recipe), extension)
 
     template_values = {
             'user': user,
