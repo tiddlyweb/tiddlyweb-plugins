@@ -1,20 +1,24 @@
 
-The module in this directory, atom.py, demonstrates a way
-to do a very simple Atom format syndication of a recipe, bag
-or single tiddler (including filter strings). It is an
-external serialization. If you look at atom_server.py in the
-root of the TiddlyWeb distribution you will see that the config
-dictionary is imported and then extended to add the information
-necessary for a \.atom extension to request application/atom+xml
-data via an atom.atom serialization.
+The modules in this directory provide serialization modules to
+do a very simple Atom format syndication of collections of tiddlers
+(including one tiddler, and filtered tiddlers).
 
-Any module which supports the SerializationInterface defined in
-tiddlyweb/serializations/__init__.py can be associated with any
-content type in the config dictionary. It is even possible to
-override the default serializers.
+One serialization provides support for the Atom format, another
+extends the existing HTML serialization to provide <link> elements
+referring to the Atom feeds.
 
-The same is true for stores. See the googleappengine for more
-information on that.
+Atom formatted output can be had by requesting the application/atom+xml
+format, or by appending a .atom to the end of a URL (before the query
+porition) that returns one or more tiddlers.
+
+To use this code add 'atomplugin' to system_plugins in your tiddlywebconfig.py:
+
+config = {
+    'system_plugins': ['atomplugin'],
+}
+
+And put atomplugin.py, atom.py and htmlatom.py in your TiddlyWeb instance
+directory.
 
 The Atom code is borrowed from Django's django/utils/feedgenerator.py
 
