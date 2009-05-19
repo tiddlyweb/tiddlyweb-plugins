@@ -10,7 +10,6 @@ Bugs:
 """
 
 import os
-import os.path
 import urllib
 
 from tiddlyweb.stores.text import Store as Text, _encode_filename
@@ -25,7 +24,7 @@ class Store(Text):
             os.mkdir(self._store_root())
 
     def list_bags(self):
-        bags = self._dirs_in_dir(self._store_root())
+        bags = self._bag_filenames()
 
         return [Bag(urllib.unquote(bag).decode('utf-8')) for bag in bags]
 
@@ -44,6 +43,9 @@ class Store(Text):
 
     def _recipe_path(self, recipe):
         return os.path.join(self._store_root(), _encode_filename(recipe.name) + '.recipe')
+
+    def _bag_filenames(self):
+        return self._dirs_in_dir(self._store_root())
 
     def _bag_path(self, bag_name):
         try:
