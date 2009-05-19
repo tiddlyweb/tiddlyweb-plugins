@@ -8,6 +8,8 @@ from tiddlyweb.model.bag import Bag
 
 from tiddlyweb.config import config
 
+from urllib import quote
+
 MC = memcache.Client(config['memcache_hosts'])
 
 class Store(StorageInterface):
@@ -22,7 +24,7 @@ class Store(StorageInterface):
                     'server_store': config['cached_store'],
                     }
                 }
-        self.cached_store = StoreBoss('text', environ=internal_store_environ)
+        self.cached_store = StoreBoss(config['cached_store'][0], environ=internal_store_environ)
 
     def recipe_delete(self, recipe):
         key = _recipe_key(recipe)
@@ -127,19 +129,22 @@ class Store(StorageInterface):
 
 def _tiddler_key(tiddler):
     key = 'tiddler:%s/%s' % (tiddler.bag, tiddler.title)
-    return key.encode('UTF-8')
+    return _mangle(key)
 
 def _user_key(user):
     key = 'user:%s' % user.usersign
-    return key.encode('UTF-8')
+    return _mangle(key)
 
 def _bag_key(bag):
     key = 'bag:%s' % bag.name
-    return key.encode('UTF-8')
+    return _mangle(key)
 
 def _recipe_key(recipe):
     key = 'recipe:%s' % recipe.name
-    return key.encode('UTF-8')
+    return _mangle(key)
+
+def _mangle(key):
+    return quote(key.encode('UTF-8'), safe='')
 
 def _get(key):
     object = MC.get(key)
