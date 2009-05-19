@@ -12,6 +12,8 @@ Gzip-encodes the response.
 import gzip
 import logging
 
+from tiddlyweb.web.wsgi import EncodeUTF8
+
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -56,7 +58,7 @@ class GzipWrapper(object):
             self.compressible = True
         if ce:
             self.compressible = False
-        if status is not '200':
+        if not status.startswith('200'):
             self.compressible = False
         if self.compressible:
             logging.debug('setting content-encoding to gzip')
@@ -82,7 +84,7 @@ class GzipWrapper(object):
             if hasattr(app_iter, 'close'):
                     app_iter.close()
         content_length = self.buffer.tell()
-        self.headers.append(('content-length', content_length))
+        self.headers.append(('content-length', str(content_length)))
         self.start_response(self.status, self.headers)
 
     def write(self):
@@ -115,4 +117,5 @@ def _remove_header(headers, name):
     return result
 
 def init(config):
-    config['server_response_filters'].append(Gzipper)
+    config['server_response_filters'].insert(
+            config['server_response_filters'].index(EncodeUTF8) + 1, Gzipper)
