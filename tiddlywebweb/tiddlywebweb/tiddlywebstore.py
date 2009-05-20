@@ -16,14 +16,14 @@ from tiddlyweb.serializer import Serializer
 from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
 from tiddlyweb.stores import StorageInterface
 
-urllib.always_safe = urllib.always_safe.replace('.', '')
+# XXX can't remember why this was needed :(
+#urllib.always_safe = urllib.always_safe.replace('.', '')
 
 class TiddlyWebWebError(Exception):
     pass
 
 class Store(StorageInterface):
 
-# XXX be nice and support a prefix here, eventually
     recipes_url = '/recipes'
     bags_url = '/bags'
 
@@ -93,6 +93,10 @@ class Store(StorageInterface):
         except TiddlyWebWebError, e:
             raise exception, e
 
+    def recipe_delete(self, recipe):
+        url = self.recipe_url % _encode_name(recipe.name)
+        self.doit(url, recipe, self._any_delete, NoRecipeError)
+
     def recipe_get(self, recipe):
         url = self.recipe_url % _encode_name(recipe.name)
         self.doit(url, recipe, self._any_get, NoRecipeError)
@@ -101,6 +105,10 @@ class Store(StorageInterface):
     def recipe_put(self, recipe):
         url = self.recipe_url % _encode_name(recipe.name)
         self.doit(url, recipe, self._any_put, NoRecipeError)
+
+    def bag_delete(self, bag):
+        url = self.bag_url % _encode_name(bag.name)
+        self.doit(url, bag, self._any_delete, NoBagError)
 
     def bag_get(self, bag):
         url = self.bag_url % _encode_name(bag.name)
@@ -131,7 +139,26 @@ class Store(StorageInterface):
 
     def tiddler_put(self, tiddler):
         url = self.tiddler_url % (_encode_name(tiddler.bag), _encode_name(tiddler.title))
+        tiddler.revision = self._tiddler_revision(tiddler) + 1
         self.doit(url, tiddler, self._any_put, NoTiddlerError)
+        self.tiddler_written(tiddler)
+
+    def _tiddler_revision(self, tiddler, index=0):
+        """
+        Calculate the revision filename for the tiddler revision
+        we want.
+        """
+        revision = 0
+        if tiddler.revision:
+            revision = tiddler.revision
+        else:
+            try:
+                revisions = self.list_tiddler_revisions(tiddler)
+                if revisions:
+                    revision = revisions[index]
+            except NoTiddlerError:
+                pass
+        return int(revision)
 
     def user_get(self, user):
         """No URLs for users, yet."""
@@ -165,17 +192,25 @@ class Store(StorageInterface):
         response, content = self._request('GET', url)
         if self._is_success(response):
             revisions = simplejson.loads(content)
-            return [revision['revision'] for revision in revisions]
+            revision_ids = [revision['revision'] for revision in revisions]
+            #revision_ids.reverse()
+            return revision_ids
         else:
-# XXX um, so, like, some error handling would be good here
-            return []
+            # XXX better error handling than this would be nice
+            raise NoTiddlerError
+
 
     def search(self, search_query):
-        url = self.search_url % encode_name(search_query)
+        def _make_tiddler(result_dict):
+            tiddler = Tiddler(result_dict['title'])
+            tiddler.bag = result_dict['bag']
+            tiddler.revision = result_dict['revision']
+            return tiddler
+        url = self.search_url % _encode_name(search_query)
         response, content = self._request('GET', url)
         if self._is_success(response):
             results = simplejson.loads(content)
-            return [Tiddler(result.title, bag=result.bag, revision=result.revision) for result in results]
+            return [_make_tiddler(result) for result in results]
         else:
             return []
 
