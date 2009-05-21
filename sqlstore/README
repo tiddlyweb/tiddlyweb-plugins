@@ -1,0 +1,23 @@
+
+A store that uses Python's SQLAlchemy package to talk to a
+database. This is an exploration. Lots of cleanup can be done.
+
+There is a test included in this directory, but the proper way
+to test this code is to run against the TiddlyWeb core test suite,
+with tiddlywebconfig.py set as follows:
+
+config = {
+    'server_store': ['sql', {}],
+}
+
+The current code uses a sqlite database called test.db in the 
+current working database. This will change to use whatever
+is sent in the configuration.
+
+Some things are not yet supported:
+
+* Extended fields on tiddlers.
+* Search.
+* Users.
+
+These will come soon.
