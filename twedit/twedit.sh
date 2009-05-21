@@ -1,16 +1,12 @@
-#/bin/sh -x
+#/bin/sh
 
 BAG=$1
 TIDDLER=$2
 URL="http://tiddlyweb.peermore.com/wiki/bags/$BAG/tiddlers/$TIDDLER"
 
-AUTH='Cookie: tiddlyweb_user="put your cookie info here"'
+AUTH=$3
 
-echo $URL
-echo $AUTH
-
-curl -X GET -H 'Accept: text/plain' $URL > /tmp/twedit.$$
-vim /tmp/twedit.$$
-cat /tmp/twedit.$$ 
-curl -v -X PUT -H "$AUTH" -H 'Content-Type: text/plain' --data-binary @/tmp/twedit.$$ $URL 
+curl -X GET -H 'Accept: text/plain' $URL > /tmp/twedit.$$ && \
+$VISUAL /tmp/twedit.$$ && \
+curl -X PUT -H "$AUTH" -H 'Content-Type: text/plain' --data-binary @/tmp/twedit.$$ $URL 
 
