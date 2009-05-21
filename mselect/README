@@ -1,5 +1,5 @@
 
 This is a plugin which extends the new filter syntax 
 released in TiddyWeb 0.9.31 to add 'mselect' which 
-provides multiple selects in one selection. Examples
-to be provided soon.
+provides multiple selects in one selection. See the
+test for a simple example.
