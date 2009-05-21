@@ -1,3 +1,4 @@
+import logging
 
 from tiddlyweb.stores import StorageInterface
 
@@ -117,6 +118,24 @@ class sRecipe(Base):
     def __repr__(self):
         return "<sRecipe('%s')>" % (self.name)
 
+class sRole(Base):
+    __tablename__ = 'roles'
+
+    usersign = Column(String, ForeignKey('users.usersign'), primary_key=True)
+    role_name = Column(String, primary_key=True)
+    
+class sUser(Base):
+    __tablename__ = 'users'
+
+    usersign = Column(String, primary_key=True)
+    note = Column(String)
+    password = Column(String)
+    
+    roles = relation(sRole, primaryjoin=sRole.usersign==usersign)
+
+    def __repr__(self):
+        return "<sUser('%s:%s')>" % (self.name, self.roles)
+
 
 #Base.metadata.drop_all(engine)
 #Base.metadata.create_all(engine)
@@ -135,9 +154,12 @@ class Store(StorageInterface):
         self.session = Session()
 
     def recipe_delete(self, recipe):
-        srecipe = self.session.query(sRecipe).filter(sRecipe.name==recipe.name).one()
-        self.session.delete(srecipe)
-        self.session.commit()
+        try:
+            srecipe = self.session.query(sRecipe).filter(sRecipe.name==recipe.name).one()
+            self.session.delete(srecipe)
+            self.session.commit()
+        except NoResultFound, exc:
+            raise NoRecipeError('no results for recipe %s, %s' % (recipe.name, exc))
 
     def recipe_get(self, recipe):
         try:
@@ -177,12 +199,16 @@ class Store(StorageInterface):
         string += '\n'.join(['%s?%s' % (bag, filter_string) for bag, filter_string in recipe_list])
         return string
 
-    def bag_delete(self, recipe):
-        sbag = self.session.query(sBag).filter(sBag.name==bag.name).one()
-        self.session.delete(sbag)
-        self.session.commit()
+    def bag_delete(self, bag):
+        try:
+            sbag = self.session.query(sBag).filter(sBag.name==bag.name).one()
+            self.session.delete(sbag)
+            self.session.commit()
+        except NoResultFound, exc:
+            raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
 
     def bag_get(self, bag):
+        logging.debug('attempting to get bag: %s' % bag.name)
         try:
             sbag = self.session.query(sBag).filter(sBag.name == bag.name).one()
             bag = self._map_bag(bag, sbag)
@@ -267,12 +293,15 @@ class Store(StorageInterface):
 
 
     def _map_tiddler(self, tiddler, stiddler):
-        tiddler.modifier = stiddler.revision().modifier
-        tiddler.modified = stiddler.revision().modified
-        tiddler.revision = stiddler.revision().revision_id
-        tiddler.text = stiddler.revision().text
-        tiddler.tags = self._map_tags(stiddler.revision().tags)
-        return tiddler
+        try:
+            tiddler.modifier = stiddler.revision().modifier
+            tiddler.modified = stiddler.revision().modified
+            tiddler.revision = stiddler.revision().revision_id
+            tiddler.text = stiddler.revision().text
+            tiddler.tags = self._map_tags(stiddler.revision().tags)
+            return tiddler
+        except IndexError, exc:
+            raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
 
     def _map_tags(self, tags_string):
         return string_to_tags_list(tags_string)
@@ -305,29 +334,56 @@ class Store(StorageInterface):
     def _map_stags(self, tags):
         return self.serializer.serialization.tags_as(tags)
 
-    def user_put(self, tiddler):
-        pass
+    def user_delete(self, user):
+        try:
+            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
+            self.session.delete(suser)
+            self.session.commit()
+        except NoResultFound, exc:
+            raise NoUserError('user %s not found, %s' % (user.name, exc))
 
-    def user_get(self, tiddler):
-        pass
+    def user_get(self, user):
+        try:
+            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
+            user = self._map_user(user, suser)
+            return user
+        except NoResultFound, exc:
+            raise NoUserError('user %s not found, %s' % (user.name, exc))
 
-    def user_put(self, tiddler):
-        pass
+    def _map_user(self, user, suser):
+        user.usersign = suser.usersign
+        user._password = suser.password
+        user.note = suser.note
+        user.roles = suser.roles
+        return user
+
+    def user_put(self, user):
+        suser = self._map_suser(user)
+        self.session.merge(suser)
+        self.session.commit()
+
+    def _map_suser(self, user):
+        suser = sUser()
+        suser.usersign = user.usersign
+        suser.password = user._password
+        suser.note = user.note
+        suser.roles = list(user.roles)
+        return suser
 
     def list_recipes(self):
         return [self._map_recipe(Recipe(srecipe.name), srecipe) for srecipe in self.session.query(sRecipe).all()]
 
     def list_bags(self):
-        return [self._map_bag(Bag(sBag.name), sbag) for sbag in self.session.query(sBag).all()]
+        return [self._map_bag(Bag(sbag.name), sbag) for sbag in self.session.query(sBag).all()]
 
     def list_users(self):
         return [self._map_user(suser) for suser in self.session.query(sUser).all()]
 
     def list_tiddler_revisions(self, tiddler):
-        stiddler = (self.session.query(sTiddler).
-                filter(sTiddler.title==tiddler.title).
-                filter(sTiddler.bag_name==tiddler.bag).one())
+        try:
+            stiddler = (self.session.query(sTiddler).
+                    filter(sTiddler.title==tiddler.title).
+                    filter(sTiddler.bag_name==tiddler.bag).one())
+        except NoResultFound, exc:
+            raise NoTiddlerError('tiddler %s not found, %s' % (tiddler.title, exc))
         return [revision.revision_id for revision in reversed(stiddler.revisions)]
-
-    def search(self, search_query):
-        pass

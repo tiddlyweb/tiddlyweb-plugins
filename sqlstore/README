@@ -19,5 +19,12 @@ Some things are not yet supported:
 * Extended fields on tiddlers.
 * Search.
 * Users.
+* Setting database type in config.
+* Efficiently handling the mapping between tiddlyweb.model objects
+  and SQLAlchemy ways. Currently a great deal of redundancy.
+  By switching from the declarative_base to explicit Mappers
+  things should clean up nicely.
+* Primary key handling is fairly icky.
+* Data normalization is not what I'd like.
 
 These will come soon.
