@@ -387,3 +387,25 @@ class Store(StorageInterface):
         except NoResultFound, exc:
             raise NoTiddlerError('tiddler %s not found, %s' % (tiddler.title, exc))
         return [revision.revision_id for revision in reversed(stiddler.revisions)]
+
+    def search(self, search_query):
+        """
+        Search in the store for tiddlers that match search_query.
+        This is intentionally simple, slow and broken to encourage overriding.
+        """
+        bags = self.list_bags()
+        found_tiddlers = []
+
+        query = search_query.lower()
+
+        for bag in bags:
+            bag = self.bag_get(bag)
+            for tiddler in bag.list_tiddlers():
+                if query in tiddler.title.lower():
+                   found_tiddlers.append(tiddler)
+                   continue
+                stiddler = self.session.query(sTiddler).get((tiddler.title, tiddler.bag))
+                stiddler.rev = None
+                if stiddler.revision().text and query in stiddler.revision().text:
+                    found_tiddlers.append(tiddler)
+        return found_tiddlers

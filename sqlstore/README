@@ -16,7 +16,7 @@ is sent in the configuration.
 
 Some things are not yet supported:
 
-* Extended fields on tiddlers.
+* Created attribute and extended fields on tiddlers.
 * Search.
 * Users.
 * Setting database type in config.
