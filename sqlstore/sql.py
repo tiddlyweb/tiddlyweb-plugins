@@ -324,6 +324,8 @@ class Store(StorageInterface):
             for sfield in stiddler.revision().fields:
                 tiddler.fields[sfield.name] = sfield.value
 
+            tiddler.created = stiddler.created()
+
             return tiddler
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
