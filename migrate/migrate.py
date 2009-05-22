@@ -15,6 +15,7 @@ See tiddlyweb.config for more details.
 import copy
 
 from tiddlyweb.manage import make_command
+from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.store import Store
 
 @make_command()
@@ -52,11 +53,12 @@ def migrate_bags(source, target):
         tiddlers = bag.list_tiddlers()
         target.put(bag)
         for tiddler in tiddlers:
-            for revision in source.list_tiddler_revisions(tiddler):
-                tiddler.revision = revision
-                tiddler = source.get(tiddler)
-                print "putting tiddler %s in bag %s" % (tiddler.title, tiddler.bag)
-                target.put(tiddler)
+            for revision_id in source.list_tiddler_revisions(tiddler):
+                tiddler_revision = Tiddler(tiddler.title, tiddler.bag)
+                tiddler_revision.revision = revision_id
+                tiddler_revision = source.get(tiddler_revision)
+                print "putting tiddler %s:%s in bag %s" % (tiddler_revision.title, tiddler_revision.revision, tiddler_revision.bag)
+                target.put(tiddler_revision)
 
 
 def init(config_in):
