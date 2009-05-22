@@ -23,6 +23,16 @@ from uuid import uuid4 as uuid
 
 Base = declarative_base()
 
+class sField(Base):
+    __tablename__ = 'fields'
+
+    name = Column(Unicode(256), primary_key=True)
+    revision_id = Column(String(50), ForeignKey('revisions.id'), primary_key=True)
+    value = Column(Unicode(1024))
+
+    def __repr__(self):
+        return "<sField('%s:%s:%s')>" % (self.revision.tiddler.title, self.name, self.value)
+
 class sRevision(Base):
     __tablename__ = 'revisions'
 
@@ -31,8 +41,10 @@ class sRevision(Base):
     modifier = Column(String(14))
     modified = Column(String(14))
     tags = Column(Unicode(1024))
-    text = Column(UnicodeText)
+    text = Column(UnicodeText, default='')
     revision_id = Column(Integer, nullable=False)
+
+    fields = relation(sField, backref='revision', cascade='delete')
 
     def __init__(self):
         self.id = str(uuid())
@@ -308,6 +320,10 @@ class Store(StorageInterface):
             tiddler.revision = stiddler.revision().revision_id
             tiddler.text = stiddler.revision().text
             tiddler.tags = self._map_tags(stiddler.revision().tags)
+
+            for sfield in stiddler.revision().fields:
+                tiddler.fields[sfield.name] = sfield.value
+
             return tiddler
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
@@ -337,6 +353,16 @@ class Store(StorageInterface):
             srevision.revision_id = stiddler.revisions[-1].revision_id + 1
         except IndexError:
             srevision.revision_id = 1
+
+        for field in tiddler.fields:
+            if field.startswith('server.'):
+                continue
+            sfield = sField()
+            sfield.name = field
+            sfield.value = tiddler.fields[field]
+            sfield.revision_id = srevision.id
+            self.session.add(sfield)
+
         self.session.add(srevision)
         # we need to update the revision on the tiddlyweb tiddler
         # so the correct ETag is set.
