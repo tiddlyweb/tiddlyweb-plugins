@@ -4,7 +4,7 @@ from tiddlyweb.stores import StorageInterface
 
 from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
 
-from sqlalchemy import ForeignKey, Column, String, Integer, create_engine
+from sqlalchemy import ForeignKey, Column, String, Integer, Text, create_engine
 from sqlalchemy.sql import and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref
@@ -26,12 +26,12 @@ Base = declarative_base()
 class sRevision(Base):
     __tablename__ = 'revisions'
 
-    id = Column(String, primary_key=True)
-    tiddler_id = Column(String, ForeignKey('tiddlers.id'))
-    modifier = Column(String)
-    modified = Column(String)
-    tags = Column(String)
-    text = Column(String)
+    id = Column(String(50), primary_key=True)
+    tiddler_id = Column(String(50), ForeignKey('tiddlers.id'))
+    modifier = Column(String(14))
+    modified = Column(String(14))
+    tags = Column(String(1024))
+    text = Column(Text)
     revision_id = Column(Integer, nullable=False)
 
     def __init__(self):
@@ -44,9 +44,9 @@ class sRevision(Base):
 class sTiddler(Base):
     __tablename__ = 'tiddlers'
 
-    id = Column(String)
-    title = Column(String, primary_key=True)
-    bag_name = Column(String, ForeignKey('bags.name'), primary_key=True)
+    id = Column(String(50))
+    title = Column(String(512), primary_key=True)
+    bag_name = Column(String(256), ForeignKey('bags.name'), primary_key=True)
 
     revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
             order_by=sRevision.revision_id, cascade='delete')
@@ -76,19 +76,19 @@ class sPolicy(Base):
     __tablename__ = 'policies'
 
     id = Column(Integer, primary_key=True)
-    read = Column(String)
-    write = Column(String)
-    delete = Column(String)
-    create = Column(String)
-    manage = Column(String)
-    owner = Column(String)
+    read = Column(String(2048))
+    write = Column(String(2048))
+    delete = Column(String(2048))
+    create = Column(String(2048))
+    manage = Column(String(2048))
+    owner = Column(String(2048))
 
 
 class sBag(Base):
     __tablename__ = 'bags'
 
-    name = Column(String, primary_key=True)
-    desc = Column(String)
+    name = Column(String(256), primary_key=True)
+    desc = Column(String(1024))
     policy_id = Column(Integer, ForeignKey('policies.id'))
 
     tiddlers = relation(sTiddler, backref='bag', primaryjoin=sTiddler.bag_name==name, cascade='delete')
@@ -105,9 +105,9 @@ class sBag(Base):
 class sRecipe(Base):
     __tablename__ = 'recipes'
 
-    name = Column(String, primary_key=True)
-    desc = Column(String)
-    recipe_string = Column(String, default='')
+    name = Column(String(512), primary_key=True)
+    desc = Column(String(1024))
+    recipe_string = Column(Text, default='')
     policy_id = Column(Integer, ForeignKey('policies.id'))
 
     policy = relation(sPolicy, uselist=False)
@@ -122,8 +122,8 @@ class sRecipe(Base):
 class sRole(Base):
     __tablename__ = 'roles'
 
-    usersign = Column(String, ForeignKey('users.usersign'), primary_key=True)
-    role_name = Column(String, primary_key=True)
+    usersign = Column(String(512), ForeignKey('users.usersign'), primary_key=True)
+    role_name = Column(String(50), primary_key=True)
 
     def __repr__(self):
         return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
@@ -131,9 +131,9 @@ class sRole(Base):
 class sUser(Base):
     __tablename__ = 'users'
 
-    usersign = Column(String, primary_key=True)
-    note = Column(String)
-    password = Column(String)
+    usersign = Column(String(512), primary_key=True)
+    note = Column(String(1024))
+    password = Column(String(128))
     
     roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete')
 
@@ -151,11 +151,16 @@ class Store(StorageInterface):
         self._init_store()
 
     def _init_store(self):
-        self.engine = create_engine('sqlite:///test.db')
+        self.engine = create_engine(self._db_config())
         self.serializer = Serializer('text')
         Base.metadata.create_all(self.engine)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
+
+
+    def _db_config(self):
+        store_config = self.environ['tiddlyweb.config']['server_store'][1]
+        return store_config['db_config']
 
     def recipe_delete(self, recipe):
         try:

@@ -26,5 +26,6 @@ Some things are not yet supported:
   things should clean up nicely.
 * Primary key handling is fairly icky.
 * Data normalization is not what I'd like.
+* Attend to any unicode issues.
 
 These will come soon.
