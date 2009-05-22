@@ -1,28 +1,27 @@
 import logging
 
-from tiddlyweb.stores import StorageInterface
-
-from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
+from uuid import uuid4 as uuid
+from base64 import b64encode, b64decode
 
 from sqlalchemy import ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
 from sqlalchemy.sql import and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref
-
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-from tiddlyweb.model.tiddler import string_to_tags_list, Tiddler
-from tiddlyweb.model.policy import Policy
 from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.policy import Policy
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.tiddler import Tiddler, string_to_tags_list
 from tiddlyweb.model.user import User
 from tiddlyweb.serializer import Serializer
+from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
+from tiddlyweb.stores import StorageInterface
 
-from uuid import uuid4 as uuid
-from base64 import b64encode, b64decode
 
 Base = declarative_base()
+
 
 class sField(Base):
     __tablename__ = 'fields'
@@ -33,6 +32,7 @@ class sField(Base):
 
     def __repr__(self):
         return "<sField('%s:%s:%s')>" % (self.revision.tiddler.title, self.name, self.value)
+
 
 class sRevision(Base):
     __tablename__ = 'revisions'
@@ -116,6 +116,7 @@ class sBag(Base):
     def __repr__(self):
         return "<sBag('%s')>" % (self.name)
 
+
 class sRecipe(Base):
     __tablename__ = 'recipes'
 
@@ -133,6 +134,7 @@ class sRecipe(Base):
     def __repr__(self):
         return "<sRecipe('%s')>" % (self.name)
 
+
 class sRole(Base):
     __tablename__ = 'roles'
 
@@ -142,6 +144,7 @@ class sRole(Base):
     def __repr__(self):
         return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
     
+
 class sUser(Base):
     __tablename__ = 'users'
 
@@ -155,10 +158,10 @@ class sUser(Base):
         return "<sUser('%s:%s')>" % (self.usersign, self.roles)
 
 
-#Base.metadata.drop_all(engine)
-#Base.metadata.create_all(engine)
-
 class Store(StorageInterface):
+    """
+    A SqlAlchemy based storage interface for TiddlyWeb.
+    """
 
     def __init__(self, environ=None):
         super(Store, self).__init__(environ)
@@ -170,7 +173,6 @@ class Store(StorageInterface):
         Base.metadata.create_all(self.engine)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
-
 
     def _db_config(self):
         store_config = self.environ['tiddlyweb.config']['server_store'][1]
@@ -231,7 +233,6 @@ class Store(StorageInterface):
             raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
 
     def bag_get(self, bag):
-        logging.debug('attempting to get bag: %s' % bag.name)
         try:
             sbag = self.session.query(sBag).filter(sBag.name == bag.name).one()
             bag = self._map_bag(bag, sbag)
@@ -451,7 +452,6 @@ class Store(StorageInterface):
     def search(self, search_query):
         """
         Search in the store for tiddlers that match search_query.
-        This is intentionally simple, slow and broken to encourage overriding.
         """
         bags = self.list_bags()
         found_tiddlers = []
