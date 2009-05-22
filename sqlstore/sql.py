@@ -20,6 +20,7 @@ from tiddlyweb.model.user import User
 from tiddlyweb.serializer import Serializer
 
 from uuid import uuid4 as uuid
+from base64 import b64encode, b64decode
 
 Base = declarative_base()
 
@@ -38,8 +39,9 @@ class sRevision(Base):
 
     id = Column(String(50), primary_key=True)
     tiddler_id = Column(String(50), ForeignKey('tiddlers.id'))
-    modifier = Column(String(14))
+    modifier = Column(Unicode(256))
     modified = Column(String(14))
+    type = Column(String(128))
     tags = Column(Unicode(1024))
     text = Column(UnicodeText, default='')
     revision_id = Column(Integer, nullable=False)
@@ -315,13 +317,18 @@ class Store(StorageInterface):
 
     def _map_tiddler(self, tiddler, stiddler):
         try:
-            tiddler.modifier = stiddler.revision().modifier
-            tiddler.modified = stiddler.revision().modified
-            tiddler.revision = stiddler.revision().revision_id
-            tiddler.text = stiddler.revision().text
-            tiddler.tags = self._map_tags(stiddler.revision().tags)
+            revision = stiddler.revision()
+            tiddler.modifier = revision.modifier
+            tiddler.modified = revision.modified
+            tiddler.revision = revision.revision_id
+            tiddler.type = revision.type
+            if tiddler.type and tiddler.type != 'None':
+                tiddler.text = b64decode(revision.text.lstrip().rstrip())
+            else:
+                tiddler.text = revision.text
+            tiddler.tags = self._map_tags(revision.tags)
 
-            for sfield in stiddler.revision().fields:
+            for sfield in revision.fields:
                 tiddler.fields[sfield.name] = sfield.value
 
             tiddler.created = stiddler.created()
@@ -345,7 +352,12 @@ class Store(StorageInterface):
                     filter(sTiddler.bag_name == tiddler.bag).one())
         except NoResultFound:
             stiddler = sTiddler(tiddler.title, tiddler.bag)
+
+        if tiddler.type and tiddler.type != 'None':
+            tiddler.text = unicode(b64encode(tiddler.text))
+
         srevision = sRevision()
+        srevision.type = tiddler.type
         srevision.tiddler_id = stiddler.id
         srevision.modified = tiddler.modified
         srevision.modifier = tiddler.modifier
