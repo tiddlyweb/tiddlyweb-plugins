@@ -16,6 +16,7 @@ from tiddlyweb.model.tiddler import string_to_tags_list, Tiddler
 from tiddlyweb.model.policy import Policy
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.user import User
 from tiddlyweb.serializer import Serializer
 
 from uuid import uuid4 as uuid
@@ -123,6 +124,9 @@ class sRole(Base):
 
     usersign = Column(String, ForeignKey('users.usersign'), primary_key=True)
     role_name = Column(String, primary_key=True)
+
+    def __repr__(self):
+        return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
     
 class sUser(Base):
     __tablename__ = 'users'
@@ -131,10 +135,10 @@ class sUser(Base):
     note = Column(String)
     password = Column(String)
     
-    roles = relation(sRole, primaryjoin=sRole.usersign==usersign)
+    roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete')
 
     def __repr__(self):
-        return "<sUser('%s:%s')>" % (self.name, self.roles)
+        return "<sUser('%s:%s')>" % (self.usersign, self.roles)
 
 
 #Base.metadata.drop_all(engine)
@@ -340,7 +344,7 @@ class Store(StorageInterface):
             self.session.delete(suser)
             self.session.commit()
         except NoResultFound, exc:
-            raise NoUserError('user %s not found, %s' % (user.name, exc))
+            raise NoUserError('user %s not found, %s' % (user.usersign, exc))
 
     def user_get(self, user):
         try:
@@ -348,13 +352,13 @@ class Store(StorageInterface):
             user = self._map_user(user, suser)
             return user
         except NoResultFound, exc:
-            raise NoUserError('user %s not found, %s' % (user.name, exc))
+            raise NoUserError('user %s not found, %s' % (user.usersign, exc))
 
     def _map_user(self, user, suser):
         user.usersign = suser.usersign
         user._password = suser.password
         user.note = suser.note
-        user.roles = suser.roles
+        [user.add_role(role.role_name) for role in suser.roles]
         return user
 
     def user_put(self, user):
@@ -367,8 +371,16 @@ class Store(StorageInterface):
         suser.usersign = user.usersign
         suser.password = user._password
         suser.note = user.note
-        suser.roles = list(user.roles)
+        self._map_sroles(user)
         return suser
+
+    def _map_sroles(self, user):
+        usersign = user.usersign
+        for role in user.roles:
+            srole = sRole()
+            srole.usersign = usersign
+            srole.role_name = role
+            self.session.merge(srole)
 
     def list_recipes(self):
         return [self._map_recipe(Recipe(srecipe.name), srecipe) for srecipe in self.session.query(sRecipe).all()]
@@ -377,7 +389,7 @@ class Store(StorageInterface):
         return [self._map_bag(Bag(sbag.name), sbag) for sbag in self.session.query(sBag).all()]
 
     def list_users(self):
-        return [self._map_user(suser) for suser in self.session.query(sUser).all()]
+        return [self._map_user(User(suser.usersign), suser) for suser in self.session.query(sUser).all()]
 
     def list_tiddler_revisions(self, tiddler):
         try:
