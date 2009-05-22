@@ -333,6 +333,9 @@ class Store(StorageInterface):
         except IndexError:
             srevision.revision_id = 1
         self.session.add(srevision)
+        # we need to update the revision on the tiddlyweb tiddler
+        # so the correct ETag is set.
+        tiddler.revision = srevision.revision_id
         return stiddler
 
     def _map_stags(self, tags):
