@@ -24,18 +24,12 @@ Some things are not yet supported:
   and SQLAlchemy ways. Currently a great deal of redundancy.
   By switching from the declarative_base to explicit Mappers
   things should clean up nicely.
-* Primary key handling is fairly icky.
+* Primary key handling is fairly icky. Probably want to move to ids,
+  plus some unique index fields.
 * Data normalization is not what I'd like.
 * Attend to any unicode issues.
 
 These will come soon.
-
-! Other Notes
-
-* When using mysql, it is critical that the charset be set correctly:
-
-    default-character-set=utf8
-    default-collation=utf8_general_ci
 
 * When running against the tests, the created tables need to be dropped
   between tests.
