@@ -85,17 +85,20 @@ class sTiddler(Base):
 sRevision.tiddler = relation(sTiddler, primaryjoin=sTiddler.id==sRevision.tiddler_id)
 
 
-class sPolicy(Base):
-    __tablename__ = 'policies'
+class sPolicy(object):
+    pass
 
-    id = Column(Integer, primary_key=True)
-    read = Column(Unicode(2048))
-    write = Column(Unicode(2048))
-    delete = Column(Unicode(2048))
-    create = Column(Unicode(2048))
-    manage = Column(Unicode(2048))
-    owner = Column(Unicode(2048))
+policies = Table('policies', Base.metadata,
+        Column('id', Integer, primary_key=True),
+        Column('read', Unicode(2048)),
+        Column('write', Unicode(2048)),
+        Column('delete', Unicode(2048)),
+        Column('create', Unicode(2048)),
+        Column('manage', Unicode(2048)),
+        Column('owner', Unicode(2048))
+    )
 
+mapper(sPolicy, policies)
 
 class sBag(Base):
     __tablename__ = 'bags'
