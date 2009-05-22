@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from tiddlyweb.stores import StorageInterface
 
@@ -46,8 +45,8 @@ class sTiddler(Base):
     __tablename__ = 'tiddlers'
 
     id = Column(String(50))
-    title = Column(Unicode(512), primary_key=True)
-    bag_name = Column(Unicode(256), ForeignKey('bags.name'), primary_key=True)
+    title = Column(Unicode(128), primary_key=True)
+    bag_name = Column(Unicode(128), ForeignKey('bags.name'), primary_key=True)
 
     revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
             order_by=sRevision.revision_id, cascade='delete')
@@ -106,9 +105,9 @@ class sBag(Base):
 class sRecipe(Base):
     __tablename__ = 'recipes'
 
-    name = Column(Unicode(512), primary_key=True)
+    name = Column(Unicode(256), primary_key=True)
     desc = Column(Unicode(1024))
-    recipe_string = Column(UnicodeText, default='')
+    recipe_string = Column(UnicodeText, default=u'')
     policy_id = Column(Integer, ForeignKey('policies.id'))
 
     policy = relation(sPolicy, uselist=False)
@@ -123,7 +122,7 @@ class sRecipe(Base):
 class sRole(Base):
     __tablename__ = 'roles'
 
-    usersign = Column(Unicode(512), ForeignKey('users.usersign'), primary_key=True)
+    usersign = Column(Unicode(256), ForeignKey('users.usersign'), primary_key=True)
     role_name = Column(Unicode(50), primary_key=True)
 
     def __repr__(self):
@@ -132,7 +131,7 @@ class sRole(Base):
 class sUser(Base):
     __tablename__ = 'users'
 
-    usersign = Column(Unicode(512), primary_key=True)
+    usersign = Column(Unicode(256), primary_key=True)
     note = Column(Unicode(1024))
     password = Column(String(128))
     
@@ -205,8 +204,8 @@ class Store(StorageInterface):
         return srecipe
 
     def _map_srecipe_string(self, recipe_list):
-        string = ''
-        string += '\n'.join(['%s?%s' % (bag, filter_string) for bag, filter_string in recipe_list])
+        string = u''
+        string += '\n'.join(['%s?%s' % (unicode(bag), unicode(filter_string)) for bag, filter_string in recipe_list])
         return string
 
     def bag_delete(self, bag):
