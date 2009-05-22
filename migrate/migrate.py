@@ -43,6 +43,7 @@ def migrate_recipes(source, target):
 def migrate_users(source, target):
     print "migrate users"
     for user in source.list_users():
+        user = source.get(user)
         print "putting user %s" % user.usersign
         target.put(user)
 
