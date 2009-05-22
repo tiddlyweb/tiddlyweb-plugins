@@ -17,9 +17,7 @@ is sent in the configuration.
 Some things are not yet supported:
 
 * Created attribute and extended fields on tiddlers.
-* Search.
-* Users.
-* Setting database type in config.
+* Handle tiddlers with 'type' field set.
 * Efficiently handling the mapping between tiddlyweb.model objects
   and SQLAlchemy ways. Currently a great deal of redundancy.
   By switching from the declarative_base to explicit Mappers
