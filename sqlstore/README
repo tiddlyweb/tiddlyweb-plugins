@@ -29,3 +29,13 @@ Some things are not yet supported:
 * Attend to any unicode issues.
 
 These will come soon.
+
+! Other Notes
+
+* When using mysql, it is critical that the charset be set correctly:
+
+    default-character-set=utf8
+    default-collation=utf8_general_ci
+
+* When running against the tests, the created tables need to be dropped
+  between tests.

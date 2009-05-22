@@ -1,10 +1,11 @@
 import logging
+import sys
 
 from tiddlyweb.stores import StorageInterface
 
 from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
 
-from sqlalchemy import ForeignKey, Column, String, Integer, Text, create_engine
+from sqlalchemy import ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
 from sqlalchemy.sql import and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref
@@ -30,8 +31,8 @@ class sRevision(Base):
     tiddler_id = Column(String(50), ForeignKey('tiddlers.id'))
     modifier = Column(String(14))
     modified = Column(String(14))
-    tags = Column(String(1024))
-    text = Column(Text)
+    tags = Column(Unicode(1024))
+    text = Column(UnicodeText)
     revision_id = Column(Integer, nullable=False)
 
     def __init__(self):
@@ -45,8 +46,8 @@ class sTiddler(Base):
     __tablename__ = 'tiddlers'
 
     id = Column(String(50))
-    title = Column(String(512), primary_key=True)
-    bag_name = Column(String(256), ForeignKey('bags.name'), primary_key=True)
+    title = Column(Unicode(512), primary_key=True)
+    bag_name = Column(Unicode(256), ForeignKey('bags.name'), primary_key=True)
 
     revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
             order_by=sRevision.revision_id, cascade='delete')
@@ -76,19 +77,19 @@ class sPolicy(Base):
     __tablename__ = 'policies'
 
     id = Column(Integer, primary_key=True)
-    read = Column(String(2048))
-    write = Column(String(2048))
-    delete = Column(String(2048))
-    create = Column(String(2048))
-    manage = Column(String(2048))
-    owner = Column(String(2048))
+    read = Column(Unicode(2048))
+    write = Column(Unicode(2048))
+    delete = Column(Unicode(2048))
+    create = Column(Unicode(2048))
+    manage = Column(Unicode(2048))
+    owner = Column(Unicode(2048))
 
 
 class sBag(Base):
     __tablename__ = 'bags'
 
-    name = Column(String(256), primary_key=True)
-    desc = Column(String(1024))
+    name = Column(Unicode(256), primary_key=True)
+    desc = Column(Unicode(1024))
     policy_id = Column(Integer, ForeignKey('policies.id'))
 
     tiddlers = relation(sTiddler, backref='bag', primaryjoin=sTiddler.bag_name==name, cascade='delete')
@@ -105,9 +106,9 @@ class sBag(Base):
 class sRecipe(Base):
     __tablename__ = 'recipes'
 
-    name = Column(String(512), primary_key=True)
-    desc = Column(String(1024))
-    recipe_string = Column(Text, default='')
+    name = Column(Unicode(512), primary_key=True)
+    desc = Column(Unicode(1024))
+    recipe_string = Column(UnicodeText, default='')
     policy_id = Column(Integer, ForeignKey('policies.id'))
 
     policy = relation(sPolicy, uselist=False)
@@ -122,8 +123,8 @@ class sRecipe(Base):
 class sRole(Base):
     __tablename__ = 'roles'
 
-    usersign = Column(String(512), ForeignKey('users.usersign'), primary_key=True)
-    role_name = Column(String(50), primary_key=True)
+    usersign = Column(Unicode(512), ForeignKey('users.usersign'), primary_key=True)
+    role_name = Column(Unicode(50), primary_key=True)
 
     def __repr__(self):
         return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
@@ -131,8 +132,8 @@ class sRole(Base):
 class sUser(Base):
     __tablename__ = 'users'
 
-    usersign = Column(String(512), primary_key=True)
-    note = Column(String(1024))
+    usersign = Column(Unicode(512), primary_key=True)
+    note = Column(Unicode(1024))
     password = Column(String(128))
     
     roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete')
@@ -261,7 +262,7 @@ class Store(StorageInterface):
 
     def _map_spolicy_rule(self, field_list):
         if field_list:
-            field_value = ','.join(['"%s"' % name for name in field_list])
+            field_value = ','.join(['"%s"' % unicode(name) for name in field_list])
             if field_value:
                 field_value = '[' + field_value + ']'
             else:
