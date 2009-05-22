@@ -35,6 +35,7 @@ def migrate(args):
 def migrate_recipes(source, target):
     print "migrate recipes"
     for recipe in source.list_recipes():
+        recipe = source.get(recipe)
         print "putting recipe %s" % recipe.name
         target.put(recipe)
 
@@ -53,7 +54,7 @@ def migrate_bags(source, target):
         tiddlers = bag.list_tiddlers()
         target.put(bag)
         for tiddler in tiddlers:
-            for revision_id in source.list_tiddler_revisions(tiddler):
+            for revision_id in reversed(source.list_tiddler_revisions(tiddler)):
                 tiddler_revision = Tiddler(tiddler.title, tiddler.bag)
                 tiddler_revision.revision = revision_id
                 tiddler_revision = source.get(tiddler_revision)
