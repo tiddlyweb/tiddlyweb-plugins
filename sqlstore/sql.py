@@ -3,11 +3,10 @@ import logging
 from uuid import uuid4 as uuid
 from base64 import b64encode, b64decode
 
-from sqlalchemy import ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
+from sqlalchemy import MetaData, Table, ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
 from sqlalchemy.sql import and_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relation, backref
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relation, backref, mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 from tiddlyweb.model.bag import Bag
@@ -135,27 +134,31 @@ class sRecipe(Base):
         return "<sRecipe('%s')>" % (self.name)
 
 
-class sRole(Base):
-    __tablename__ = 'roles'
-
-    usersign = Column(Unicode(256), ForeignKey('users.usersign'), primary_key=True)
-    role_name = Column(Unicode(50), primary_key=True)
-
+class sRole(object):
     def __repr__(self):
         return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
-    
 
-class sUser(Base):
-    __tablename__ = 'users'
 
-    usersign = Column(Unicode(256), primary_key=True)
-    note = Column(Unicode(1024))
-    password = Column(String(128))
-    
-    roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete')
+roles_table = Table('roles', Base.metadata,
+        Column('usersign', Unicode(256), ForeignKey('users.usersign'), primary_key=True),
+        Column('role_name', Unicode(50), primary_key=True)
+        )
 
-    def __repr__(self):
-        return "<sUser('%s:%s')>" % (self.usersign, self.roles)
+
+users = Table('users', Base.metadata,
+        Column('usersign', Unicode(256), primary_key=True),
+        Column('note', Unicode(1024)),
+        Column('password', String(128))
+        )
+
+mapper(sRole, roles_table)
+
+mapper(User, users, properties={
+    'usersign': users.c.usersign,
+    'note': users.c.note,
+    '_password': users.c.password,
+    '_roles': relation(sRole, primaryjoin=sRole.usersign==users.c.usersign, cascade='delete')
+    })
 
 
 class Store(StorageInterface):
@@ -389,39 +392,26 @@ class Store(StorageInterface):
 
     def user_delete(self, user):
         try:
-            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
-            self.session.delete(suser)
+            user = self.session.query(User).filter(User.usersign==user.usersign).one()
+            self.session.delete(user)
             self.session.commit()
         except NoResultFound, exc:
             raise NoUserError('user %s not found, %s' % (user.usersign, exc))
 
     def user_get(self, user):
         try:
-            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
-            user = self._map_user(user, suser)
+            user = self.session.query(User).filter(User.usersign==user.usersign).one()
+            # The roles attribute got eaten somewhere.
+            user.roles = set()
+            [user.add_role(role.role_name) for role in user._roles]
             return user
         except NoResultFound, exc:
             raise NoUserError('user %s not found, %s' % (user.usersign, exc))
 
-    def _map_user(self, user, suser):
-        user.usersign = suser.usersign
-        user._password = suser.password
-        user.note = suser.note
-        [user.add_role(role.role_name) for role in suser.roles]
-        return user
-
     def user_put(self, user):
-        suser = self._map_suser(user)
-        self.session.merge(suser)
-        self.session.commit()
-
-    def _map_suser(self, user):
-        suser = sUser()
-        suser.usersign = user.usersign
-        suser.password = user._password
-        suser.note = user.note
+        self.session.merge(user)
         self._map_sroles(user)
-        return suser
+        self.session.commit()
 
     def _map_sroles(self, user):
         usersign = user.usersign
@@ -438,7 +428,7 @@ class Store(StorageInterface):
         return [self._map_bag(Bag(sbag.name), sbag) for sbag in self.session.query(sBag).all()]
 
     def list_users(self):
-        return [self._map_user(User(suser.usersign), suser) for suser in self.session.query(sUser).all()]
+        return self.session.query(User).all()
 
     def list_tiddler_revisions(self, tiddler):
         try:
