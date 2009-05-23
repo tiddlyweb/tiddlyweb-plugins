@@ -19,4 +19,5 @@ def _gather_data(environ):
     return {
             'username': environ['tiddlyweb.usersign']['name'],
             'version': tiddlyweb.__version__,
+            'challengers': environ['tiddlyweb.config']['auth_systems'],
             }
