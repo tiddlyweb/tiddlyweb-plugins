@@ -261,35 +261,10 @@ class Store(StorageInterface):
         except NoResultFound, exc:
             raise NoRecipeError('no results for recipe %s, %s' % (recipe.name, exc))
 
-    def _map_recipe(self, recipe, srecipe):
-        recipe.desc = srecipe.desc
-        recipe.policy = self._map_policy(srecipe.policy)
-        recipe.set_recipe(self._map_recipe_string(srecipe.recipe_string))
-        return recipe
-
-    def _map_recipe_string(self, recipe_string):
-        recipe = []
-        if recipe_string:
-            for line in recipe_string.split('\n'):
-                bag, filter = line.split('?', 1)
-                recipe.append([bag, filter])
-        return recipe
-
     def recipe_put(self, recipe):
         srecipe = self._map_srecipe(recipe)
         self.session.merge(srecipe)
         self.session.commit()
-
-    def _map_srecipe(self, recipe):
-        srecipe = sRecipe(recipe.name, recipe.desc)
-        srecipe.policy = self._map_spolicy(recipe.policy)
-        srecipe.recipe_string = self._map_srecipe_string(recipe)
-        return srecipe
-
-    def _map_srecipe_string(self, recipe_list):
-        string = u''
-        string += '\n'.join(['%s?%s' % (unicode(bag), unicode(filter_string)) for bag, filter_string in recipe_list])
-        return string
 
     def bag_delete(self, bag):
         try:
@@ -312,51 +287,10 @@ class Store(StorageInterface):
         except NoResultFound, exc:
             raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
 
-    def _map_bag(self, bag, sbag):
-        bag.desc = sbag.desc
-        bag.policy = self._map_policy(sbag.policy)
-        return bag
-
     def bag_put(self, bag):
         sbag = self._map_sbag(bag)
         self.session.merge(sbag)
         self.session.commit()
-
-    def _map_sbag(self, bag):
-        sbag = sBag(bag.name, bag.desc)
-        sbag.policy = self._map_spolicy(bag.policy)
-        return sbag
-
-    def _map_spolicy(self, policy):
-        spolicy = sPolicy()
-        spolicy.owner = policy.owner
-        for field in ['read', 'write', 'delete', 'create', 'manage']:
-            setattr(spolicy, field, self._map_spolicy_rule(getattr(policy, field)))
-        return spolicy
-
-    def _map_policy(self, spolicy):
-        policy = Policy()
-        policy.owner = spolicy.owner
-        for field in ['read', 'write', 'delete', 'create', 'manage']:
-            setattr(policy, field, self._map_policy_rule(getattr(spolicy, field)))
-        return policy
-
-    def _map_spolicy_rule(self, field_list):
-        if field_list:
-            field_value = ','.join(['"%s"' % unicode(name) for name in field_list])
-            if field_value:
-                field_value = '[' + field_value + ']'
-            else:
-                field_value = None
-        else:
-            field_value = None
-        return field_value
-
-    def _map_policy_rule(self, field_string):
-        if field_string:
-            field_string = field_string.strip('["').rstrip('"]')
-            return field_string.split('","')
-        return []
 
     def tiddler_delete(self, tiddler):
         try:
@@ -382,77 +316,10 @@ class Store(StorageInterface):
         except NoResultFound, exc:
             raise NoTiddlerError('Tiddler %s not found: %s' % (tiddler.title, exc))
 
-
-    def _map_tiddler(self, tiddler, stiddler):
-        try:
-            revision = stiddler.revision()
-            tiddler.modifier = revision.modifier
-            tiddler.modified = revision.modified
-            tiddler.revision = revision.revision_id
-            tiddler.type = revision.type
-            if tiddler.type and tiddler.type != 'None':
-                tiddler.text = b64decode(revision.text.lstrip().rstrip())
-            else:
-                tiddler.text = revision.text
-            tiddler.tags = self._map_tags(revision.tags)
-
-            for sfield in revision.fields:
-                tiddler.fields[sfield.name] = sfield.value
-
-            tiddler.created = stiddler.created()
-
-            return tiddler
-        except IndexError, exc:
-            raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
-
-    def _map_tags(self, tags_string):
-        return string_to_tags_list(tags_string)
-
     def tiddler_put(self, tiddler):
         stiddler = self._map_stiddler(tiddler)
         self.session.merge(stiddler)
         self.session.commit()
-
-    def _map_stiddler(self, tiddler):
-        try:
-            stiddler = (self.session.query(sTiddler).
-                    filter(sTiddler.title == tiddler.title).
-                    filter(sTiddler.bag_name == tiddler.bag).one())
-        except NoResultFound:
-            stiddler = sTiddler(tiddler.title, tiddler.bag)
-
-        if tiddler.type and tiddler.type != 'None':
-            tiddler.text = unicode(b64encode(tiddler.text))
-
-        srevision = sRevision()
-        srevision.type = tiddler.type
-        srevision.tiddler_id = stiddler.id
-        srevision.modified = tiddler.modified
-        srevision.modifier = tiddler.modifier
-        srevision.text = tiddler.text
-        srevision.tags = self._map_stags(tiddler.tags)
-        try:
-            srevision.revision_id = stiddler.revisions[-1].revision_id + 1
-        except IndexError:
-            srevision.revision_id = 1
-
-        for field in tiddler.fields:
-            if field.startswith('server.'):
-                continue
-            sfield = sField()
-            sfield.name = field
-            sfield.value = tiddler.fields[field]
-            sfield.revision_id = srevision.id
-            self.session.add(sfield)
-
-        self.session.add(srevision)
-        # we need to update the revision on the tiddlyweb tiddler
-        # so the correct ETag is set.
-        tiddler.revision = srevision.revision_id
-        return stiddler
-
-    def _map_stags(self, tags):
-        return self.serializer.serialization.tags_as(tags)
 
     def user_delete(self, user):
         try:
@@ -476,14 +343,6 @@ class Store(StorageInterface):
         self.session.merge(user)
         self._map_sroles(user)
         self.session.commit()
-
-    def _map_sroles(self, user):
-        usersign = user.usersign
-        for role in user.roles:
-            srole = sRole()
-            srole.usersign = usersign
-            srole.role_name = role
-            self.session.merge(srole)
 
     def list_recipes(self):
         return [self._map_recipe(Recipe(srecipe.name), srecipe) for srecipe in self.session.query(sRecipe).all()]
@@ -523,3 +382,143 @@ class Store(StorageInterface):
                 if stiddler.revision().text and query in stiddler.revision().text:
                     found_tiddlers.append(tiddler)
         return found_tiddlers
+
+    def _map_bag(self, bag, sbag):
+        bag.desc = sbag.desc
+        bag.policy = self._map_policy(sbag.policy)
+        return bag
+
+    def _map_policy(self, spolicy):
+        policy = Policy()
+        policy.owner = spolicy.owner
+        for field in ['read', 'write', 'delete', 'create', 'manage']:
+            setattr(policy, field, self._map_policy_rule(getattr(spolicy, field)))
+        return policy
+
+    def _map_policy_rule(self, field_string):
+        if field_string:
+            field_string = field_string.strip('["').rstrip('"]')
+            return field_string.split('","')
+        return []
+
+    def _map_recipe(self, recipe, srecipe):
+        recipe.desc = srecipe.desc
+        recipe.policy = self._map_policy(srecipe.policy)
+        recipe.set_recipe(self._map_recipe_string(srecipe.recipe_string))
+        return recipe
+
+    def _map_recipe_string(self, recipe_string):
+        recipe = []
+        if recipe_string:
+            for line in recipe_string.split('\n'):
+                bag, filter = line.split('?', 1)
+                recipe.append([bag, filter])
+        return recipe
+
+    def _map_sbag(self, bag):
+        sbag = sBag(bag.name, bag.desc)
+        sbag.policy = self._map_spolicy(bag.policy)
+        return sbag
+
+    def _map_spolicy(self, policy):
+        spolicy = sPolicy()
+        spolicy.owner = policy.owner
+        for field in ['read', 'write', 'delete', 'create', 'manage']:
+            setattr(spolicy, field, self._map_spolicy_rule(getattr(policy, field)))
+        return spolicy
+
+    def _map_spolicy_rule(self, field_list):
+        if field_list:
+            field_value = ','.join(['"%s"' % unicode(name) for name in field_list])
+            if field_value:
+                field_value = '[' + field_value + ']'
+            else:
+                field_value = None
+        else:
+            field_value = None
+        return field_value
+
+    def _map_srecipe(self, recipe):
+        srecipe = sRecipe(recipe.name, recipe.desc)
+        srecipe.policy = self._map_spolicy(recipe.policy)
+        srecipe.recipe_string = self._map_srecipe_string(recipe)
+        return srecipe
+
+    def _map_srecipe_string(self, recipe_list):
+        string = u''
+        string += '\n'.join(['%s?%s' % (unicode(bag), unicode(filter_string)) for bag, filter_string in recipe_list])
+        return string
+
+    def _map_sroles(self, user):
+        usersign = user.usersign
+        for role in user.roles:
+            srole = sRole()
+            srole.usersign = usersign
+            srole.role_name = role
+            self.session.merge(srole)
+
+    def _map_stags(self, tags):
+        return self.serializer.serialization.tags_as(tags)
+
+    def _map_stiddler(self, tiddler):
+        try:
+            stiddler = (self.session.query(sTiddler).
+                    filter(sTiddler.title == tiddler.title).
+                    filter(sTiddler.bag_name == tiddler.bag).one())
+        except NoResultFound:
+            stiddler = sTiddler(tiddler.title, tiddler.bag)
+
+        if tiddler.type and tiddler.type != 'None':
+            tiddler.text = unicode(b64encode(tiddler.text))
+
+        srevision = sRevision()
+        srevision.type = tiddler.type
+        srevision.tiddler_id = stiddler.id
+        srevision.modified = tiddler.modified
+        srevision.modifier = tiddler.modifier
+        srevision.text = tiddler.text
+        srevision.tags = self._map_stags(tiddler.tags)
+        try:
+            srevision.revision_id = stiddler.revisions[-1].revision_id + 1
+        except IndexError:
+            srevision.revision_id = 1
+
+        for field in tiddler.fields:
+            if field.startswith('server.'):
+                continue
+            sfield = sField()
+            sfield.name = field
+            sfield.value = tiddler.fields[field]
+            sfield.revision_id = srevision.id
+            self.session.add(sfield)
+
+        self.session.add(srevision)
+        # we need to update the revision on the tiddlyweb tiddler
+        # so the correct ETag is set.
+        tiddler.revision = srevision.revision_id
+        return stiddler
+
+    def _map_tags(self, tags_string):
+        return string_to_tags_list(tags_string)
+
+    def _map_tiddler(self, tiddler, stiddler):
+        try:
+            revision = stiddler.revision()
+            tiddler.modifier = revision.modifier
+            tiddler.modified = revision.modified
+            tiddler.revision = revision.revision_id
+            tiddler.type = revision.type
+            if tiddler.type and tiddler.type != 'None':
+                tiddler.text = b64decode(revision.text.lstrip().rstrip())
+            else:
+                tiddler.text = revision.text
+            tiddler.tags = self._map_tags(revision.tags)
+
+            for sfield in revision.fields:
+                tiddler.fields[sfield.name] = sfield.value
+
+            tiddler.created = stiddler.created()
+
+            return tiddler
+        except IndexError, exc:
+            raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
