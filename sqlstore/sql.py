@@ -1,9 +1,27 @@
+"""
+This is an implementation of the TiddlyWeb StorageInterface,
+as defined in tiddlyweb.stores. It provides storage for
+Tiddler, Bag, Recipe and User entities in an RDBMS via the
+Python SQLAlchemy library.
+
+The entities created are:
+
+    fields:    The fields of a Tiddler revision.
+    revisions: A specific revision of a Tiddler.
+    tiddlers:  The name and bag of a Tiddler.
+    policies:  A Policy, associated with a bag or recipe.
+    bags:      A Bag.
+    recipes:   A recipe.
+    roles:     The roles associated with a User.
+    users:     A User.
+"""
 import logging
 
 from uuid import uuid4 as uuid
 from base64 import b64encode, b64decode
 
-from sqlalchemy import MetaData, Table, ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
+from sqlalchemy import MetaData, Table, ForeignKey, Column, String, Unicode, \
+        Integer, UnicodeText, create_engine
 from sqlalchemy.sql import and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref, mapper, sessionmaker
@@ -15,24 +33,36 @@ from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler, string_to_tags_list
 from tiddlyweb.model.user import User
 from tiddlyweb.serializer import Serializer
-from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
+from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, \
+        NoUserError
 from tiddlyweb.stores import StorageInterface
 
 
+# Base class for declarative mapper classes.
 Base = declarative_base()
 
-
-# Fields on a Tiddler Revision
 class sField(object):
+    """
+    Mapper class for a single tiddler extended field.
+    """
     pass
+
+# Scheme for the fields table.
 fields = Table('fields', Base.metadata,
     Column('name', Unicode(256), primary_key=True),
     Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True),
     Column('value', Unicode(1024))
     )
+# map the sField class to the fields table
 mapper(sField, fields)
 
 class sRevision(Base):
+    """
+    Mapper class for a single tiddler revision.
+
+    These are the parts of a tiddler that may change
+    between revisions.
+    """
     __tablename__ = 'revisions'
 
     id = Column(String(50), primary_key=True)
@@ -54,6 +84,10 @@ class sRevision(Base):
 
 
 class sTiddler(Base):
+    """
+    Mapper class for a single tiddler in a bag.
+    Has a relation to all its revisions.
+    """
     __tablename__ = 'tiddlers'
 
     id = Column(String(50))
@@ -64,11 +98,18 @@ class sTiddler(Base):
             order_by=sRevision.revision_id, cascade='delete')
 
     def revision(self):
+        """
+        Calculate the current revision of this tiddler.
+        """
         if self.rev:
             return self.revisions[self.rev - 1]
         return self.revisions[-1]
 
     def created(self):
+        """
+        Calculate the created field for this tiddler from
+        the first revision.
+        """
         return self.revisions[0].modified
 
     def __init__(self, title, bag_name, rev=None):
@@ -81,12 +122,17 @@ class sTiddler(Base):
         return "<sTiddler('%s:%s:%s')>" % (self.bag_name, self.title, self.id)
 
 
+# Establish the relation between a revision and its Tiddler
 sRevision.tiddler = relation(sTiddler, primaryjoin=sTiddler.id==sRevision.tiddler_id)
 
 
 class sPolicy(object):
+    """
+    Empty mapper class for a policy.
+    """
     pass
-
+# The policies table. Each constraint's value is a 
+# string that looks a bit like a list.
 policies = Table('policies', Base.metadata,
         Column('id', Integer, primary_key=True),
         Column('read', Unicode(2048)),
@@ -96,10 +142,14 @@ policies = Table('policies', Base.metadata,
         Column('manage', Unicode(2048)),
         Column('owner', Unicode(2048))
     )
-
+# map the sPolicy class to the policies table
 mapper(sPolicy, policies)
 
 class sBag(Base):
+    """
+    Mapper class representing a Bag.
+    Has relations to its policy and the tiddlers it contains.
+    """
     __tablename__ = 'bags'
 
     name = Column(Unicode(256), primary_key=True)
@@ -119,6 +169,10 @@ class sBag(Base):
 
 
 class sRecipe(Base):
+    """
+    Mapper class for a recipe.
+    Has a relation to its policy.
+    """
     __tablename__ = 'recipes'
 
     name = Column(Unicode(256), primary_key=True)
@@ -137,24 +191,28 @@ class sRecipe(Base):
 
 
 class sRole(object):
+    """
+    Empty mapper class representing a role.
+    """
     def __repr__(self):
         return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
-
-
+# The roles table.
 roles_table = Table('roles', Base.metadata,
         Column('usersign', Unicode(256), ForeignKey('users.usersign'), primary_key=True),
         Column('role_name', Unicode(50), primary_key=True)
         )
+# map the sRole class to the roles table
+mapper(sRole, roles_table)
 
 
+# The users table.
 users = Table('users', Base.metadata,
         Column('usersign', Unicode(256), primary_key=True),
         Column('note', Unicode(1024)),
         Column('password', String(128))
         )
 
-mapper(sRole, roles_table)
-
+# Map the TiddlyWeb User class to the users table
 mapper(User, users, properties={
     'usersign': users.c.usersign,
     'note': users.c.note,
@@ -173,6 +231,10 @@ class Store(StorageInterface):
         self._init_store()
 
     def _init_store(self):
+        """
+        Establish the database engine and session,
+        creating tables if needed.
+        """
         self.engine = create_engine(self._db_config())
         self.serializer = Serializer('text')
         Base.metadata.create_all(self.engine)
