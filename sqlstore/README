@@ -7,27 +7,34 @@ to test this code is to run against the TiddlyWeb core test suite,
 with tiddlywebconfig.py set as follows:
 
 config = {
-    'server_store': ['sql', {}],
+    # using sqlite
+    'server_store': ['sql', {'db_config': 'sqlite:///test.db'}],
+    # using mysql 
+    #'server_store': ['sql',
+    #    {'db_config': 'mysql://localhost/tw?charset=utf8'}],
+
 }
 
-The current code uses a sqlite database called test.db in the 
-current working database. This will change to use whatever
-is sent in the configuration.
+db_config is a database uri as used in SQLAlchmey.
 
 Some things are not yet supported:
 
-* Created attribute and extended fields on tiddlers.
-* Handle tiddlers with 'type' field set.
 * Efficiently handling the mapping between tiddlyweb.model objects
   and SQLAlchemy ways. Currently a great deal of redundancy.
   By switching from the declarative_base to explicit Mappers
-  things should clean up nicely.
+  things could clean up nicely.
 * Primary key handling is fairly icky. Probably want to move to ids,
   plus some unique index fields.
 * Data normalization is not what I'd like.
 * Attend to any unicode issues.
 
-These will come soon.
+Issues:
 
 * When running against the tests, the created tables need to be dropped
-  between tests.
+  between each test file.
+
+The Future:
+
+It's hoped that this will become a robust and efficient storage system
+for TiddlyWeb. There is a great deal of room for improvement to the
+code. Contributions are welcomed.

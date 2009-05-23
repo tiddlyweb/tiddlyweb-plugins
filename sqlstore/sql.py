@@ -22,22 +22,21 @@ from tiddlyweb.stores import StorageInterface
 Base = declarative_base()
 
 
-class sField(Base):
-    __tablename__ = 'fields'
-
-    name = Column(Unicode(256), primary_key=True)
-    revision_id = Column(String(50), ForeignKey('revisions.id'), primary_key=True)
-    value = Column(Unicode(1024))
-
-    def __repr__(self):
-        return "<sField('%s:%s:%s')>" % (self.revision.tiddler.title, self.name, self.value)
-
+# Fields on a Tiddler Revision
+class sField(object):
+    pass
+fields = Table('fields', Base.metadata,
+    Column('name', Unicode(256), primary_key=True),
+    Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True),
+    Column('value', Unicode(1024))
+    )
+mapper(sField, fields)
 
 class sRevision(Base):
     __tablename__ = 'revisions'
 
     id = Column(String(50), primary_key=True)
-    tiddler_id = Column(String(50), ForeignKey('tiddlers.id'))
+    tiddler_id = Column(String(50), ForeignKey('tiddlers.id'), index=True)
     modifier = Column(Unicode(256))
     modified = Column(String(14))
     type = Column(String(128))
