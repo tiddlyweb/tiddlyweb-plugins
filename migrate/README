@@ -1,0 +1,30 @@
+migrate is a plugin for migrating the content of one
+TiddlyWeb store to another. This can provide two functions:
+
+* Duplicating a store to the same format for use elsehwere,
+  or backups.
+* changing the format of the store from one StorageInterface
+  implementation to another (e.g. from text to sql).
+
+To use 'migrate' the tiddlywebconfig.py in the source
+instance should be edited to add 'migrate' to
+'twanager_plugins' and to add a 'target_store' key.
+
+The 'target_store' key's value is the same form as
+'server_store', with the config information of the 
+store being migrated to.
+
+Here's an example that will migrate from the sql store
+to the text store, with the data stored in a dir in
+/tmp:
+
+config = {
+    'twanager_plugins': ['migrate'],
+    'server_store': ['sql', {'db_config': 'sqlite:///test.db'}],
+    'target_store': ['text', {'store_root': '/tmp/backupstore'}],
+}
+
+When tiddlers are migrated from one store to another, they
+are stored as new revisions, so if the target store already
+has a tiddler of the same name in the same bag, it will create
+a new one, extending the revisions.
