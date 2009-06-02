@@ -11,6 +11,8 @@ explored.
 
 See tiddlywebconfig.py for example configuration.
 
+REQUIRES TIDDLYWEB 0.9.38
+
 !Issues
 
 * Revision ids increase per time the tiddler is written, so if you 
