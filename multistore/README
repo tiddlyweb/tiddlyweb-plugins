@@ -1,0 +1,20 @@
+A storage implementation for TiddlyWeb that can read and write
+to and from multiple other storage implementations.
+
+That is every time a read or a write operation is done through multistore,
+that operation is called on the other configured implementations, so, for
+example, when a tiddler is written, it can be written to multiple places.
+
+This is for the entire data store. Other plugins which make different
+storage decisions based what bag is being read or written to are being
+explored.
+
+See tiddlywebconfig.py for example configuration.
+
+!Issues
+
+* Revision ids increase per time the tiddler is written, so if you 
+  write a tiddler three times via one put in multistore, the revision
+  on the tiddler object will be 3. If revisions are being used correctly
+  this shouldn't be a problem, but if people are relying on the value of the
+  id, it could.
