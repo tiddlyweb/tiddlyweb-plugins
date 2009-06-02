@@ -43,6 +43,7 @@ class Store(StorageInterface):
         self.environ = environ
         self.http = httplib2.Http()
         server_info = self.environ['tiddlyweb.config']['server_store'][1]
+        self._base = server_info['server_base']
         user = server_info.get('user', None)
         password = server_info.get('password', None)
         self.authorization = None
@@ -62,7 +63,7 @@ class Store(StorageInterface):
         return self.http.request(url, method=method, headers=headers, body=data)
 
     def _server_base(self):
-        return self.environ['tiddlyweb.config']['server_store'][1]['server_base']
+        return self._base
 
     def _is_success(self, response):
         return response['status'].startswith('20') or response['status'] == 304
