@@ -1,0 +1,11 @@
+
+A TiddlyWeb store that makes it possible to store some 
+content in different stores.
+
+This mostly for the sake of exploring the concept, although
+it would probably be useful once fleshed out.
+
+For a first pass will have a sequence of rules against which
+a bag name matches, somewhat like routes.
+
+We'll start with static rules.
