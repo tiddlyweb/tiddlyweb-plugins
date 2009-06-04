@@ -38,6 +38,7 @@ class Store(StorageInterface):
             recipe = cached_recipe
         else:
             recipe = self.cached_store.get(recipe)
+            del recipe.store
             MC.set(key, recipe)
         return recipe
 
@@ -59,6 +60,7 @@ class Store(StorageInterface):
             bag = cached_bag
         else:
             bag = self.cached_store.get(bag)
+            del bag.store
             MC.set(key, bag)
         return bag
 
@@ -81,6 +83,7 @@ class Store(StorageInterface):
                 tiddler = cached_tiddler
             else:
                 tiddler = self.cached_store.get(tiddler)
+                del tiddler.store
                 MC.set(key, tiddler)
         else:
             tiddler = self.cached_store.get(tiddler)
@@ -104,6 +107,7 @@ class Store(StorageInterface):
             user = cached_user
         else:
             user = self.cached_store.get(user)
+            del user.store
             MC.set(key, user)
         return user
 
