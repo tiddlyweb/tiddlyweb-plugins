@@ -467,6 +467,7 @@ class Store(StorageInterface):
                     filter(sTiddler.bag_name == tiddler.bag).one())
         except NoResultFound:
             stiddler = sTiddler(tiddler.title, tiddler.bag)
+            self.session.add(stiddler)
 
         if tiddler.type and tiddler.type != 'None':
             tiddler.text = unicode(b64encode(tiddler.text))
