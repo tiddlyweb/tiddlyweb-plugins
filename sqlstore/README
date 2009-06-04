@@ -2,6 +2,10 @@
 A store that uses Python's SQLAlchemy package to talk to a
 database. This is an exploration. Lots of cleanup can be done.
 
+You will need to install SQLAlchemy to use this plugin:
+
+   easy_install -U sqlalchemy
+
 There is a test included in this directory, but the proper way
 to test this code is to run against the TiddlyWeb core test suite,
 with tiddlywebconfig.py set as follows:
