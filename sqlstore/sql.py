@@ -90,7 +90,7 @@ class sTiddler(Base):
     """
     __tablename__ = 'tiddlers'
 
-    id = Column(String(50))
+    id = Column(String(50), unique=True)
     title = Column(Unicode(128), primary_key=True)
     bag_name = Column(Unicode(128), ForeignKey('bags.name'), primary_key=True)
 
