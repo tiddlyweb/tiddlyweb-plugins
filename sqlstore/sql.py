@@ -338,6 +338,7 @@ class Store(StorageInterface):
     def user_put(self, user):
         suser = self._map_suser(user)
         self.session.merge(suser)
+        self._map_sroles(user)
         self.session.commit()
 
     def _map_suser(self, user):
@@ -345,7 +346,6 @@ class Store(StorageInterface):
         suser.usersign = user.usersign
         suser.password = user._password
         suser.note = user.note
-        self._map_sroles(user)
         return suser
 
     def _map_sroles(self, user):
