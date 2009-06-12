@@ -290,6 +290,7 @@ class Store(StorageInterface):
                     filter(sTiddler.bag_name==tiddler.bag).one())
             self.session.delete(stiddler)
             self.session.commit()
+            self.tiddler_written(tiddler)
         except NoResultFound, exc:
             raise NoTiddlerError('no tiddler %s to delete, %s' % (tiddler.title, exc))
 
@@ -311,6 +312,7 @@ class Store(StorageInterface):
         stiddler = self._map_stiddler(tiddler)
         self.session.merge(stiddler)
         self.session.commit()
+        self.tiddler_written(tiddler)
 
     def user_delete(self, user):
         try:
