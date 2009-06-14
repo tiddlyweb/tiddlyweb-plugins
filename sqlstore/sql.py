@@ -39,6 +39,7 @@ from tiddlyweb.stores import StorageInterface
 
 # Base class for declarative mapper classes.
 Base = declarative_base()
+Session = sessionmaker()
 
 class sField(object):
     """
@@ -217,6 +218,8 @@ class Store(StorageInterface):
     A SqlAlchemy based storage interface for TiddlyWeb.
     """
 
+    session = None
+
     def __init__(self, environ=None):
         super(Store, self).__init__(environ)
         self._init_store()
@@ -226,11 +229,14 @@ class Store(StorageInterface):
         Establish the database engine and session,
         creating tables if needed.
         """
-        self.engine = create_engine(self._db_config())
+        store_type = self._db_config().split(':', 1)[0]
+        if store_type == 'sqlite' or not Store.session:
+            engine = create_engine(self._db_config())
+            Base.metadata.create_all(engine)
+            Session.configure(bind=engine)
+            Store.session = Session()
+        self.session = Store.session
         self.serializer = Serializer('text')
-        Base.metadata.create_all(self.engine)
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
 
     def _db_config(self):
         store_config = self.environ['tiddlyweb.config']['server_store'][1]
