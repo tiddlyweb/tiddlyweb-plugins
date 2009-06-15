@@ -47,7 +47,7 @@ def tiddler_written_handler(self, tiddler):
     except (IOError, OSError), exc:
         logging.warn('unable to unlink in %s: %s' % (WIKI_CACHE_DIR, exc))
 
-# note this is a dependency on the text store, which is _bad_
+# XXX: note this is a dependency on the text store, which is _bad_
 tiddlyweb.stores.text.Store.tiddler_written = tiddler_written_handler
 
 

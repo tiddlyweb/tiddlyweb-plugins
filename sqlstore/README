@@ -1,6 +1,6 @@
 
 A store that uses Python's SQLAlchemy package to talk to a
-database. This is an exploration. Lots of cleanup can be done.
+database. Lots of cleanup can be done.
 
 You will need to install SQLAlchemy to use this plugin:
 
@@ -21,21 +21,15 @@ config = {
 
 db_config is a database uri as used in SQLAlchmey.
 
-Some things are not yet supported:
+Existing Issues:
 
-* Efficiently handling the mapping between tiddlyweb.model objects
-  and SQLAlchemy ways. Currently a great deal of redundancy.
-  By switching from the declarative_base to explicit Mappers
-  things could clean up nicely.
 * Primary key handling is fairly icky. Probably want to move to ids,
   plus some unique index fields.
 * Data normalization is not what I'd like.
 * Attend to any unicode issues.
-
-Issues:
-
 * When running against the tests, the created tables need to be dropped
   between each test file.
+* unicode warnings are sometimes prodcued.
 
 The Future:
 
