@@ -60,6 +60,7 @@ def migrate_bags(source, target):
                 tiddler_revision.revision = revision_id
                 tiddler_revision = source.get(tiddler_revision)
                 print "putting tiddler %s:%s in bag %s" % (tiddler_revision.title, tiddler_revision.revision, tiddler_revision.bag)
+                tiddler_revision.revision = None
                 target.put(tiddler_revision)
 
 
