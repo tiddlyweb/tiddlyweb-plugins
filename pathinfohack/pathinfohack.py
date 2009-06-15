@@ -20,7 +20,7 @@ import logging
 
 from tiddlyweb.web.query import Query
 
-class PathInfoHack():
+class PathInfoHack(object):
     """
     WSGI environment manipulator that replaces
     the decoded path in PATH_INFO with an undecoded 
