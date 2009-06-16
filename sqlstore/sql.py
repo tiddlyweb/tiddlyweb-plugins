@@ -140,6 +140,7 @@ policies = Table('policies', Base.metadata,
         Column('delete', Unicode(2048)),
         Column('create', Unicode(2048)),
         Column('manage', Unicode(2048)),
+        Column('accept', Unicode(2048)),
         Column('owner', Unicode(2048))
     )
 # map the sPolicy class to the policies table
@@ -411,7 +412,9 @@ class Store(StorageInterface):
     def _map_policy(self, spolicy):
         policy = Policy()
         policy.owner = spolicy.owner
-        for field in ['read', 'write', 'delete', 'create', 'manage']:
+        for field in Policy.attributes:
+            if field == 'owner':
+                continue
             setattr(policy, field, self._map_policy_rule(getattr(spolicy, field)))
         return policy
 
@@ -443,7 +446,9 @@ class Store(StorageInterface):
     def _map_spolicy(self, policy):
         spolicy = sPolicy()
         spolicy.owner = policy.owner
-        for field in ['read', 'write', 'delete', 'create', 'manage']:
+        for field in Policy.attributes:
+            if field == 'owner':
+                continue
             setattr(spolicy, field, self._map_spolicy_rule(getattr(policy, field)))
         return spolicy
 
