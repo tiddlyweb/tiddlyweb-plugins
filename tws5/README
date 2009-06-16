@@ -1,0 +1,15 @@
+
+A plugin that adds an S5 serializer to TiddlyWeb, for
+use when viewing a list of tiddlers. See the docstring
+for more details.
+
+See http://meyerweb.com/eric/tools/s5/ for more on S5.
+
+Issues:
+
+* WikiLinks in the rendered HTML will not be correct.
+  This is the result of laziness at this time.
+* Incremental exposure of slides has not yet been explored.
+
+Chris Dent
+<cdent @t peermore d0t com>
