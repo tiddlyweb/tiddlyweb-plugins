@@ -95,9 +95,9 @@ class Serialization(SerializationInterface):
                 affiliation = tiddler.text
                 continue
             if tiddler.title == 'S5TimeLocation':
-                time_location = wikitext_to_wikklyhtml('', '', tiddler.text)
+                time_location = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8')
                 continue
-            tiddler.html = wikitext_to_wikklyhtml('', '', tiddler.text) # XXX not yet doing wikilink handling
+            tiddler.html = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8') # XXX not yet doing wikilink handling
             slides.append(tiddler)
 
         return self.template.render(slides=slides,
