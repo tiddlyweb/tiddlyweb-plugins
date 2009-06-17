@@ -28,7 +28,7 @@ viewing revisons) the last is used. Using the S5 serialization
 when viewing revisions doesn't make much sense.
 
 Slides other than the title slide are made up of tiddlers
-in the list (except those listed above). The title of 
+in the list (except those listed above). The title of
 the tiddler is used as the title of the slide. The text of
 the tiddler is rendered to HTML.
 
@@ -41,20 +41,22 @@ from jinja2 import Environment, FileSystemLoader
 
 import logging
 
-from tiddlyweb.wikklyhtml import wikitext_to_wikklyhtml 
+from tiddlyweb.wikklyhtml import wikitext_to_wikklyhtml
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.model.bag import Bag
+
 
 EXTENSION_TYPES = { 's5': 'application/x-s5+html' }
 SERIALIZERS = {
         'application/x-s5+html': ['s5', 'text/html; charset=UTF-8']
-        } 
+        }
 
 DEFAULT_TITLE = 'S5 Title'
 DEFAULT_SUBTITLE = 'S5 Subtitle'
 DEFAULT_PRESENTER = 'S5 Presenter'
 DEFAULT_AFFILIATION = 'S5 Affiliation'
 DEFAULT_TIME_LOCATION = 'S5 Time Location'
+
 
 class Serialization(SerializationInterface):
 
@@ -121,7 +123,3 @@ class Serialization(SerializationInterface):
 def init(config):
     config['extension_types'].update(EXTENSION_TYPES)
     config['serializers'].update(SERIALIZERS)
-
-
-
-
