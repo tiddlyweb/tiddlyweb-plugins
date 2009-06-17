@@ -45,12 +45,12 @@
     <h4>{{ affiliation }}</h4>
 </div>
 
-{% for slide in slides %}
+{% for name in slide_order %}
 <div class="slide">
-    <h1>{{ slide.title }}</h1>
-    {{ slide.html }}
+    <h1>{{ slides[name].title }}</h1>
+    {{ slides[name].html }}
 <div class="handout">
-    {{ slide.handout }}
+    {{ slides[name].handout }}
 </div>
 </div>
 {% endfor %}

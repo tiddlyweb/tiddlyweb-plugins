@@ -80,7 +80,9 @@ class Serialization(SerializationInterface):
         presenter = DEFAULT_PRESENTER
         affiliation = DEFAULT_AFFILIATION
         time_location = DEFAULT_TIME_LOCATION
-        slides = []
+        slides = {}
+        slide_order = None
+        original_slide_order = []
         for tiddler in tiddlers:
             if tiddler.title == 'SiteTitle':
                 title = tiddler.text
@@ -97,10 +99,18 @@ class Serialization(SerializationInterface):
             if tiddler.title == 'S5TimeLocation':
                 time_location = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8')
                 continue
-            tiddler.html = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8') # XXX not yet doing wikilink handling
-            slides.append(tiddler)
+            if tiddler.title == 'S5Sort':
+                slide_order = tiddler.text.split('\n')
+                continue
+            slides[tiddler.title] = tiddler
+            original_slide_order.append(tiddler.title)
+            tiddler.html = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8')
+
+        if slide_order is None:
+            slide_order = original_slide_order
 
         return self.template.render(slides=slides,
+                slide_order=slide_order,
                 title=title,
                 subtitle=subtitle,
                 presenter=presenter,
