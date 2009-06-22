@@ -44,17 +44,18 @@ def recent(environ, start_response):
         time_object = datetime.utcnow() - timedelta(30)
         modified_string = unicode(time_object.strftime('%Y%m%d%H%M%S'))
 
+    def reify_revision(tiddler, revision_id):
+        revision = Tiddler(tiddler.title, tiddler.bag)
+        revision.revision = revision_id
+        return store.get(revision)
+
     selector = select_parse('modified:>%s' % modified_string)
+    tiddlers = [store.get(tiddler) for tiddler in tiddlers]
+    tiddlers = selector(tiddlers)
     for tiddler in tiddlers:
-        stored_tiddler = store.get(tiddler)
-        if selector([stored_tiddler]):
-            revisions = store.list_tiddler_revisions(stored_tiddler)
-            for revision in revisions:
-                tiddler_revision = Tiddler(stored_tiddler.title, stored_tiddler.bag)
-                tiddler_revision.revision = revision
-                tiddler_revision = store.get(tiddler_revision)
-                if selector([tiddler_revision]):
-                    matching_tiddlers.append(tiddler_revision)
+        revisions = [reify_revision(tiddler, id) for id
+                in store.list_tiddler_revisions(tiddler)]
+        matching_tiddlers.extend(selector(revisions))
 
     tiddlers = sort_by_attribute('modified', matching_tiddlers, reverse=True)
 
