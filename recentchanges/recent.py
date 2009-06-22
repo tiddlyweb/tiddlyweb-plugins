@@ -14,6 +14,8 @@ There's an argument to be made here that this could/should
 be a serializer, but it was easier to experiment this way.
 """
 
+from datetime import datetime, timedelta
+
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
@@ -21,8 +23,10 @@ from tiddlyweb.filters.select import select_parse
 from tiddlyweb.filters.sort import sort_by_attribute
 from tiddlyweb import control
 
-from datetime import datetime, timedelta
+from tiddlywebplugins import do_html
 
+
+@do_html()
 def recent(environ, start_response):
     bag_name = environ['tiddlyweb.query'].get('bag', [None])[0]
     recipe_name = environ['tiddlyweb.query'].get('recipe', [None])[0]
@@ -30,13 +34,16 @@ def recent(environ, start_response):
 
     store = environ['tiddlyweb.store']
     tiddlers = []
+    title_string = "nothing"
     if recipe_name:
         recipe = Recipe(recipe_name)
         recipe = store.get(recipe)
         tiddlers = control.get_tiddlers_from_recipe(recipe, environ)
+        title_string = 'recipe %s' % recipe_name
     if bag_name:
         bag = store.get(Bag(bag_name))
         tiddlers = bag.list_tiddlers()
+        title_string = 'bag %s' % bag_name
     matching_tiddlers = []
     if since:
         modified_string = since
@@ -59,7 +66,7 @@ def recent(environ, start_response):
 
     tiddlers = sort_by_attribute('modified', matching_tiddlers, reverse=True)
 
-    start_response('200 OK', [('Content-Type', 'text/html')])
+    environ['tiddlyweb.title'] = 'Recent changes for %s' % title_string
 
     return ['%s:%s:%s:%s<br/>' %
             (tiddler.title, tiddler.revision, tiddler.modified, tiddler.modifier)
