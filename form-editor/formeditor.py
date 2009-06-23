@@ -113,7 +113,7 @@ def edit_link(self, environ):
 
     output = original_footer_extra(self, environ)
     if tiddler_name and not revision:
-        return output + '<div id="edit"><a href="/formeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
+        return output + '<div id="edit"><a href="/formeditor?tiddler=%s;bag=%s;recipe=%s">FormEdit</a></div>' \
                 % (tiddler_name, bag_name, recipe_name)
     return output 
 
