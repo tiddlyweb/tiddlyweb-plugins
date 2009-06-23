@@ -60,13 +60,14 @@ def get(environ, start_response):
 
     cancel_url = tiddler_url(environ, tiddler)
 
+    server_prefix = environ['tiddlyweb.config']['server_prefix']
     environ['tiddlyweb.title'] = 'Edit %s' % tiddler.title
     start_response('200 OK', [
         ('Content-Type', 'text/html')
         ])
 
     return """
-<form action="/formeditor" method="POST">
+<form action="%s/formeditor" method="POST">
 <textarea name="text" rows="10" cols="50">
 %s
 </textarea>
@@ -75,7 +76,7 @@ def get(environ, start_response):
 <input type="submit">
 <a href="%s">Cancel</a>
 </form>
-""" % (tiddler.text, tiddler.title, tiddler.bag, cancel_url)
+""" % (server_prefix, tiddler.text, tiddler.title, tiddler.bag, cancel_url)
 
 
 def post(environ, start_response):
@@ -110,11 +111,12 @@ def edit_link(self, environ):
     recipe_name = environ['wsgiorg.routing_args'][1].get('recipe_name', '')
     bag_name = environ['wsgiorg.routing_args'][1].get('bag_name', '')
     revision = environ['wsgiorg.routing_args'][1].get('revision', None)
+    server_prefix = environ['tiddlyweb.config']['server_prefix']
 
     output = original_footer_extra(self, environ)
     if tiddler_name and not revision:
-        return output + '<div id="edit"><a href="/formeditor?tiddler=%s;bag=%s;recipe=%s">FormEdit</a></div>' \
-                % (tiddler_name, bag_name, recipe_name)
+        return output + '<div id="edit"><a href="%s/formeditor?tiddler=%s;bag=%s;recipe=%s">FormEdit</a></div>' \
+                % (server_prefix, tiddler_name, bag_name, recipe_name)
     return output 
 
 HTMLPresenter.footer_extra = edit_link
