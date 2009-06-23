@@ -84,8 +84,10 @@ def get(environ, start_response):
     return send_tiddlers(environ, start_response, output_bag)
 
 
+original_footer_extra = HTMLPresenter.footer_extra
+
 def edit_link(self, environ):
-    output = self.original_footer_extra(environ)
+    output = original_footer_extra(self, environ)
     if 'tiddlyeditor_tiddlers' in environ['tiddlyweb.config']:
         tiddler_name = environ['wsgiorg.routing_args'][1].get('tiddler_name', None)
         recipe_name = environ['wsgiorg.routing_args'][1].get('recipe_name', '')
@@ -94,14 +96,11 @@ def edit_link(self, environ):
         server_prefix = environ['tiddlyweb.config']['server_prefix']
 
         if tiddler_name and not revision:
-            return output + '<div id="edit"><a href="%s/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
+            return output + '<div id="edit"><a href="%s/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">TiddlyEdit</a></div>' \
                     % (server_prefix, tiddler_name, bag_name, recipe_name)
     return output
 
-
-HTMLPresenter.original_footer_extra = HTMLPresenter.footer_extra
 HTMLPresenter.footer_extra = edit_link
-
 
 def init(config):
     config['selector'].add('/tiddlyeditor', GET=get)
