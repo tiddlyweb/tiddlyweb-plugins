@@ -103,22 +103,22 @@ def post(environ, start_response):
     raise HTTP302(redir_url)
 
 
+original_footer_extra = HTMLPresenter.footer_extra
+
 def edit_link(self, environ):
     tiddler_name = environ['wsgiorg.routing_args'][1].get('tiddler_name', None)
     recipe_name = environ['wsgiorg.routing_args'][1].get('recipe_name', '')
     bag_name = environ['wsgiorg.routing_args'][1].get('bag_name', '')
     revision = environ['wsgiorg.routing_args'][1].get('revision', None)
 
+    output = original_footer_extra(self, environ)
     if tiddler_name and not revision:
-        return '<div id="edit"><a href="/formeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
+        return output + '<div id="edit"><a href="/formeditor?tiddler=%s;bag=%s;recipe=%s">Edit</a></div>' \
                 % (tiddler_name, bag_name, recipe_name)
-    return ''
+    return output 
 
-
-HTMLPresenter.original_footer_extra = HTMLPresenter.footer_extra
 HTMLPresenter.footer_extra = edit_link
 
 
 def init(config):
     config['selector'].add('/formeditor', GET=get, POST=post)
-
