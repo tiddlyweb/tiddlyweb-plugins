@@ -17,19 +17,11 @@ else:
             }
 
 config = {
+        # plugins
+        'system_plugins': ['atomplugin'],
         # how are we storing data
-        'server_store': ['googledata', {}],
-        # what extensions (on urls) can we use in addition
-        # to defaults
-        'extension_types': {
-            'atom': 'application/atom+xml',
-            },
-        # which serializers are used to handle particular
-        # content types (merged with defauls)
-        'serializers': {
-            'application/atom+xml': ['atom.atom', 'application/atom+xml; charset=UTF-8'],
-            'text/html': ['atom.htmlatom', 'text/html; charset=UTF-8'],
-            },
+        'server_store': ['caching', {}],
+        'cached_store': ['googledata', {}],
         # how do we extract user information from requests
         'extractors': ['google_user_extractor'],
         # how do we authenticate (if needed)
@@ -38,4 +30,5 @@ config = {
         'css_uri': '/static/tiddlyweb.css',
         # what is the host and port of our server
         'server_host': server_host,
+        'log_level': 'DEBUG',
         }
