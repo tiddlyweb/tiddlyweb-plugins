@@ -1,6 +1,5 @@
 
 import logging
-import memcache
 
 from tiddlyweb.store import Store as StoreBoss
 from tiddlyweb.stores import StorageInterface
@@ -10,7 +9,12 @@ from tiddlyweb.config import config
 
 from urllib import quote
 
-MC = memcache.Client(config['memcache_hosts'])
+try:
+    from google.appengine.api import memcache
+    MC = memcache
+except ImportError:
+    import memcache
+    MC = memcache.Client(config['memcache_hosts'])
 
 class Store(StorageInterface):
 
