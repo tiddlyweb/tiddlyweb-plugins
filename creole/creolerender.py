@@ -3,7 +3,7 @@ from tiddlyweb.wikitext import render_wikitext
 from creoleparser import text2html
 
 
-def render(tiddler, path, environ):
+def render(tiddler, environ):
     # XXX this pays no attention to path and it should when
     # creating links.
     return text2html(tiddler.text)
