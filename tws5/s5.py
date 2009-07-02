@@ -41,7 +41,7 @@ from jinja2 import Environment, FileSystemLoader
 
 import logging
 
-from tiddlyweb.wikklyhtml import wikitext_to_wikklyhtml
+from tiddlyweb.wikitext import render_wikitext
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.model.bag import Bag
 
@@ -99,14 +99,14 @@ class Serialization(SerializationInterface):
                 affiliation = tiddler.text
                 continue
             if tiddler.title == 'S5TimeLocation':
-                time_location = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8')
+                time_location = render_wikitext(tiddler, self.environ)
                 continue
             if tiddler.title == 'S5Sort':
                 slide_order = tiddler.text.split('\n')
                 continue
             slides[tiddler.title] = tiddler
             original_slide_order.append(tiddler.title)
-            tiddler.html = unicode(wikitext_to_wikklyhtml('tiddlers/', '', tiddler.text), 'utf-8')
+            tiddler.html = render_wikitext(tiddler, self.environ)
 
         if slide_order is None:
             slide_order = original_slide_order
