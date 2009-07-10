@@ -27,7 +27,7 @@ from xml.sax.saxutils import XMLGenerator
 
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.serializations.html import Serialization as HTMLSerialization
-from tiddlyweb.wikklyhtml import wikitext_to_wikklyhtml
+from tiddlyweb.wikitext import render_wikitext
 from tiddlyweb.web.util import server_base_url
 
 class Serialization(HTMLSerialization):
@@ -101,7 +101,8 @@ class Serialization(HTMLSerialization):
         if tiddler.type and tiddler.type != 'None':
             description = 'Binary Content'
         else:
-            description = wikitext_to_wikklyhtml(self._server_url() + '/', tiddler_link, tiddler.text)
+            description = render_wikitext(tiddler, self.environ)
+
         feed.add_item(title=tiddler.title,
                 link=link,
                 description=description,
