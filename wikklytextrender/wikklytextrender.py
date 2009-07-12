@@ -15,7 +15,7 @@ def render(tiddler, environ):
     tiddler to HTML. The provided path helps
     set paths in wikilinks correctly.
     """
-    server_prefix = environ.get('tidldyweb.config',
+    server_prefix = environ.get('tiddlyweb.config',
             {}).get('server_prefix', '')
     if tiddler.recipe:
         path = 'recipes/%s/tiddlers' % encode_name(tiddler.recipe)
