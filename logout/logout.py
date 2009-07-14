@@ -14,9 +14,10 @@ def logout(environ, start_response):
     And then break it further by sending a bad redirect.
     """
     uri = environ.get('HTTP_REFERER', '/')
+    path = environ.get('tiddlyweb.config', {}).get('server_prefix', '')
     cookie = Cookie.SimpleCookie()
     cookie['tiddlyweb_user'] = ''
-    cookie['tiddlyweb_user']['path'] = '/'
+    cookie['tiddlyweb_user']['path'] = '%s/' % path
     cookie['tiddlyweb_user']['expires'] = '%s' % (time.ctime(time.time()-6000))
     start_response('303 See Other', [
         ('Set-Cookie', cookie.output(header='')),
