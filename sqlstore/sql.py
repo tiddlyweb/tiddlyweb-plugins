@@ -51,7 +51,8 @@ class sField(object):
 fields = Table('fields', Base.metadata,
     Column('name', Unicode(256), primary_key=True),
     Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True),
-    Column('value', Unicode(1024))
+    Column('value', Unicode(1024)),
+    mysql_charset='utf8'
     )
 # map the sField class to the fields table
 mapper(sField, fields)
@@ -494,7 +495,7 @@ class Store(StorageInterface):
             stiddler = sTiddler(tiddler.title, tiddler.bag)
             self.session.add(stiddler)
 
-        if tiddler.type and tiddler.type != 'None':
+        if tiddler.type and tiddler.type != 'None' and not tiddler.type.startswith('text/'):
             tiddler.text = unicode(b64encode(tiddler.text))
 
         srevision = sRevision()
@@ -534,7 +535,7 @@ class Store(StorageInterface):
             tiddler.modified = revision.modified
             tiddler.revision = revision.revision_id
             tiddler.type = revision.type
-            if tiddler.type and tiddler.type != 'None':
+            if tiddler.type and tiddler.type != 'None' and not tiddler.type.startswith('text/'):
                 tiddler.text = b64decode(revision.text.lstrip().rstrip())
             else:
                 tiddler.text = revision.text
