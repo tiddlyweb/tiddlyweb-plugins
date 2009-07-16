@@ -280,8 +280,7 @@ class Store(StorageInterface):
 
             if not (hasattr(bag, 'skinny') and bag.skinny):
                 tiddlers = sbag.tiddlers
-                for tiddler in tiddlers:
-                    bag.add_tiddler(Tiddler(tiddler.title))
+                bag.add_tiddlers(Tiddler(tiddler.title) for tiddler in tiddlers)
             return bag
         except NoResultFound, exc:
             raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
