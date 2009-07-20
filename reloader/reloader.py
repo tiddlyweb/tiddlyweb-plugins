@@ -4,26 +4,6 @@ import sys
 
 def init(config):
     install()
-    exit_code = 3
-    while exit_code = 3:
-        args = [sys.executable] + sys.argv
-        new_environ = os.environ.copy()
-        exit_code = os.spawnve(os.P_WAIT, sys.executable, args, new_environ)
-        if exit_code != 3: sys.exit(exit_code)
-
-        if os.environ.get("RUN_MAIN") == "true":
-            
-            thread.start_new_thread(main_func, ())
-
-            try:
-                reloader_thread()
-            except KeyboardInterrupt:
-                pass
-        else:
-            try:
-                sys.exit(restart_with_reloader())
-            except KeyboardInterrupt:
-                _cputil.getSpecialFunction('_cpLogMessage')("<Ctrl-C> hit: shutting down", "HTTP")
 
 # What follows is borrowed from Paste, with modifications.
 
@@ -71,7 +51,6 @@ Then every time the reloader polls files it will call
 
 import time
 import threading
-import traceback
 
 def install(poll_interval=1):
     """
@@ -109,18 +88,12 @@ class Monitor(object):
                 # won't kill the process; note os._exit does not call
                 # any atexit callbacks, nor does it do finally blocks,
                 # flush open files, etc.  In otherwords, it is rude.
-                sys.exit(3)
-                break
+                args = [sys.executable] + sys.argv
+                os.execv(sys.executable, args)
             time.sleep(self.poll_interval)
 
     def check_reload(self):
         filenames = list(self.extra_files)
-        for file_callback in self.file_callbacks:
-            try:
-                filenames.extend(file_callback())
-            except:
-                print >> sys.stderr, "Error calling paste.reloader callback %r:" % file_callback
-                traceback.print_exc()
         for module in sys.modules.values():
             try:
                 filename = module.__file__
