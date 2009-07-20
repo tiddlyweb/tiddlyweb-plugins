@@ -86,6 +86,9 @@ class Monitor(object):
                 # any atexit callbacks, nor does it do finally blocks,
                 # flush open files, etc.  In otherwords, it is rude.
                 args = [sys.executable] + sys.argv
+                if sys.platform == 'darwin':
+                    print 'OS X and exec have issues. Try wserver.'
+                    os._exit(3)
                 os.execv(sys.executable, args)
             time.sleep(self.poll_interval)
 
@@ -116,6 +119,7 @@ class Monitor(object):
                 self.module_mtimes[filename] = mtime
             elif self.module_mtimes[filename] < mtime:
                 print >> sys.stderr, (
-                    "%s changed; reloading..." % filename)
+                    "%s changed %s; reloading..." % (filename, mtime))
+                self.module_mtimes[filename] = mtime
                 return False
         return True
