@@ -1,11 +1,45 @@
+"""
+A reloader for TiddlyWeb when run under CherryPy.
+
+For other servers, like Apache or spawning, you must 
+use something else.
+
+This is heavily based on the reloader from Ian Bicking's
+Paste. 
+
+This version is modified to exec the server from within
+the watcher thread rather than completely exiting.
+
+The exec operation works from a thread on Linux but is not
+supported on OS X, so this solution does not work on the Mac.
+Contributions for getting it to work on the Mac are welcome. See:
+
+    http://www.cherrypy.org/ticket/581
+
+It has not yet been tested in non-Posix environments.
+
+For related information.
+
+To use this add 'reloader' to system_plugins in tiddlywebconfig.py.
+
+Additional options include 
+
+    'reloader_interval': The number of (floating point) seconds to
+                         wait putting checking files. Defaults to 1.
+    'reloader_extra_file': A list of other files, besides Python modules
+                         to check for modification. Defaults to [].
+
+"""
 
 import os
 import sys
 
-def init(config):
-    install()
 
-# What follows is borrowed from Paste, with modifications.
+def init(config):
+    interval = config.get('reloader_interval', 1)
+    extra_files = config.get('reloader_extra_files', [])
+    install(interval, extra_files)
+
 
 # (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
 # Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
@@ -13,46 +47,12 @@ def init(config):
 A file monitor and server restarter.
 
 Use this like:
-
-..code-block:: Python
-
-    import reloader
-    reloader.install()
-
-Then make sure your server is installed with a shell script like::
-
-    err=3
-    while test "$err" -eq 3 ; do
-        python server.py
-        err="$?"
-    done
-
-or is run from this .bat file (if you use Windows)::
-
-    @echo off
-    :repeat
-        python server.py
-    if %errorlevel% == 3 goto repeat
-
-or run a monitoring process in Python (``paster serve --reload`` does
-this).  
-
-Use the ``watch_file(filename)`` function to cause a reload/restart for
-other other non-Python files (e.g., configuration files).  If you have
-a dynamic set of files that grows over time you can use something like::
-
-    def watch_config_files():
-        return CONFIG_FILE_CACHE.keys()
-    paste.reloader.add_file_callback(watch_config_files)
-
-Then every time the reloader polls files it will call
-``watch_config_files`` and check all the filenames it returns.
 """
 
 import time
 import threading
 
-def install(poll_interval=1):
+def install(poll_interval=1, extra_files=[]):
     """
     Install the reloading monitor.
 
@@ -61,7 +61,7 @@ def install(poll_interval=1):
     ``raise_keyboard_interrupt`` option creates a unignorable signal
     which causes the whole application to shut-down (rudely).
     """
-    mon = Monitor(poll_interval=poll_interval)
+    mon = Monitor(poll_interval=poll_interval, extra_files=extra_files)
     t = threading.Thread(target=mon.periodic_reload)
     t.setDaemon(True)
     t.start()
@@ -69,16 +69,13 @@ def install(poll_interval=1):
 class Monitor(object):
 
     instances = []
-    global_extra_files = []
-    global_file_callbacks = []
 
-    def __init__(self, poll_interval):
+    def __init__(self, poll_interval, extra_files):
         self.module_mtimes = {}
         self.keep_running = True
         self.poll_interval = poll_interval
-        self.extra_files = list(self.global_extra_files)
+        self.extra_files = extra_files
         self.instances.append(self)
-        self.file_callbacks = list(self.global_file_callbacks)
 
     def periodic_reload(self):
         while True:
@@ -122,4 +119,3 @@ class Monitor(object):
                     "%s changed; reloading..." % filename)
                 return False
         return True
-
