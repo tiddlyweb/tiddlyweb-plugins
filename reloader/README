@@ -1,0 +1,30 @@
+
+reloader and wserver provide two different ways to 
+automatically reload code into the CherryPY WSGI server
+when TiddlyWeb (and related) code has changed.
+
+Both are for use with the builtin CherryPy server
+(usually started with twanager server) and should _not_
+be used with other servers, such Apache, CGI, spwaning, etc.
+
+reloader was developed first, based on similar tools in
+the CherryPy package and Paste, especially Paste. It is a
+plugin that is added to system_plugins. 'twanager server'
+is run the same as before.
+
+reloader starts up a thread that monitors the files in sys.modules,
+plus extras that may be added by configuration. When there are
+changes, the thread causes the process to exec itself.
+
+This works on Linux but not on OS X because OS X does not
+let a process with multiple active threads do an exec.
+
+So wserver was born. It is a plugin that is added to
+twanager_plugins, adding a 'wserver' command taking the
+same (optional) arguments as the 'server' command. When run,
+a child process is spawned, running 'twanager server'. The
+parent server remains, watching the files in sys.modules
+using the same code as reloader. When there is a change, the
+parent kills its child and respawns a 'twanager server'.
+
+Further details in the code.
