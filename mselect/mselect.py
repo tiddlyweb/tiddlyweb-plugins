@@ -9,11 +9,13 @@ MSELECT_SEPARATOR = ','
 
 def mselect(command, tiddlers):
     commands = command.split(MSELECT_SEPARATOR)
-    results = []
+    # un_generate the tiddlers so we can use the list multiple times
+    tiddlers = list(tiddlers)
     for command in commands:
         func = select_parse(command)
-        results.extend(func(tiddlers))
-    return results
+        for tiddler in func(tiddlers):
+            yield tiddler
+    return
 
 
 def mselect_parse(command):
