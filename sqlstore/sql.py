@@ -366,13 +366,13 @@ class Store(StorageInterface):
             self.session.merge(srole)
 
     def list_recipes(self):
-        return [self._map_recipe(Recipe(srecipe.name), srecipe) for srecipe in self.session.query(sRecipe).all()]
+        return (self._map_recipe(Recipe(srecipe.name), srecipe) for srecipe in self.session.query(sRecipe).all())
 
     def list_bags(self):
-        return [self._map_bag(Bag(sbag.name), sbag) for sbag in self.session.query(sBag).all()]
+        return (self._map_bag(Bag(sbag.name), sbag) for sbag in self.session.query(sBag).all())
 
     def list_users(self):
-        return [self._map_user(User(suser.usersign), suser) for suser in self.session.query(sUser).all()]
+        return (self._map_user(User(suser.usersign), suser) for suser in self.session.query(sUser).all())
 
     def list_tiddler_revisions(self, tiddler):
         try:
@@ -388,7 +388,6 @@ class Store(StorageInterface):
         Search in the store for tiddlers that match search_query.
         """
         bags = self.list_bags()
-        found_tiddlers = []
 
         query = search_query.lower()
 
@@ -396,13 +395,13 @@ class Store(StorageInterface):
             bag = self.bag_get(bag)
             for tiddler in bag.list_tiddlers():
                 if query in tiddler.title.lower():
-                   found_tiddlers.append(tiddler)
+                   yield tiddler
                    continue
                 stiddler = self.session.query(sTiddler).get((tiddler.title, tiddler.bag))
                 stiddler.rev = None
                 if stiddler.revision().text and query in stiddler.revision().text:
-                    found_tiddlers.append(tiddler)
-        return found_tiddlers
+                    yield tiddler
+        return
 
     def _map_bag(self, bag, sbag):
         bag.desc = sbag.desc
