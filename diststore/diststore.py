@@ -24,6 +24,7 @@ class Store(StorageInterface):
         for rule, store in extra_store_config:
             pattern = re.compile(rule)
             self.environ['tiddlyweb.config']['server_store'] = store
+            self.environ['tiddlyweb.config']['main_store'] = self.main_store
             self.stores.append((pattern, Storer(store[0], self.environ)))
         self.environ['tiddlyweb.config']['server_store'] = server_store_copy
 
