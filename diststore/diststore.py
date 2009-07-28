@@ -1,4 +1,5 @@
 import copy
+import re
 
 from tiddlyweb.store import Store as Storer
 from tiddlyweb.stores import StorageInterface
@@ -21,8 +22,9 @@ class Store(StorageInterface):
         self.main_store = Storer(main_store_config[0], self.environ)
 
         for rule, store in extra_store_config:
+            pattern = re.compile(rule)
             self.environ['tiddlyweb.config']['server_store'] = store
-            self.stores.append((rule, Storer(store[0], self.environ)))
+            self.stores.append((pattern, Storer(store[0], self.environ)))
         self.environ['tiddlyweb.config']['server_store'] = server_store_copy
 
     def recipe_delete(self, recipe):
@@ -92,7 +94,8 @@ class Store(StorageInterface):
         return tiddlers
 
     def _determine_store(self, name):
-        for rule, store in self.stores:
-            if name.startswith(rule):
+        for pattern, store in self.stores:
+            # XXX should this be search or match?
+            if pattern.match(name):
                 return store
         return self.main_store
