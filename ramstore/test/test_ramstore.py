@@ -8,10 +8,12 @@ from wsgi_intercept import httplib2_intercept
 import wsgi_intercept
 import httplib2
 
+import py.test
+
 from tiddlyweb import control
 from tiddlyweb.config import config
 from tiddlyweb.web import serve
-from tiddlyweb.store import Store
+from tiddlyweb.store import Store, NoTiddlerError
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler
@@ -126,3 +128,41 @@ def test_tiddler_revisions():
     assert len(revisions) == 50
     assert revisions[0] == 1
     assert revisions[-1] == 50
+
+def test_delete_recipe():
+    recipes = store.list_recipes()
+    length = len(recipes)
+    recipe = recipes[0]
+
+    assert length > 0
+
+    store.delete(recipe)
+    recipes = store.list_recipes()
+
+    assert len(recipes) == length - 1
+
+def test_delete_bag():
+    bags = store.list_bags()
+    length = len(bags)
+    bag = bags[0]
+
+    assert length > 0
+
+    store.delete(bag)
+    bags = store.list_bags()
+
+    assert len(bags) == length - 1
+
+def test_delete_tiddler():
+    tiddler = Tiddler('revised', 'bagone')
+    store.delete(tiddler)
+
+    py.test.raises(NoTiddlerError, 'store.get(tiddler)')
+
+def test_search():
+    tiddlers = store.search('hello')
+
+    assert len(tiddlers) == 1
+    assert tiddlers[0].bag == 'bagone'
+    assert tiddlers[0].title == 'tiddlerone'
+    assert tiddlers[0].text == 'hello'

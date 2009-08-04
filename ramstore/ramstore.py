@@ -13,6 +13,12 @@ class Store(StorageInterface):
     def list_recipes(self):
         return [Recipe(recipe) for recipe in sorted(RECIPES.keys())]
 
+    def recipe_delete(self, recipe):
+        try:
+            del RECIPES[recipe.name]
+        except KeyError:
+            raise NoRecipeError
+
     def recipe_put(self, recipe):
         RECIPES[recipe.name] = recipe
 
@@ -24,6 +30,12 @@ class Store(StorageInterface):
 
     def list_bags(self):
         return [Bag(bag) for bag in sorted(BAGS.keys())]
+
+    def bag_delete(self, bag):
+        try:
+            del BAGS[bag.name]
+        except KeyError:
+            raise NoBagError
 
     def bag_put(self, bag):
         bag.tiddlers = []
@@ -58,9 +70,20 @@ class Store(StorageInterface):
         except KeyError:
             NoTiddlerError
 
+    def tiddler_delete(self, tiddler):
+        bag_name = tiddler.bag
+        try:
+            del BAGS[bag_name][1][tiddler.title]
+        except KeyError:
+            NoTiddlerError
+
+
     def tiddler_put(self, tiddler):
         bag_name = tiddler.bag
-        bag_pair = BAGS[bag_name]
+        try:
+            bag_pair = BAGS[bag_name]
+        except KeyError:
+            NoBagError
         tiddlers = bag_pair[1]
         try:
             tiddlers[tiddler.title].append(tiddler)
@@ -78,6 +101,17 @@ class Store(StorageInterface):
             tiddler = tiddlers[tiddler.title][-1]
             tiddler.revision = len(tiddlers[tiddler.title])
         except KeyError:
-            NoTiddlerError
+            raise NoTiddlerError
         return tiddler
+
+    def search(self, query):
+        results = []
+        for bag_name, bag_pair in BAGS.items():
+            bag, tiddlers = bag_pair
+            if tiddlers:
+                for tiddler_revisions in tiddlers.values():
+                    tiddler = tiddler_revisions[-1]
+                    if tiddler.text and query in tiddler.text:
+                        results.append(tiddler)
+        return results
 
