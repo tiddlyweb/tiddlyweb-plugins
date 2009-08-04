@@ -1,14 +1,34 @@
 
 from tiddlyweb.stores import StorageInterface
-from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError
+from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
 
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.user import User
 
 BAGS = {}
 RECIPES = {}
+USERS = {}
 
 class Store(StorageInterface):
+
+    def list_users(self):
+        return [User(user) for user in sorted(USERS.keys())]
+
+    def user_delete(self, user):
+        try:
+            del USERS[user.usersign]
+        except KeyError:
+            raise NoUserError
+
+    def user_put(self, user):
+        USERS[user.usersign] = user
+
+    def user_get(self, user):
+        try:
+            return USERS[user.usersign]
+        except KeyError:
+            raise NoUserError
 
     def list_recipes(self):
         return [Recipe(recipe) for recipe in sorted(RECIPES.keys())]
@@ -62,20 +82,22 @@ class Store(StorageInterface):
         try:
             bag_pair = BAGS[bag_name]
         except KeyError:
-            NoBagError
+            raise NoBagError
         tiddlers_in_bag = bag_pair[1]
         try:
             tiddler_revisions = tiddlers_in_bag[tiddler.title]
-            return [index + 1 for index, tid in enumerate(tiddler_revisions)]
+            revisions = [index + 1 for index, tid in enumerate(tiddler_revisions)]
+            revisions.reverse()
+            return revisions
         except KeyError:
-            NoTiddlerError
+            raise NoTiddlerError
 
     def tiddler_delete(self, tiddler):
         bag_name = tiddler.bag
         try:
             del BAGS[bag_name][1][tiddler.title]
         except KeyError:
-            NoTiddlerError
+            raise NoTiddlerError
 
 
     def tiddler_put(self, tiddler):
@@ -83,25 +105,34 @@ class Store(StorageInterface):
         try:
             bag_pair = BAGS[bag_name]
         except KeyError:
-            NoBagError
+            raise NoBagError
         tiddlers = bag_pair[1]
         try:
             tiddlers[tiddler.title].append(tiddler)
         except KeyError:
             tiddlers[tiddler.title] = [tiddler]
+        # XXX fairly certain needing to set this represents 
+        # a bug throughout the system.
+        tiddler.revision = len(tiddlers[tiddler.title])
 
     def tiddler_get(self, tiddler):
         bag_name = tiddler.bag
         try:
             bag_pair = BAGS[bag_name]
         except KeyError:
-            NoBagError
+            raise NoBagError
         tiddlers = bag_pair[1]
         try:
-            tiddler = tiddlers[tiddler.title][-1]
-            tiddler.revision = len(tiddlers[tiddler.title])
-        except KeyError:
+            if tiddler.revision:
+                revision = tiddler.revision
+                tiddler = tiddlers[tiddler.title][tiddler.revision - 1]
+                tiddler.revision = revision
+            else:
+                tiddler = tiddlers[tiddler.title][-1]
+                tiddler.revision = len(tiddlers[tiddler.title])
+        except (KeyError, IndexError):
             raise NoTiddlerError
+        tiddler.created = tiddlers[tiddler.title][0].modified
         return tiddler
 
     def search(self, query):
