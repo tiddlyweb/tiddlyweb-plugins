@@ -45,6 +45,19 @@ class Store(StorageInterface):
             bag.add_tiddler(tiddler)
         return bag
 
+    def list_tiddler_revisions(self, tiddler):
+        bag_name = tiddler.bag
+        try:
+            bag_pair = BAGS[bag_name]
+        except KeyError:
+            NoBagError
+        tiddlers_in_bag = bag_pair[1]
+        try:
+            tiddler_revisions = tiddlers_in_bag[tiddler.title]
+            return [index + 1 for index, tid in enumerate(tiddler_revisions)]
+        except KeyError:
+            NoTiddlerError
+
     def tiddler_put(self, tiddler):
         bag_name = tiddler.bag
         bag_pair = BAGS[bag_name]
@@ -63,6 +76,7 @@ class Store(StorageInterface):
         tiddlers = bag_pair[1]
         try:
             tiddler = tiddlers[tiddler.title][-1]
+            tiddler.revision = len(tiddlers[tiddler.title])
         except KeyError:
             NoTiddlerError
         return tiddler

@@ -8,6 +8,7 @@ from wsgi_intercept import httplib2_intercept
 import wsgi_intercept
 import httplib2
 
+from tiddlyweb import control
 from tiddlyweb.config import config
 from tiddlyweb.web import serve
 from tiddlyweb.store import Store
@@ -106,3 +107,22 @@ def test_put_tiddler():
     tiddler_out = store.get(Tiddler('tiddlerone', 'bagone'))
     assert tiddler_out.text == 'hello'
     assert tiddler_in.text == tiddler_out.text
+
+def test_bags_tiddlers():
+    for i in xrange(50):
+        store.put(Tiddler(str(i), 'bagone'))
+    bag = store.get(Bag('bagone'))
+    tiddlers = list(control.get_tiddlers_from_bag(bag))
+    assert len(tiddlers) == 51
+
+def test_tiddler_revisions():
+    for i in xrange(50):
+        store.put(Tiddler('revised', 'bagone'))
+
+    tiddler = store.get(Tiddler('revised', 'bagone'))
+    assert tiddler.revision == 50
+
+    revisions = store.list_tiddler_revisions(Tiddler('revised', 'bagone'))
+    assert len(revisions) == 50
+    assert revisions[0] == 1
+    assert revisions[-1] == 50
