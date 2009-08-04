@@ -13,6 +13,7 @@ from tiddlyweb.web import serve
 from tiddlyweb.store import Store
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.tiddler import Tiddler
 
 def setup_module(module):
     module.store = Store('ramstore', {})
@@ -95,3 +96,13 @@ def test_web_recipe():
 
     assert response['status'] == '200'
     assert 'recipe description' in content
+
+def test_put_tiddler():
+    tiddler_in = Tiddler('tiddlerone', 'bagone')
+    tiddler_in.text = 'hello'
+
+    store.put(tiddler_in)
+
+    tiddler_out = store.get(Tiddler('tiddlerone', 'bagone'))
+    assert tiddler_out.text == 'hello'
+    assert tiddler_in.text == tiddler_out.text
