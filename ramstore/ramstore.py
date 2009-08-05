@@ -4,6 +4,7 @@ from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserErr
 
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.model.user import User
 
 BAGS = {}
@@ -72,6 +73,7 @@ class Store(StorageInterface):
         except KeyError:
             raise NoBagError
         bag = bag_pair[0]
+        bag.tiddlers = []
         for tiddler_name in bag_pair[1].keys():
             tiddler = bag_pair[1][tiddler_name][-1]
             bag.add_tiddler(tiddler)
@@ -133,6 +135,9 @@ class Store(StorageInterface):
         except (KeyError, IndexError):
             raise NoTiddlerError
         tiddler.created = tiddlers[tiddler.title][0].modified
+        for field in tiddler.fields.keys():
+            if field.startswith('server.'):
+                del tiddler.fields[field]
         return tiddler
 
     def search(self, query):
@@ -142,7 +147,10 @@ class Store(StorageInterface):
             if tiddlers:
                 for tiddler_revisions in tiddlers.values():
                     tiddler = tiddler_revisions[-1]
+                    if query in tiddler.title:
+                        results.append(Tiddler(tiddler.title, bag_name))
+                        continue
                     if tiddler.text and query in tiddler.text:
-                        results.append(tiddler)
+                        results.append(Tiddler(tiddler.title, bag_name))
         return results
 
