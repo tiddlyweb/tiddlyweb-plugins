@@ -1,0 +1,7 @@
+
+A quick hack to support markdown syntax when rendering tiddlers.
+
+All this is does is call markdown2.markdown(tiddler.text) and return
+the generated HTML.
+
+Which works a treat.
