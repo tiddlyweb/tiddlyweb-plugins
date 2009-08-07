@@ -41,6 +41,7 @@ class Store(StorageInterface):
 
     def __init__(self, environ={}):
         self.environ = environ
+        #self.http = httplib2.Http('.cache')
         self.http = httplib2.Http()
         server_info = self.environ['tiddlyweb.config']['server_store'][1]
         self._base = server_info['server_base']
@@ -76,8 +77,12 @@ class Store(StorageInterface):
     def _any_get(self, url, target_object):
         response, content = self._request('GET', url)
         if self._is_success(response):
-            self.serializer.object = target_object
-            self.serializer.from_string(content)
+            if response['content-type'].startswith('application/json'):
+                self.serializer.object = target_object
+                self.serializer.from_string(content)
+            else:
+                # XXX got a binary tiddler
+                pass
         else:
             raise TiddlyWebWebError, '%s: %s' % (response['status'], content)
 

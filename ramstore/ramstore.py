@@ -9,7 +9,6 @@ have some need for a bag or do that is fast and you have
 ways to control its persistence and shareability.
 """
 
-
 from tiddlyweb.stores import StorageInterface
 from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
 

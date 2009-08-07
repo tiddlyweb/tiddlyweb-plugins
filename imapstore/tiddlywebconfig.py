@@ -2,9 +2,9 @@
 config = {
         'log_level': 'DEBUG',
         'server_store': ['imapper', {
-            'imap_server': 'example.com',
-            'user': 'boom',
-            'password': 'xxxxx',
-            'prefix': 'mail',
+            'imap_server': 'imap.gmail.com',
+            'user': 'xxxxx',
+            'password': 'xxxxxxx',
+            'prefix': '[Gmail]',
             }],
         }
