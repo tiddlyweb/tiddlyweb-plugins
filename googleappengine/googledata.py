@@ -152,6 +152,9 @@ class Store(StorageInterface):
 
         if tiddler.type and tiddler.type != 'None':
             tiddler.text = b64decode(tiddler.text.lstrip().rstrip())
+        # explicitly set the tiddler revision to 1 since we don't support
+        # revisions.
+        tiddler.revision = 1
         return tiddler
 
     def tiddler_put(self, tiddler):
