@@ -60,14 +60,18 @@ class Store(StorageInterface):
         self.cached_store.delete(bag)
 
     def bag_get(self, bag):
-        key = self._bag_key(bag)
-        cached_bag = _get(key)
-        if cached_bag:
-            bag = cached_bag
+        if not (hasattr(bag, 'skinny') and bag.skinny):
+            key = self._bag_key(bag)
+            cached_bag = _get(key)
+            if cached_bag:
+                bag = cached_bag
+            else:
+                bag = self.cached_store.get(bag)
+                del bag.store
+                MC.set(key, bag)
         else:
             bag = self.cached_store.get(bag)
             del bag.store
-            MC.set(key, bag)
         return bag
 
     def bag_put(self, bag):
@@ -88,6 +92,7 @@ class Store(StorageInterface):
             key = self._tiddler_revision_key(tiddler)
         cached_tiddler = _get(key)
         if cached_tiddler:
+            cached_tiddler.recipe = tiddler.recipe
             tiddler = cached_tiddler
         else:
             tiddler = self.cached_store.get(tiddler)
