@@ -23,12 +23,12 @@ def render(tiddler, environ):
         path = 'bags/%s/tiddlers' % encode_name(tiddler.bag)
     else:
         path = ''
-    html = wikitext_to_wikklyhtml('%s/' % server_prefix,
-            path, tiddler.text)
+    html = _wikitext_to_wikklyhtml('%s/' % server_prefix,
+            path, tiddler.text, environ)
     return unicode(html, 'utf-8')
 
 
-def wikitext_to_wikklyhtml(base_url, path_url, wikitext):
+def _wikitext_to_wikklyhtml(base_url, path_url, wikitext, environ):
     """
     Turn a wikitext into HTML.
     base_url: starting url for links in the wikitext (e.g. '/')
@@ -45,6 +45,9 @@ def wikitext_to_wikklyhtml(base_url, path_url, wikitext):
 
     posthook = PostHook()
 
+    safe_mode_setting = environ.get('tiddlyweb.config', {}).get(
+            'wikklytext.safe_mode', True)
+
     link_context = {
             '$BASE_URL': '%s%s' % (base_url, path_url),
             '$REFLOW': 0}
@@ -52,7 +55,7 @@ def wikitext_to_wikklyhtml(base_url, path_url, wikitext):
             text=wikitext,
             setvars=link_context,
             encoding='utf-8',
-            safe_mode=True,
+            safe_mode=safe_mode_setting,
             url_resolver=our_resolver,
             tree_posthook=posthook.treehook)
     return html
