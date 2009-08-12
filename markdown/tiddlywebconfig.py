@@ -1,6 +1,6 @@
 
 config = {
-        'wikitext_renderer': 'markdown',
+        'wikitext.default_renderer': 'markdown',
         }
 
 

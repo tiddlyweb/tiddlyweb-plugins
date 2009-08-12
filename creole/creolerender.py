@@ -10,7 +10,7 @@ def render(tiddler, environ):
 
 
 def init(config_in):
-    config['wikitext_render_map']['text/x-creole'] = 'creolerender'
+    config['wikitext.type_render_map']['text/x-creole'] = 'creolerender'
 
 
 if __name__ == '__main__':
@@ -18,6 +18,6 @@ if __name__ == '__main__':
     tiddler = Tiddler('foo')
     tiddler.text = '==Hello==\n[[Hello]]'
 
-    print render_wikitext(tiddler, '', {'tiddlyweb.config': {'wikitext_render_map': {'text/x-creole': 'creolerender'}}})
+    print render_wikitext(tiddler, '', {'tiddlyweb.config': {'wikitext.type_render_map': {'text/x-creole': 'creolerender'}}})
     tiddler.type = 'text/x-creole'
-    print render_wikitext(tiddler, '', {'tiddlyweb.config': {'wikitext_render_map': {'text/x-creole': 'creolerender'}}})
+    print render_wikitext(tiddler, '', {'tiddlyweb.config': {'wikitext.type_render_map': {'text/x-creole': 'creolerender'}}})

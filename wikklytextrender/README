@@ -3,8 +3,8 @@ TiddlyWeb by using wikklytext.
 
 To use add one or both of the following to tiddlywebconfig.py:
 
-    wikitext_renderer': 'wikklytextrender',
-    'wikitext_render_map': {
+    wikitext.default_renderer': 'wikklytextrender',
+    'wikitext.default_render_map': {
         'text/x-tiddlywiki': 'wikklytextrender',
     },
 
