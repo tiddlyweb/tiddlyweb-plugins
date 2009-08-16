@@ -23,12 +23,12 @@ def render(tiddler, environ):
         path = 'bags/%s/tiddlers' % encode_name(tiddler.bag)
     else:
         path = ''
-    html = _wikitext_to_wikklyhtml('%s/' % server_prefix,
+    html = wikitext_to_wikklyhtml('%s/' % server_prefix,
             path, tiddler.text, environ)
     return unicode(html, 'utf-8')
 
 
-def _wikitext_to_wikklyhtml(base_url, path_url, wikitext, environ):
+def wikitext_to_wikklyhtml(base_url, path_url, wikitext, environ):
     """
     Turn a wikitext into HTML.
     base_url: starting url for links in the wikitext (e.g. '/')
