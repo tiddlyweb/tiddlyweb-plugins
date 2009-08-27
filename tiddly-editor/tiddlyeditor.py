@@ -3,8 +3,6 @@ A plugin providing a web app for generating a
 TiddlyWiki-based editor for a single tiddler.
 """
 
-import urllib
-
 from tiddlyweb import control
 from tiddlyweb.web.http import HTTP400, HTTP404
 from tiddlyweb.model.bag import Bag
@@ -27,9 +25,6 @@ def get(environ, start_response):
         tiddler_name = environ['tiddlyweb.query'].get('tiddler', [''])[0]
         recipe_name = environ['tiddlyweb.query'].get('recipe', [''])[0]
         bag_name = environ['tiddlyweb.query'].get('bag', [''])[0]
-        tiddler_name = unicode(urllib.unquote(tiddler_name), 'utf-8')
-        bag_name = unicode(urllib.unquote(bag_name), 'utf-8')
-        recipe_name = unicode(urllib.unquote(recipe_name), 'utf-8')
     except (KeyError, IndexError):
         raise HTTP400('tiddler, recipe and bag query strings required')
 
