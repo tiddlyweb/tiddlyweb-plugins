@@ -16,23 +16,116 @@ config = {
     # using mysql 
     #'server_store': ['sql',
     #    {'db_config': 'mysql://localhost/tw?charset=utf8'}],
-
 }
 
 db_config is a database uri as used in SQLAlchmey.
 
+See below for sqlsearch.mainfields.
+
 Existing Issues:
 
-* Primary key handling is fairly icky. Probably want to move to ids,
-  plus some unique index fields.
-* Data normalization is not what I'd like.
 * Attend to any unicode issues.
 * When running against the tests, the created tables need to be dropped
   between each test file.
-* unicode warnings are sometimes prodcued.
+* unicode warnings are sometimes produced.
 
 The Future:
 
 It's hoped that this will become a robust and efficient storage system
 for TiddlyWeb. There is a great deal of room for improvement to the
 code. Contributions are welcomed.
+
+Search:
+
+Portions of this this module were originally developed as a subclass that
+provides an enhanced search. 
+
+The search method now provides more specific searches of tiddler attributes
+and fields, and should be more efficient than the original search.
+
+As with other search systems in TiddlyWeb, the search method is provided with
+the search query as a string. This is passed on a URL as follows:
+
+   /search?q=<some string>
+
+In sqlsearch the query string is parsed into a list of optional quoted terms
+that are space separated:
+
+   term1 "phrase term1" term2
+
+The terms are then further parsed to distinguish between standard searches, and
+searches against attributes and fields on the tiddlers (collectively known as field
+searches). A field search has the form:
+
+   field:value
+
+Either or both of field and term may contain a space if the entire term is quoted:
+
+   "some field:some value"
+
+If there are multiple terms (of either type) the resulting query is a boolean AND.
+
+A field search matches on the given value exactly.
+
+A standard search is more complex. For a standard search a series of SQL LIKE queries
+are made against fields named in tiddlywebconfig:
+
+    'sqlsearch.main_fields': ['tablename.columnname', 'fields:fieldname']
+
+Any number of tables and fields may be named. Table entries use a '.' separator,
+fields use a ':'. The only tables that make any sense in the usual sql store are
+tiddlers and revisions. The field name is arbitrary depending on the fields that
+are available in your tiddlers.
+
+The SQL LIKE queries are collectively ORed amongst themselves.
+
+== EXAMPLES ==
+
+These examples assume the following configuration:
+
+    'sqlsearch.main_fields': ['tiddlers.title', 'revisions.text', 'fields:country_code:]
+
+q=hello
+
+    Will return any tiddlers which have 'hello' in title, text or the field country_code.
+
+q=country_code:hello
+
+    Will return any tiddlers which have a country_code field of exactly 'hello'.
+
+q="charming monkey"
+
+    Will return any tiddlers which have the phrase 'charming monkey' in title, text or
+    the field country_code.
+
+== CREDITS/LICENSE ==
+
+The search enhancment work was created by Chris Dent <cdent@peermore.com>
+under the auspices of the wiki-data project of Avox: http://www.avox.info/about.shtml
+
+Copyright (c) Chris Dent 2009
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or other
+materials provided with the distribution.
+
+Neither the name of Chris Dent nor the names of contributors may be
+used to endorse or promote products derived from this software without specific
+prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.

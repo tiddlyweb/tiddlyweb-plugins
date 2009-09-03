@@ -21,7 +21,7 @@ from uuid import uuid4 as uuid
 from base64 import b64encode, b64decode
 
 from sqlalchemy import Table, ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
-from sqlalchemy.sql import and_
+from sqlalchemy.sql import or_, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref, mapper,sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -36,6 +36,7 @@ from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, \
         NoUserError
 from tiddlyweb.stores import StorageInterface
 
+EMPTY_TIDDLER = Tiddler('empty')
 
 # Base class for declarative mapper classes.
 Base = declarative_base()
@@ -49,9 +50,9 @@ class sField(object):
 
 # Scheme for the fields table.
 fields = Table('fields', Base.metadata,
-    Column('name', Unicode(256), primary_key=True),
+    Column('name', Unicode(256), primary_key=True, index=True),
     Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True),
-    Column('value', Unicode(1024)),
+    Column('value', Unicode(1024), index=True),
     mysql_charset='utf8'
     )
 # map the sField class to the fields table
@@ -73,7 +74,7 @@ class sRevision(Base):
     type = Column(String(128))
     tags = Column(Unicode(1024))
     text = Column(UnicodeText, default='')
-    revision_id = Column(Integer, nullable=False)
+    revision_id = Column(Integer, nullable=False, index=True)
 
     fields = relation(sField, backref='revision', cascade='delete')
 
@@ -91,9 +92,9 @@ class sTiddler(Base):
     """
     __tablename__ = 'tiddlers'
 
-    id = Column(String(50), unique=True)
-    title = Column(Unicode(128), primary_key=True)
-    bag_name = Column(Unicode(128), ForeignKey('bags.name'), primary_key=True)
+    id = Column(String(50), unique=True, index=True)
+    title = Column(Unicode(128), primary_key=True, index=True)
+    bag_name = Column(Unicode(128), ForeignKey('bags.name'), primary_key=True, index=True)
 
     revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
             order_by=sRevision.revision_id, cascade='delete')
@@ -135,7 +136,7 @@ class sPolicy(object):
 # The policies table. Each constraint's value is a 
 # string that looks a bit like a list.
 policies = Table('policies', Base.metadata,
-        Column('id', Integer, primary_key=True),
+        Column('id', Integer, primary_key=True, index=True),
         Column('read', Unicode(2048)),
         Column('write', Unicode(2048)),
         Column('delete', Unicode(2048)),
@@ -156,7 +157,7 @@ class sBag(Base):
 
     name = Column(Unicode(256), primary_key=True)
     desc = Column(Unicode(1024))
-    policy_id = Column(Integer, ForeignKey('policies.id'))
+    policy_id = Column(Integer, ForeignKey('policies.id'), index=True)
 
     tiddlers = relation(sTiddler, backref='bag', primaryjoin=sTiddler.bag_name==name, cascade='delete')
     policy = relation(sPolicy, uselist=False)
@@ -180,7 +181,7 @@ class sRecipe(Base):
     name = Column(Unicode(256), primary_key=True)
     desc = Column(Unicode(1024))
     recipe_string = Column(UnicodeText, default=u'')
-    policy_id = Column(Integer, ForeignKey('policies.id'))
+    policy_id = Column(Integer, ForeignKey('policies.id'), index=True)
 
     policy = relation(sPolicy, uselist=False)
 
@@ -195,7 +196,7 @@ class sRecipe(Base):
 class sRole(Base):
     __tablename__ = 'roles'
 
-    usersign = Column(Unicode(256), ForeignKey('users.usersign'), primary_key=True)
+    usersign = Column(Unicode(256), ForeignKey('users.usersign'), primary_key=True, index=True)
     role_name = Column(Unicode(50), primary_key=True)
 
     def __repr__(self):
@@ -387,21 +388,41 @@ class Store(StorageInterface):
         """
         Search in the store for tiddlers that match search_query.
         """
-        bags = self.list_bags()
+        terms = _query_parse(search_query)
+        query = self.session.query(sTiddler).join(sTiddler.revisions)
+        field_table = False
+        field_table_joined = False
 
-        query = search_query.lower()
-
-        for bag in bags:
-            bag = self.bag_get(bag)
-            for tiddler in bag.list_tiddlers():
-                if query in tiddler.title.lower():
-                   yield tiddler
-                   continue
-                stiddler = self.session.query(sTiddler).get((tiddler.title, tiddler.bag))
-                stiddler.rev = None
-                if stiddler.revision().text and query in stiddler.revision().text:
-                    yield tiddler
-        return
+        for term in terms:
+            if ':' in term:
+                field, value = term.split(':', 1)
+                if hasattr(EMPTY_TIDDLER, field):
+                    query = query.filter(
+                            text("%s = :value" % field).params(value=value))
+                else:
+                    query = query.join(sField).filter(
+                            sField.name==field).filter(
+                                    sField.value==value)
+                    field_table_joined = True
+            else:
+                likes = []
+                for search_field in self.environ['tiddlyweb.config'].get(
+                        'sqlsearch.main_fields', ['revisions.text',
+                            'tiddlers.title', 'revisions.tags']):
+                    if search_field.startswith('fields:'):
+                        id, field = search_field.split(':', 1)
+                        likes.append(text(
+                            '(fields.name="%s" and fields.value like "%%%s%%")'
+                            % (field, term)))
+                        field_table = True
+                    else:
+                        likes.append(text(
+                            '%s like "%%%s%%"' % (search_field, term)))
+                query = query.filter(or_(*likes))
+        if field_table and not field_table_joined:
+            query = query.outerjoin(sField)
+        return (Tiddler(stiddler.title, stiddler.bag_name)
+                for stiddler in query.all())
 
     def _map_bag(self, bag, sbag):
         bag.desc = sbag.desc
@@ -547,3 +568,24 @@ class Store(StorageInterface):
             return tiddler
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
+
+
+def _query_parse(search_query):
+    tokens = search_query.split()
+    terms = []
+    stack = []
+    while tokens:
+        token = tokens.pop(0)
+        if token.endswith('"'):
+            token = token.rstrip('"')
+            stack.append(token)
+            terms.append(' '.join(stack))
+            stack = []
+        elif token.startswith('"'):
+            token = token.replace('"', '', 1)
+            stack.append(token)
+        elif stack:
+            stack.append(token)
+        else:
+            terms.append(token)
+    return terms
