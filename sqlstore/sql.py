@@ -51,7 +51,7 @@ class sField(object):
 # Scheme for the fields table.
 fields = Table('fields', Base.metadata,
     Column('name', Unicode(256), primary_key=True, index=True),
-    Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True),
+    Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True, index=True),
     Column('value', Unicode(1024), index=True),
     mysql_charset='utf8'
     )
@@ -67,7 +67,7 @@ class sRevision(Base):
     """
     __tablename__ = 'revisions'
 
-    id = Column(String(50), primary_key=True)
+    id = Column(String(50), primary_key=True, index=True)
     tiddler_id = Column(String(50), ForeignKey('tiddlers.id'), index=True)
     modifier = Column(Unicode(256))
     modified = Column(String(14))
@@ -178,7 +178,7 @@ class sRecipe(Base):
     """
     __tablename__ = 'recipes'
 
-    name = Column(Unicode(256), primary_key=True)
+    name = Column(Unicode(256), primary_key=True, index=True)
     desc = Column(Unicode(1024))
     recipe_string = Column(UnicodeText, default=u'')
     policy_id = Column(Integer, ForeignKey('policies.id'), index=True)
@@ -206,7 +206,7 @@ class sRole(Base):
 class sUser(Base):
     __tablename__ = 'users'
 
-    usersign = Column(Unicode(256), primary_key=True)
+    usersign = Column(Unicode(256), primary_key=True, index=True)
     note = Column(Unicode(1024))
     password = Column(String(128))
     
