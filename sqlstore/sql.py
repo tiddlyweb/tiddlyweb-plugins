@@ -21,9 +21,9 @@ from uuid import uuid4 as uuid
 from base64 import b64encode, b64decode
 
 from sqlalchemy import Table, ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
-from sqlalchemy.sql import or_, text
+from sqlalchemy.sql import and_, or_, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relation, backref, mapper,sessionmaker
+from sqlalchemy.orm import relation, backref, mapper, sessionmaker, aliased
 from sqlalchemy.orm.exc import NoResultFound
 
 from tiddlyweb.model.bag import Bag
@@ -390,8 +390,6 @@ class Store(StorageInterface):
         """
         terms = _query_parse(search_query)
         query = self.session.query(sTiddler).join(sTiddler.revisions)
-        field_table = False
-        field_table_joined = False
 
         for term in terms:
             if ':' in term:
@@ -400,10 +398,10 @@ class Store(StorageInterface):
                     query = query.filter(
                             text("%s = :value" % field).params(value=value))
                 else:
-                    query = query.join(sField).filter(
-                            sField.name==field).filter(
-                                    sField.value==value)
-                    field_table_joined = True
+                    sfield_alias = aliased(sField)
+                    query = query.join(sfield_alias).filter(
+                            sfield_alias.name==field).filter(
+                                    sfield_alias.value==value)
             else:
                 likes = []
                 for search_field in self.environ['tiddlyweb.config'].get(
@@ -411,16 +409,16 @@ class Store(StorageInterface):
                             'tiddlers.title', 'revisions.tags']):
                     if search_field.startswith('fields:'):
                         id, field = search_field.split(':', 1)
-                        likes.append(text(
-                            '(fields.name="%s" and fields.value like "%%%s%%")'
-                            % (field, term)))
-                        field_table = True
+                        sfield_alias = aliased(sField)
+                        query = query.join(sfield_alias)
+                        likes.append(and_(
+                            sfield_alias.name==field,
+                            sfield_alias.value.like("%%%s%%" % term)))
                     else:
                         likes.append(text(
                             '%s like "%%%s%%"' % (search_field, term)))
                 query = query.filter(or_(*likes))
-        if field_table and not field_table_joined:
-            query = query.outerjoin(sField)
+        logging.debug('query is %s' % query)
         return (Tiddler(stiddler.title, stiddler.bag_name)
                 for stiddler in query.all())
 
