@@ -10,12 +10,17 @@ from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.store import Store
 from tiddlyweb.config import config
 
+from sqlalchemy.sql import and_, or_, join, text
+from sqlalchemy.orm import aliased
+
+EMPTY_TIDDLER=Tiddler('empty','empty')
+
 
 def setup_module(module):
     module.store = Store('sql', environ={'tiddlyweb.config': config})
 
 
-def test_store():
+def xtest_store():
     """
     An exploratory test to learn how this stuff works.
     """
@@ -66,8 +71,9 @@ def test_store():
     store.delete(tiddler_d)
     #tiddler_d = store.get(tiddler_d)
 
-def test_revision_search():
+def xtest_revision_search():
     store.put(Bag(u'revs'))
+
     tiddler = Tiddler(u'r1', u'revs')
     tiddler.text = u'foo'
     tiddler.fields[u'huntsman'] = u'hello'
@@ -76,6 +82,7 @@ def test_revision_search():
 
     rtiddler = store.get(Tiddler(u'r1', u'revs'))
     assert rtiddler.text == u'foo'
+
 
     tiddler = Tiddler(u'r1', u'revs')
     tiddler.text = u'bar'
@@ -86,20 +93,40 @@ def test_revision_search():
     rtiddler = store.get(Tiddler(u'r1', u'revs'))
     assert rtiddler.text == u'bar'
 
-    tiddlers = list(store.search('foo'))
+    tiddlers = list(store.search(u'foo'))
     assert len(tiddlers) == 0
 
-    tiddlers = list(store.search('bar'))
+    tiddlers = list(store.search(u'bar'))
     assert len(tiddlers) == 1
 
-    tiddlers = list(store.search('hello'))
+    tiddlers = list(store.search(u'hello'))
     assert len(tiddlers) == 0
 
-    tiddlers = list(store.search('goodbye'))
+    tiddlers = list(store.search(u'goodbye'))
     assert len(tiddlers) == 1
 
-    tiddlers = list(store.search('target:cow huntsman:goodbye bar'))
+    tiddlers = list(store.search(u'target:cow huntsman:goodbye bar'))
     assert len(tiddlers) == 1
 
-    tiddlers = list(store.search('target:cow huntsman:goodbye foo'))
+    tiddlers = list(store.search(u'target:cow huntsman:goodbye foo'))
     assert len(tiddlers) == 0
+
+def test_more_data():
+    for j in xrange(10):
+        for i in xrange(10):
+            tiddler = Tiddler(u'r1', u'revs')
+            tiddler.text = u'bar%s' % i
+            tiddler.fields[u'huntsman'] = u'goodbye'
+            store.put(tiddler)
+
+        for i in xrange(10):
+            tiddler = Tiddler(u'r1%s' % i, u'revs')
+            tiddler.text = u'bar'
+            tiddler.fields[u'huntsman'] = u'goodbye'
+            tiddler.fields[u'target'] = u'cow'
+            store.put(tiddler)
+
+    tiddlers = list(store.search(u'target:cow huntsman:goodbye bar'))
+    assert len(tiddlers) == 10
+    tiddler = store.get(tiddlers[0])
+    assert tiddler.revision == 10

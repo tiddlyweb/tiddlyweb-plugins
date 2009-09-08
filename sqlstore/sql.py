@@ -42,7 +42,6 @@ EMPTY_TIDDLER = Tiddler('empty')
 Base = declarative_base()
 Session = sessionmaker()
 
-
 class sFieldName(Base):
     __tablename__ = 'field_names'
     id = Column('id', Integer, primary_key=True)
@@ -394,62 +393,65 @@ class Store(StorageInterface):
         Search in the store for tiddlers that match search_query.
         """
         terms = _query_parse(search_query)
-        query = self.session.query(sTiddler).join((sRevision, text("revisions.id in (select revisions.id from tiddlers, revisions where tiddlers.id=revisions.tiddler_id order by revisions.revision_id desc limit 1)")))
 
         order_rule = sTiddler.title
 
+        query = self.session.query(sTiddler)
+        query_builder = self.session.query(sRevision.tiddler_id)
+
+        latest = (self.session.query(sRevision.id).
+                group_by(sRevision.tiddler_id).subquery())
+        fnv = (self.session.query(sField.revision_id, sField.value, sFieldName.name).
+                join(sFieldName).filter(sField.revision_id.in_(latest)))
+
         for term in terms:
             if ':' in term:
-                field, value = term.split(':', 1)
-                if hasattr(EMPTY_TIDDLER, field):
-                    if field == 'bag':
-                        field = 'bag_name'
-                    query = query.filter(text("tiddlers.%s = :value" % field).params(value=value))
+                name, value = term.split(':', 1)
+                if hasattr(EMPTY_TIDDLER, name):
+                    if name == 'bag':
+                        name = 'bag_name'
+                    field_match = self.session.query(
+                            sRevision.id).filter(
+                                    text("%s = :value" % name).params(value=value))
                 else:
-                    sfield_value_alias = aliased(sField)
-                    sfield_name_alias = aliased(sFieldName)
-                    search_field = 'field:%s' % field
-                    if search_field == self.environ['tiddlyweb.config'].get(
-                            'sqlsearch.order_field', None):
-                        order_rule = sfield_value_alias.value
-                    query = query.join((sfield_value_alias,
-                            sfield_value_alias.revision_id==sRevision.id))
-                    query = query.join((sfield_name_alias,
-                            sfield_name_alias.id==sfield_value_alias.field_name_id))
-                    query = query.filter(and_(
-                            sfield_name_alias.name==field,
-                            sfield_value_alias.value==value))
+                    fnva = fnv.subquery()
+                    search_field = 'field:%s' % name
+#                     if search_field == self.environ['tiddlyweb.config'].get(
+#                             'sqlsearch.order_field', None):
+#                         order_rule = fnva.c.value
+                    field_match = self.session.query(
+                            fnva.c.revision_id).filter(
+                                    and_(fnva.c.name==name,
+                                        fnva.c.value==value)).subquery()
             else:
                 likes = []
-                for search_field in self.environ['tiddlyweb.config'].get(
+                for like_field in self.environ['tiddlyweb.config'].get(
                         'sqlsearch.main_fields', ['revisions.text',
                             'tiddlers.title', 'revisions.tags']):
-                    if search_field.startswith('fields:'):
-                        throwaway, field = search_field.split(':', 1)
-                        sfield_value_alias = aliased(sField)
-                        sfield_name_alias = aliased(sFieldName)
-                        if search_field == self.environ['tiddlyweb.config'].get(
-                                'sqlsearch.order_field', None):
-                            order_rule = sfield_value_alias.value
-
-
-                        query = query.join((sfield_value_alias,
-                                sfield_value_alias.revision_id==sRevision.id))
-                        query = query.join((sfield_name_alias,
-                                sfield_name_alias.id==sfield_value_alias.field_name_id))
-                        likes.append(and_(
-                            sfield_name_alias.name==field,
-                            sfield_value_alias.value.like("%%%s%%" % term)
-                            ))
+                    if like_field.startswith('fields:'):
+                        throwaway, name = like_field.split(':', 1)
+                        fnva = fnv.subquery()
+#                         if like_field == self.environ['tiddlyweb.config'].get(
+#                                 'sqlsearch.order_field', None):
+#                             order_rule = fnva.c.value
+                        likes.append(and_(fnva.c.name==name,
+                            fnva.c.value.like('%%%s%%' % term)))
                     else:
-                        likes.append(text(
-                            '%s like "%%%s%%"' % (search_field, term)))
-                query = query.filter(or_(*likes))
+                        throwaway, name = like_field.split('.', 1)
+                        if name == 'bag':
+                            name = 'bag_name'
+                        likes.append(text('%s like "%%%s%%"' % (name, term)))
+                field_match = self.session.query(
+                        fnva.c.revision_id).filter(or_(*likes)).subquery()
+            query_builder = query_builder.filter(sRevision.id.in_(field_match))
+
+        tiddler_id_limit = query_builder.subquery()
+        query = query.filter(sTiddler.id.in_(tiddler_id_limit))
 
         # XXX limit should from config or environ vars
         # and order_by should be as well, but that's hard for fields
         query = query.group_by(sTiddler.title).order_by(order_rule).limit(50)
-        print 'query is %s' % query
+        logging.debug('query is %s' % query)
         return (Tiddler(stiddler.title, stiddler.bag_name)
                 for stiddler in query.all())
 
