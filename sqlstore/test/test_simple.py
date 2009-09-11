@@ -20,7 +20,7 @@ def setup_module(module):
     module.store = Store('sql', environ={'tiddlyweb.config': config})
 
 
-def xtest_store():
+def test_store():
     """
     An exploratory test to learn how this stuff works.
     """
@@ -71,7 +71,7 @@ def xtest_store():
     store.delete(tiddler_d)
     #tiddler_d = store.get(tiddler_d)
 
-def xtest_revision_search():
+def test_revision_search():
     store.put(Bag(u'revs'))
 
     tiddler = Tiddler(u'r1', u'revs')

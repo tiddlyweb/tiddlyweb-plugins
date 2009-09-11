@@ -401,8 +401,8 @@ class Store(StorageInterface):
 
         latest = (self.session.query(sRevision.id).
                 group_by(sRevision.tiddler_id).subquery())
-        fnv = (self.session.query(sField.revision_id, sField.value, sFieldName.name).
-                join(sFieldName).filter(sField.revision_id.in_(latest)))
+        fnva = (self.session.query(sField.revision_id, sField.value, sFieldName.name).
+                join(sFieldName).join(latest).subquery())
 
         for term in terms:
             if ':' in term:
@@ -414,7 +414,7 @@ class Store(StorageInterface):
                             sRevision.id).filter(
                                     text("%s = :value" % name).params(value=value))
                 else:
-                    fnva = fnv.subquery()
+                    #fnva = fnv.subquery()
                     search_field = 'field:%s' % name
 #                     if search_field == self.environ['tiddlyweb.config'].get(
 #                             'sqlsearch.order_field', None):
@@ -430,7 +430,7 @@ class Store(StorageInterface):
                             'tiddlers.title', 'revisions.tags']):
                     if like_field.startswith('fields:'):
                         throwaway, name = like_field.split(':', 1)
-                        fnva = fnv.subquery()
+                        #fnva = fnv.subquery()
 #                         if like_field == self.environ['tiddlyweb.config'].get(
 #                                 'sqlsearch.order_field', None):
 #                             order_rule = fnva.c.value
@@ -451,6 +451,7 @@ class Store(StorageInterface):
         # XXX limit should from config or environ vars
         # and order_by should be as well, but that's hard for fields
         query = query.group_by(sTiddler.title).order_by(order_rule).limit(50)
+        #print 'query is %s' % query
         logging.debug('query is %s' % query)
         return (Tiddler(stiddler.title, stiddler.bag_name)
                 for stiddler in query.all())
