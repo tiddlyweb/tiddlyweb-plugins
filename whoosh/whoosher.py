@@ -13,7 +13,7 @@ from tiddlywebplugins import get_store, replace_handler
 
 from tiddlyweb.manage import make_command
 from tiddlyweb.stores import StorageInterface
-from tiddlyweb.web.sendtiddlers import send_tiddlers
+import tiddlyweb.web.handler.search
 
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
@@ -42,56 +42,30 @@ PARSER = None
 
 def init(config_in):
     if 'selector' in config_in:
-        replace_handler(config_in['selector'], '/search', dict(GET=whoosh_search))
+        pass
     else:
         # twanager
         global config
         config = config_in
 
-def whoosh_search(environ, start_response):
+
+def whoosh_search(environ):
     """
     Handle incoming /search?q=<query> and
     return the found tiddlers.
     """
     search_query = query_dict_to_search_string(
             environ['tiddlyweb.query']) or ''
-
-    filters = environ['tiddlyweb.filters']
-    store = environ['tiddlyweb.store']
-    usersign = environ['tiddlyweb.usersign']
-
-    tmp_bag = Bag('tmp_bag', tmpbag=True, searchbag=True)
-    bag_readable = {}
-
+    print search_query
+    results = search(environ['tiddlyweb.config'], search_query)
     tiddlers = []
-    if search_query:
-        logging.debug('search query is %s' % search_query)
-        results = search(environ['tiddlyweb.config'], search_query)
-        logging.debug('got search results from store')
-
     for result in results:
         bag, title = result['id'].split(':', 1)
         tiddler = Tiddler(title, bag)
-        try:
-            if bag_readable[tiddler.bag]:
-                tmp_bag.add_tiddler(store.get(tiddler))
-        except KeyError:
-            bag = Bag(tiddler.bag)
-            bag.skinny = True
-            bag = store.get(bag)
-            try:
-                bag.policy.allows(usersign, 'read')
-                tmp_bag.add_tiddler(store.get(tiddler))
-                bag_readable[tiddler.bag] = True
-            except(ForbiddenError, UserRequiredError):
-                bag_readable[tiddler.bag] = False
+        tiddlers.append(tiddler)
+    return tiddlers
 
-    if len(filters):
-        tiddlers = control.filter_tiddlers_from_bag(tmp_bag, filters)
-        tmp_bag = Bag('tmp_bag', tmpbag=True, searchbag=True)
-        tmp_bag.add_tiddlers(tiddlers)
-
-    return send_tiddlers(environ, start_response, tmp_bag)
+tiddlyweb.web.handler.search.get_tiddlers = whoosh_search
 
 
 @make_command()
