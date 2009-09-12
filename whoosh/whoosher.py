@@ -214,7 +214,7 @@ def index_tiddler(tiddler, schema, writer):
                 value = ','.join(value)
                 data[key] = unicode(value.lower())
         except (KeyError, TypeError), exc:
-            print 'we got an key or type error when indexing %s:%s' % (exc, key)
+            pass
     data['id'] = _tiddler_id(tiddler)
     writer.update_document(**data)
 
@@ -245,7 +245,7 @@ def query_dict_to_search_string(query_dict):
             continue
 
         if key == 'q':
-            terms.extend(values)
+            terms.extend([value.lower() for value in values])
         else:
             if key.endswith('_field'):
                 prefix = key.rsplit('_', 1)[0]
@@ -274,7 +274,7 @@ def query_dict_to_search_string(query_dict):
 
             for value in values:
                 if ' ' in key or ' ' in value:
-                    terms.append('"%s:%s"' % (key, value))
+                    terms.append('"%s:%s"' % (key.lower(), value.lower()))
                 else:
-                    terms.append('%s:%s' % (key, value))
+                    terms.append('%s:%s' % (key.lower(), value.lower()))
     return ' '.join(terms)
