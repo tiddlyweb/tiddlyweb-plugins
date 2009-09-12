@@ -21,9 +21,16 @@ from tiddlyweb.model.tiddler import Tiddler
 IGNORE_PARAMS = []
 
 SEARCH_DEFAULTS = {
-        'wsearch.schema': dict(title=TEXT, id=ID(stored=True, unique=True),
-            bag=TEXT, text=TEXT, modified=ID, modifier=ID, created=ID,
-            tags=TEXT, field_1=TEXT, field_2=TEXT),
+        'wsearch.schema': {'title': TEXT,
+            'id': ID(stored=True, unique=True),
+            'bag': TEXT,
+            'text': TEXT,
+            'modified': ID,
+            'modifier': ID,
+            'created': ID,
+            'tags': TEXT,
+            'field_1': TEXT,
+            'field_2': TEXT},
         'wsearch.indexdir': 'indexdir',
         'wsearch.default_fields': ['text', 'title'],
         }
@@ -92,7 +99,6 @@ def wsearch(args):
     """Search the whoosh index for provided terms."""
     query = ' '.join(args)
     ids = search(config, query)
-    print ids
     for result in ids:
         bag, title = result['id'].split(':')
         print "%s:%s" % (bag, title)
@@ -157,6 +163,7 @@ def get_searcher(config):
     SEARCHER = get_index(config).searcher()
     return SEARCHER
 
+
 def get_parser(config):
     global PARSER
     if PARSER:
@@ -169,6 +176,7 @@ def get_parser(config):
 
 
 def query_parse(config, query):
+    logging.debug('query to parse: %s' % query)
     parser = get_parser(config)
     return parser.parse(query)
 
@@ -180,9 +188,8 @@ def search(config, query):
     """
     searcher = get_searcher(config)
     query = query_parse(config, unicode(query))
-    print query
-    print searcher
-    return searcher.search(query)
+    logging.debug('query parsed to %s' % query)
+    return searcher.search(query, limit=50) # XXX get limit from config
 
 
 def index_tiddler(tiddler, schema, writer):
@@ -193,7 +200,7 @@ def index_tiddler(tiddler, schema, writer):
     The schema dict is read to find attributes and fields
     on the tiddler.
     """
-    print 'indexing tiddler: %s' % tiddler.title
+    logging.debug('indexing tiddler: %s' % tiddler.title)
     data = {}
     for key in schema:
         try:
@@ -204,12 +211,11 @@ def index_tiddler(tiddler, schema, writer):
             try:
                 data[key] = unicode(value.lower())
             except AttributeError:
-                value = ' '.join(value)
+                value = ','.join(value)
                 data[key] = unicode(value.lower())
-        except KeyError:
-            pass
+        except (KeyError, TypeError), exc:
+            print 'we got an key or type error when indexing %s:%s' % (exc, key)
     data['id'] = _tiddler_id(tiddler)
-    print data
     writer.update_document(**data)
 
 
