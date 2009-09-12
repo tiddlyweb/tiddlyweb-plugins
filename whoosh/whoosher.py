@@ -56,7 +56,6 @@ def whoosh_search(environ):
     """
     search_query = query_dict_to_search_string(
             environ['tiddlyweb.query']) or ''
-    print search_query
     results = search(environ['tiddlyweb.config'], search_query)
     tiddlers = []
     for result in results:
