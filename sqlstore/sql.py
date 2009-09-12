@@ -384,44 +384,6 @@ class Store(StorageInterface):
             raise NoTiddlerError('tiddler %s not found, %s' % (tiddler.title, exc))
         return [revision.revision_id for revision in reversed(stiddler.revisions)]
 
-    def search(self, search_query):
-        """
-        Search in the store for tiddlers that match search_query.
-        """
-        terms = _query_parse(search_query)
-        query = self.session.query(sTiddler).join(sTiddler.revisions)
-
-        for term in terms:
-            if ':' in term:
-                field, value = term.split(':', 1)
-                if hasattr(EMPTY_TIDDLER, field):
-                    query = query.filter(
-                            text("%s = :value" % field).params(value=value))
-                else:
-                    sfield_alias = aliased(sField)
-                    query = query.join(sfield_alias).filter(
-                            sfield_alias.name==field).filter(
-                                    sfield_alias.value==value)
-            else:
-                likes = []
-                for search_field in self.environ['tiddlyweb.config'].get(
-                        'sqlsearch.main_fields', ['revisions.text',
-                            'tiddlers.title', 'revisions.tags']):
-                    if search_field.startswith('fields:'):
-                        id, field = search_field.split(':', 1)
-                        sfield_alias = aliased(sField)
-                        query = query.join(sfield_alias)
-                        likes.append(and_(
-                            sfield_alias.name==field,
-                            sfield_alias.value.like("%%%s%%" % term)))
-                    else:
-                        likes.append(text(
-                            '%s like "%%%s%%"' % (search_field, term)))
-                query = query.filter(or_(*likes))
-        logging.debug('query is %s' % query)
-        return (Tiddler(stiddler.title, stiddler.bag_name)
-                for stiddler in query.all())
-
     def _map_bag(self, bag, sbag):
         bag.desc = sbag.desc
         bag.policy = self._map_policy(sbag.policy)
