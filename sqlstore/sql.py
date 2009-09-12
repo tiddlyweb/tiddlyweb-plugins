@@ -234,7 +234,7 @@ class Store(StorageInterface):
         """
         store_type = self._db_config().split(':', 1)[0]
         if store_type == 'sqlite' or not Store.session:
-            engine = create_engine(self._db_config())
+            engine = create_engine(self._db_config(), pool_recycle=3600)
             Base.metadata.create_all(engine)
             Session.configure(bind=engine)
             Store.session = Session()
