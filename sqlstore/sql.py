@@ -238,7 +238,7 @@ class Store(StorageInterface):
         """
         store_type = self._db_config().split(':', 1)[0]
         if store_type == 'sqlite' or not Store.session:
-            engine = create_engine(self._db_config())
+            engine = create_engine(self._db_config(), pool_recycle=3600)
             Base.metadata.create_all(engine)
             Session.configure(bind=engine)
             Store.session = Session()
@@ -387,74 +387,6 @@ class Store(StorageInterface):
         except NoResultFound, exc:
             raise NoTiddlerError('tiddler %s not found, %s' % (tiddler.title, exc))
         return [revision.revision_id for revision in reversed(stiddler.revisions)]
-
-    def search(self, search_query):
-        """
-        Search in the store for tiddlers that match search_query.
-        """
-        terms = _query_parse(search_query)
-
-        order_rule = sTiddler.title
-
-        query = self.session.query(sTiddler)
-        query_builder = self.session.query(sRevision.tiddler_id)
-
-        latest = (self.session.query(sRevision.id).
-                group_by(sRevision.tiddler_id).subquery())
-        fnva = (self.session.query(sField.revision_id, sField.value, sFieldName.name).
-                join(sFieldName).join(latest).subquery())
-
-        for term in terms:
-            if ':' in term:
-                name, value = term.split(':', 1)
-                if hasattr(EMPTY_TIDDLER, name):
-                    if name == 'bag':
-                        name = 'bag_name'
-                    field_match = self.session.query(
-                            sRevision.id).filter(
-                                    text("%s = :value" % name).params(value=value))
-                else:
-                    #fnva = fnv.subquery()
-                    search_field = 'field:%s' % name
-#                     if search_field == self.environ['tiddlyweb.config'].get(
-#                             'sqlsearch.order_field', None):
-#                         order_rule = fnva.c.value
-                    field_match = self.session.query(
-                            fnva.c.revision_id).filter(
-                                    and_(fnva.c.name==name,
-                                        fnva.c.value==value)).subquery()
-            else:
-                likes = []
-                for like_field in self.environ['tiddlyweb.config'].get(
-                        'sqlsearch.main_fields', ['revisions.text',
-                            'tiddlers.title', 'revisions.tags']):
-                    if like_field.startswith('fields:'):
-                        throwaway, name = like_field.split(':', 1)
-                        #fnva = fnv.subquery()
-#                         if like_field == self.environ['tiddlyweb.config'].get(
-#                                 'sqlsearch.order_field', None):
-#                             order_rule = fnva.c.value
-                        likes.append(and_(fnva.c.name==name,
-                            fnva.c.value.like('%%%s%%' % term)))
-                    else:
-                        throwaway, name = like_field.split('.', 1)
-                        if name == 'bag':
-                            name = 'bag_name'
-                        likes.append(text('%s like "%%%s%%"' % (name, term)))
-                field_match = self.session.query(
-                        fnva.c.revision_id).filter(or_(*likes)).subquery()
-            query_builder = query_builder.filter(sRevision.id.in_(field_match))
-
-        tiddler_id_limit = query_builder.subquery()
-        query = query.filter(sTiddler.id.in_(tiddler_id_limit))
-
-        # XXX limit should from config or environ vars
-        # and order_by should be as well, but that's hard for fields
-        query = query.group_by(sTiddler.title).order_by(order_rule).limit(50)
-        #print 'query is %s' % query
-        logging.debug('query is %s' % query)
-        return (Tiddler(stiddler.title, stiddler.bag_name)
-                for stiddler in query.all())
 
     def _map_bag(self, bag, sbag):
         bag.desc = sbag.desc
