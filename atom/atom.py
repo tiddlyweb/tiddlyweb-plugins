@@ -120,11 +120,16 @@ class Serialization(HTMLSerialization):
             description = render_wikitext(tiddler, self.environ)
 
         feed.add_item(title=tiddler.title,
+                unique_id=self._tiddler_id(tiddler),
                 link=link,
+                categories=tiddler.tags,
                 description=description,
                 author_name=tiddler.modifier,
                 pubdate=self._tiddler_datetime(tiddler.modified)
                 )
+
+    def _tiddler_id(self, tiddler):
+        return '%s/%s/%s' % (tiddler.title, tiddler.bag, tiddler.revision)
 
     def _tiddler_datetime(self, date_string):
         return datetime.datetime(*(time.strptime(date_string, '%Y%m%d%H%M%S')[0:6]))
