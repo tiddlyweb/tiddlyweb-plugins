@@ -537,30 +537,3 @@ class Store(StorageInterface):
             return tiddler
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
-
-
-def _query_parse(search_query):
-    tokens = search_query.split()
-    terms = []
-    stack = []
-    while tokens:
-        token = tokens.pop(0)
-        if token.endswith('"'):
-            token = token.rstrip('"')
-            stack.append(token)
-            terms.append(' '.join(stack))
-            stack = []
-        elif token.startswith('"'):
-            token = token.replace('"', '', 1)
-            stack.append(token)
-        elif stack:
-            stack.append(token)
-        else:
-            terms.append(token)
-    def has_colon(x, y):
-        if ':' in x:
-            return 1
-        if ':' in y:
-            return -1
-        return 0
-    return sorted(terms, cmp=has_colon, reverse=True)
