@@ -1,0 +1,6 @@
+
+Experiments in Using Whoosh (a pure Python indexing system) to
+provide search results and potentially accelerated filtering of
+TiddlyWeb content.
+
+_Very Experimental_

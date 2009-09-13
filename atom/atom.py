@@ -44,28 +44,44 @@ class Serialization(HTMLSerialization):
     def recipe_as(self, recipe):
         pass
 
+    def _current_url(self):
+        script_name = self.environ.get('SCRIPT_NAME', '')
+        query_string = self.environ.get('QUERY_STRING', None)
+        url = script_name
+        if query_string:
+            url += '?%s' % query_string
+        return url
+
     def list_tiddlers(self, bag):
         """
         Turn the contents of a bag into an Atom Feed.
         """
         tiddlers = bag.list_tiddlers()
-        recipe = tiddlers[0].recipe
-        bag_name = tiddlers[0].bag
+        current_url = self._current_url()
+        link=u'%s/%s' % (self._server_url(), current_url)
+        if tiddlers:
+            recipe = tiddlers[0].recipe
+            bag_name = tiddlers[0].bag
 
-        if recipe:
-            feed = Atom1Feed(
-                    title=u'Tiddlers in Recipe %s' % recipe,
-                    link=u'%s/recipes/%s/tiddlers' % (self._server_url(), iri_to_uri(recipe)),
-                    language=u'en',
-                    description=u'the tiddlers of recipe %s' % recipe
-                    )
+            if recipe:
+                feed = Atom1Feed(
+                        title=u'Tiddlers in Recipe %s' % recipe,
+                        link=link,
+                        language=u'en',
+                        description=u'the tiddlers of recipe %s' % recipe
+                        )
+            else:
+                feed = Atom1Feed(
+                        title=u'Tiddlers in Bag %s' % bag_name,
+                        link=link,
+                        language=u'en',
+                        description=u'the tiddlers of bag %s' % bag_name
+                        )
         else:
             feed = Atom1Feed(
-                    title=u'Tiddlers in Bag %s' % bag_name,
-                    link=u'%s/bags/%s/tiddlers' % (self._server_url(), iri_to_uri(bag_name)),
-                    language=u'en',
-                    description=u'the tiddlers of bag %s' % bag_name
-                    )
+                    title='Empty Tiddler List',
+                    link=link,
+                    description=u'Empty Tiddler List')
         for tiddler in tiddlers:
             self._add_tiddler_to_feed(feed, tiddler)
 
