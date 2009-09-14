@@ -42,21 +42,25 @@ EMPTY_TIDDLER = Tiddler('empty')
 Base = declarative_base()
 Session = sessionmaker()
 
-class sField(object):
+class sFieldName(Base):
+    __tablename__ = 'field_names'
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', Unicode(256), index=True)
+
+
+class sField(Base):
     """
     Mapper class for a single tiddler extended field.
     """
-    pass
+    __tablename__ = 'field_values'
+    field_name_id = Column(Integer, ForeignKey('field_names.id'),
+            primary_key=True, index=True)
+    revision_id = Column(String(50), ForeignKey('revisions.id'),
+            primary_key=True, index=True)
+    value = Column(Unicode(1024), index=True)
 
-# Scheme for the fields table.
-fields = Table('fields', Base.metadata,
-    Column('name', Unicode(256), primary_key=True, index=True),
-    Column('revision_id', String(50), ForeignKey('revisions.id'), primary_key=True, index=True),
-    Column('value', Unicode(1024), index=True),
-    mysql_charset='utf8'
-    )
-# map the sField class to the fields table
-mapper(sField, fields)
+    name = relation(sFieldName)
+
 
 class sRevision(Base):
     """
@@ -493,7 +497,12 @@ class Store(StorageInterface):
             if field.startswith('server.'):
                 continue
             sfield = sField()
-            sfield.name = field
+            try:
+                sfield.name = self.session.query(sFieldName).filter(sFieldName.name == field).one()
+            except NoResultFound:
+                name = sFieldName(name=field)
+                self.session.add(name)
+                sfield.name = name
             sfield.value = tiddler.fields[field]
             sfield.revision_id = srevision.id
             self.session.add(sfield)
@@ -521,31 +530,10 @@ class Store(StorageInterface):
             tiddler.tags = self._map_tags(revision.tags)
 
             for sfield in revision.fields:
-                tiddler.fields[sfield.name] = sfield.value
+                tiddler.fields[sfield.name.name] = sfield.value
 
             tiddler.created = stiddler.created()
 
             return tiddler
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
-
-
-def _query_parse(search_query):
-    tokens = search_query.split()
-    terms = []
-    stack = []
-    while tokens:
-        token = tokens.pop(0)
-        if token.endswith('"'):
-            token = token.rstrip('"')
-            stack.append(token)
-            terms.append(' '.join(stack))
-            stack = []
-        elif token.startswith('"'):
-            token = token.replace('"', '', 1)
-            stack.append(token)
-        elif stack:
-            stack.append(token)
-        else:
-            terms.append(token)
-    return terms
