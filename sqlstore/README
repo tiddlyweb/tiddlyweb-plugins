@@ -20,14 +20,18 @@ config = {
 
 db_config is a database uri as used in SQLAlchmey.
 
-See below for sqlsearch.mainfields.
+Upgrading:
+
+If you were running a version of the sql store prior to version 0.2,
+you will need to migrate you store from one schema to another. There
+is a 'migrate' plugin which can be used to assist with this migration.
+
+    http://github.com/tiddlyweb/tiddlyweb-plugins/tree/master/migrate
 
 Existing Issues:
 
-* Attend to any unicode issues.
 * When running against the tests, the created tables need to be dropped
   between each test file.
-* unicode warnings are sometimes produced.
 
 The Future:
 
@@ -35,73 +39,11 @@ It's hoped that this will become a robust and efficient storage system
 for TiddlyWeb. There is a great deal of room for improvement to the
 code. Contributions are welcomed.
 
-Search:
+Credits/License:
 
-Portions of this this module were originally developed as a subclass that
-provides an enhanced search. 
-
-The search method now provides more specific searches of tiddler attributes
-and fields, and should be more efficient than the original search.
-
-As with other search systems in TiddlyWeb, the search method is provided with
-the search query as a string. This is passed on a URL as follows:
-
-   /search?q=<some string>
-
-In sqlsearch the query string is parsed into a list of optional quoted terms
-that are space separated:
-
-   term1 "phrase term1" term2
-
-The terms are then further parsed to distinguish between standard searches, and
-searches against attributes and fields on the tiddlers (collectively known as field
-searches). A field search has the form:
-
-   field:value
-
-Either or both of field and term may contain a space if the entire term is quoted:
-
-   "some field:some value"
-
-If there are multiple terms (of either type) the resulting query is a boolean AND.
-
-A field search matches on the given value exactly.
-
-A standard search is more complex. For a standard search a series of SQL LIKE queries
-are made against fields named in tiddlywebconfig:
-
-    'sqlsearch.main_fields': ['tablename.columnname', 'fields:fieldname']
-
-Any number of tables and fields may be named. Table entries use a '.' separator,
-fields use a ':'. The only tables that make any sense in the usual sql store are
-tiddlers and revisions. The field name is arbitrary depending on the fields that
-are available in your tiddlers.
-
-The SQL LIKE queries are collectively ORed amongst themselves.
-
-== EXAMPLES ==
-
-These examples assume the following configuration:
-
-    'sqlsearch.main_fields': ['tiddlers.title', 'revisions.text', 'fields:country_code:]
-
-q=hello
-
-    Will return any tiddlers which have 'hello' in title, text or the field country_code.
-
-q=country_code:hello
-
-    Will return any tiddlers which have a country_code field of exactly 'hello'.
-
-q="charming monkey"
-
-    Will return any tiddlers which have the phrase 'charming monkey' in title, text or
-    the field country_code.
-
-== CREDITS/LICENSE ==
-
-The search enhancment work was created by Chris Dent <cdent@peermore.com>
-under the auspices of the wiki-data project of Avox: http://www.avox.info/about.shtml
+A great deal of enhancement work for the sql store was done by
+Chris Dent <cdent@peermore.com> under the auspices of the wiki-data
+project of Avox: http://www.avox.info/about.shtml
 
 Copyright (c) Chris Dent 2009
 

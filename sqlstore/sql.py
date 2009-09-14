@@ -537,3 +537,5 @@ class Store(StorageInterface):
             return tiddler
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
+
+__version__ = '0.2'
