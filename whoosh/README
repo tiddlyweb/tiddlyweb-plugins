@@ -4,3 +4,11 @@ provide search results and potentially accelerated filtering of
 TiddlyWeb content.
 
 _Very Experimental_
+
+TODO
+
+* Documentation.
+
+* Explore methods for dynamically managing the schema.
+  The Whoosh docs suggest that adding fields can be done
+  on the fly.
