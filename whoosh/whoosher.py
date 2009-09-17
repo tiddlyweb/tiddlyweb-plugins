@@ -35,8 +35,6 @@ SEARCH_DEFAULTS = {
         'wsearch.default_fields': ['text', 'title'],
         }
 
-INDEX = None
-WRITER = None
 SEARCHER = None
 PARSER = None
 
@@ -80,12 +78,18 @@ def wsearch(args):
 @make_command()
 def wreindex(args):
     """ Rebuild the entire whoosh index."""
+    try:
+        prefix = args[0]
+    except IndexError:
+        prefix = None
     store = get_store(config)
     writer = get_writer(config)
     schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
     for bag in store.list_bags():
         bag = store.get(bag)
         for tiddler in bag.list_tiddlers():
+            if prefix and not tiddler.title.startswith(prefix):
+                continue
             tiddler = store.get(tiddler)
             index_tiddler(tiddler, schema, writer)
     writer.commit()
@@ -98,9 +102,6 @@ def get_index(config):
     If there isn't one in the dir, create one. If there is 
     not dir, create the dir.
     """
-    global INDEX
-    if INDEX:
-        return INDEX
     index_dir = config.get('wsearch.indexdir', SEARCH_DEFAULTS['wsearch.indexdir'])
     try:
         index = open_dir(index_dir)
@@ -111,41 +112,28 @@ def get_index(config):
             pass
         schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
         index = create_in(index_dir, Schema(**schema))
-    INDEX = index
-    return INDEX
+    return index
 
 
 def get_writer(config):
     """
     Return a writer based on config insructions.
     """
-    global WRITER
-    if WRITER:
-        return WRITER
-    WRITER = get_index(config).writer()
-    return WRITER
+    return get_index(config).writer()
 
 
 def get_searcher(config):
     """
     Return a searcher based on config instructions.
     """
-    global SEARCHER
-    if SEARCHER:
-        return SEARCHER
-    SEARCHER = get_index(config).searcher()
-    return SEARCHER
+    return get_index(config).searcher()
 
 
 def get_parser(config):
-    global PARSER
-    if PARSER:
-        return PARSER
     schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
     default_fields = config.get('wsearch.default_fields',
             SEARCH_DEFAULTS['wsearch.default_fields'])
-    PARSER = MultifieldParser(default_fields, schema=Schema(**schema))
-    return PARSER
+    return MultifieldParser(default_fields, schema=Schema(**schema))
 
 
 def query_parse(config, query):
