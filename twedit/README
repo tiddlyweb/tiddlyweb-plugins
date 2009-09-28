@@ -1,2 +1,6 @@
-Quick hack to edit tiddlyweb.peermore.com from the command 
+Quick hack to edit tiddlyweb content from the command 
 line. Lots of room for improvement, but concept proved.
+
+twedit.sh: Edit remote content.
+
+twedit.py: Twanager Plugin for editing tiddlers.
