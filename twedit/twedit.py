@@ -14,11 +14,11 @@ def init(config_in):
 
 @make_command()
 def edit(args):
-    """Edit a tiddler in a big in the store. As text."""
+    """Edit a tiddler in a bag in the store. As text. <bag> <tiddler>"""
     try:
-        title, bag = args[0:2]
+        bag, title = args[0:2]
     except IndexError:
-        print >> sys.stderr, 'You must provide a tiddler title and bag name'
+        print >> sys.stderr, 'You must provide a bag name and tiddler title'
 
     tiddler = Tiddler(title, bag)
     store = get_store(config)
