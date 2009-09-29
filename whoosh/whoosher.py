@@ -235,7 +235,7 @@ def query_dict_to_search_string(query_dict):
 
             for value in values:
                 if ' ' in key or ' ' in value:
-                    terms.append('"%s:%s"' % (key.lower(), value.lower()))
+                    terms.append('%s:"%s"' % (key.lower(), value.lower()))
                 else:
                     terms.append('%s:%s' % (key.lower(), value.lower()))
     return ' '.join(terms)
