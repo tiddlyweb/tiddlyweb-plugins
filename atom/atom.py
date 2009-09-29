@@ -28,7 +28,7 @@ from xml.sax.saxutils import XMLGenerator
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.serializations.html import Serialization as HTMLSerialization
 from tiddlyweb.wikitext import render_wikitext
-from tiddlyweb.web.util import server_base_url
+from tiddlyweb.web.util import server_base_url, server_host_url
 
 class Serialization(HTMLSerialization):
 
@@ -58,7 +58,7 @@ class Serialization(HTMLSerialization):
         """
         tiddlers = bag.list_tiddlers()
         current_url = self._current_url()
-        link=u'%s/%s' % (self._server_url(), current_url)
+        link=u'%s%s' % (self._host_url(), current_url)
         if tiddlers:
             recipe = tiddlers[0].recipe
             bag_name = tiddlers[0].bag
@@ -91,10 +91,12 @@ class Serialization(HTMLSerialization):
     def tiddler_as(self, tiddler):
         if tiddler.recipe:
             link = u'%s/recipes/%s/tiddlers/%s' % \
-                    (self._server_url(), iri_to_uri(tiddler.recipe), iri_to_uri(tiddler.title))
+                    (self._server_url(), iri_to_uri(tiddler.recipe),
+                            iri_to_uri(urllib.quote(tiddler.title.encode('utf-8'), safe='')))
         else:
             link = u'%s/bags/%s/tiddlers/%s' % \
-                    (self._server_url(), iri_to_uri(tiddler.bag), iri_to_uri(tiddler.title))
+                    (self._server_url(), iri_to_uri(tiddler.bag),
+                            iri_to_uri(urllib.quote(tiddler.title.encode('utf-8'), safe='')))
         feed = Atom1Feed(
                 title=u'%s' % tiddler.title,
                 link=link,
@@ -108,11 +110,13 @@ class Serialization(HTMLSerialization):
         if tiddler.recipe:
             tiddler_link = 'recipes/%s/tiddlers' % tiddler.recipe
             link = u'%s/recipes/%s/tiddlers/%s' % \
-                    (self._server_url(), iri_to_uri(tiddler.recipe), iri_to_uri(tiddler.title))
+                    (self._server_url(), iri_to_uri(tiddler.recipe),
+                            iri_to_uri(urllib.quote(tiddler.title.encode('utf-8'), safe='')))
         else:
             tiddler_link = 'bags/%s/tiddlers' % tiddler.bag
             link = u'%s/bags/%s/tiddlers/%s' % \
-                    (self._server_url(), iri_to_uri(tiddler.bag), iri_to_uri(tiddler.title))
+                    (self._server_url(), iri_to_uri(tiddler.bag),
+                            iri_to_uri(urllib.quote(tiddler.title.encode('utf-8'), safe='')))
 
         if tiddler.type and tiddler.type != 'None':
             description = 'Binary Content'
@@ -133,6 +137,9 @@ class Serialization(HTMLSerialization):
 
     def _tiddler_datetime(self, date_string):
         return datetime.datetime(*(time.strptime(date_string, '%Y%m%d%H%M%S')[0:6]))
+
+    def _host_url(self):
+        return server_host_url(self.environ)
 
     def _server_url(self):
         return server_base_url(self.environ)
