@@ -148,9 +148,10 @@ def search(config, query):
     set.
     """
     searcher = get_searcher(config)
+    limit = config.get('wsearch.results_limit', 51)
     query = query_parse(config, unicode(query))
     logging.debug('query parsed to %s' % query)
-    return searcher.search(query, limit=50) # XXX get limit from config
+    return searcher.search(query, limit=limit)
 
 
 def index_tiddler(tiddler, schema, writer):
