@@ -7,6 +7,7 @@ import sql
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.model.recipe import Recipe
+from tiddlyweb.model.user import User
 from tiddlyweb.store import Store
 from tiddlyweb.config import config
 
@@ -92,3 +93,54 @@ def test_revision_search():
 
     rtiddler = store.get(Tiddler(u'r1', u'revs'))
     assert rtiddler.text == u'bar'
+
+def test_put_get_bag():
+    bag = Bag('testone')
+    bag.policy.read = ['cdent']
+    store.put(bag)
+
+    read_bag = Bag('testone')
+    read_bag.skinny = True
+    read_bag = store.get(read_bag)
+
+    assert read_bag.policy.read == ['cdent']
+
+def test_put_get_recipe():
+    recipe = Recipe('testone')
+    recipe.policy.read = ['cdent']
+    store.put(recipe)
+
+    read_recipe = Recipe('testone')
+    read_recipe.skinny = True
+    read_recipe = store.get(read_recipe)
+
+    assert read_recipe.policy.read == ['cdent']
+
+def test_put_get_user():
+    user = User('testone')
+    user.add_role('monkey')
+    store.put(user)
+
+    read_user = User('testone')
+    read_user = store.get(read_user)
+
+    assert read_user.list_roles() == ['monkey']
+
+def test_put_get_tiddler():
+    bag = Bag(u'test1')
+    store.put(bag)
+
+    for i in xrange(5):
+        tiddler = Tiddler(u'tid1', u'test1')
+        tiddler.text = u'hello'
+        tiddler.tags = [u'five',u'six']
+        tiddler.fields[u'radar'] = u'green'
+
+        store.put(tiddler)
+
+    read_tiddler = Tiddler('tid1', 'test1')
+    read_tiddler = store.get(read_tiddler)
+
+    assert read_tiddler.title == 'tid1'
+    assert read_tiddler.fields['radar'] == 'green'
+

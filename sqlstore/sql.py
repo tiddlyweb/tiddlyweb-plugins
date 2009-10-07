@@ -80,7 +80,7 @@ class sRevision(Base):
     text = Column(UnicodeText, default='')
     revision_id = Column(Integer, nullable=False, index=True)
 
-    fields = relation(sField, backref='revision', cascade='delete')
+    fields = relation(sField, backref='revision', cascade='delete', lazy=False)
 
     def __init__(self):
         self.id = str(uuid())
@@ -102,6 +102,10 @@ class sTiddler(Base):
 
     revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
             order_by=sRevision.revision_id, cascade='delete')
+
+    current_revision = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
+            order_by=sRevision.revision_id.desc(), cascade='delete', uselist=False,
+            lazy=False)
 
     def revision(self):
         """
@@ -159,12 +163,12 @@ class sBag(Base):
     """
     __tablename__ = 'bags'
 
-    name = Column(Unicode(256), primary_key=True)
+    name = Column(Unicode(256), primary_key=True, index=True)
     desc = Column(Unicode(1024))
     policy_id = Column(Integer, ForeignKey('policies.id'), index=True)
 
     tiddlers = relation(sTiddler, backref='bag', primaryjoin=sTiddler.bag_name==name, cascade='delete')
-    policy = relation(sPolicy, uselist=False)
+    policy = relation(sPolicy, uselist=False, lazy=False)
 
     # setting policy to a string for now
     def __init__(self, name, desc=''):
@@ -187,7 +191,7 @@ class sRecipe(Base):
     recipe_string = Column(UnicodeText, default=u'')
     policy_id = Column(Integer, ForeignKey('policies.id'), index=True)
 
-    policy = relation(sPolicy, uselist=False)
+    policy = relation(sPolicy, uselist=False, lazy=False)
 
     def __init__(self, name, desc=''):
         self.name = name
@@ -214,7 +218,8 @@ class sUser(Base):
     note = Column(Unicode(1024))
     password = Column(String(128))
     
-    roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete')
+    roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete',
+            lazy=False)
 
     def __repr__(self):
         return "<sUser('%s:%s')>" % (self.usersign, self.roles)
@@ -311,10 +316,6 @@ class Store(StorageInterface):
             stiddler = (self.session.query(sTiddler).
                     filter(sTiddler.title==tiddler.title).
                     filter(sTiddler.bag_name==tiddler.bag).one())
-            if tiddler.revision:
-                stiddler.rev = tiddler.revision
-            else:
-                stiddler.rev = None
             tiddler = self._map_tiddler(tiddler, stiddler)
             return tiddler
         except NoResultFound, exc:
@@ -518,7 +519,11 @@ class Store(StorageInterface):
 
     def _map_tiddler(self, tiddler, stiddler):
         try:
-            revision = stiddler.revision()
+            if tiddler.revision:
+                stiddler.rev = tiddler.revision
+                revision = stiddler.revision()
+            else:
+                revision = stiddler.current_revision
             tiddler.modifier = revision.modifier
             tiddler.modified = revision.modified
             tiddler.revision = revision.revision_id
