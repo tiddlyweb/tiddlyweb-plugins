@@ -77,7 +77,7 @@ def wsearch(args):
 
 @make_command()
 def wreindex(args):
-    """ Rebuild the entire whoosh index."""
+    """Rebuild the entire whoosh index."""
     try:
         prefix = args[0]
     except IndexError:
@@ -93,6 +93,12 @@ def wreindex(args):
             tiddler = store.get(tiddler)
             index_tiddler(tiddler, schema, writer)
     writer.commit()
+
+@make_command()
+def woptimize(args):
+    """Optimize the index by collapsing files."""
+    index = get_index(config)
+    index.optimize()
 
 
 def get_index(config):
