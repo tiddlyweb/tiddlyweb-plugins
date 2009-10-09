@@ -21,10 +21,12 @@ import urllib
 import datetime
 import re
 import email.Utils
+import logging
 
 from xml.sax.saxutils import XMLGenerator
 
 
+from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.serializations.html import Serialization as HTMLSerialization
 from tiddlyweb.wikitext import render_wikitext
@@ -118,12 +120,54 @@ class Serialization(HTMLSerialization):
                     (self._server_url(), iri_to_uri(tiddler.bag),
                             iri_to_uri(urllib.quote(tiddler.title.encode('utf-8'), safe='')))
 
-        if tiddler.type and tiddler.type != 'None':
-            description = 'Binary Content'
-        else:
-            description = render_wikitext(tiddler, self.environ)
+        do_revisions = self.environ['tiddlyweb.query'].get('depth', [None])[0]
 
-        feed.add_item(title=tiddler.title,
+        if do_revisions:
+            try:
+                from differ import compare_tiddlers
+            except ImportError:
+                self._add_item(feed, tiddler, link, tiddler.title,
+                        'unable to diff without differ module')
+            try:
+                depth = int(do_revisions)
+            except ValueError:
+                depth = 1
+            store = self.environ['tiddlyweb.store']
+            revision_ids = store.list_tiddler_revisions(tiddler)
+            logging.debug('ids %s' % revision_ids)
+            while depth >= 0:
+                logging.debug('atom %s' % depth)
+                rev2 = Tiddler(tiddler.title, tiddler.bag)
+                try:
+                    rev2.revision = revision_ids[depth + 1]
+                    logging.debug('r2: %s' % rev2.revision)
+                    rev2 = store.get(rev2)
+                except IndexError:
+                    depth -= 1
+                    continue
+                rev1 = Tiddler(tiddler.title, tiddler.bag)
+                rev1.revision = revision_ids[depth]
+                logging.debug('r1: %s' % rev1.revision)
+                rev1 = store.get(rev1)
+                if tiddler.type and tiddler.type != 'None' and not tiddler.type.startswith('text/'):
+                    self._add_item(feed, tiddler, link, tiddler.title, 'Binary Content')
+                else:
+                    title = '%s comparing version %s to %s' % (tiddler.title,
+                            rev1.revision, rev2.revision)
+                    logging.debug('adding %s' % title)
+                    self._add_item(feed, rev1, link, title,
+                            '<pre>' + compare_tiddlers(rev1, rev2) + '</pre>')
+                depth -= 1
+        else:
+            if tiddler.type and tiddler.type != 'None' and not tiddler.type.startswith('text/'):
+                description = 'Binary Content'
+            else:
+                description = render_wikitext(tiddler, self.environ)
+
+            self._add_item(feed, tiddler, link, tiddler.title, description)
+
+    def _add_item(self, feed, tiddler, link, title, description):
+        feed.add_item(title=title,
                 unique_id=self._tiddler_id(tiddler),
                 link=link,
                 categories=tiddler.tags,
