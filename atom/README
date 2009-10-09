@@ -9,7 +9,7 @@ referring to the Atom feeds.
 
 Atom formatted output can be had by requesting the application/atom+xml
 format, or by appending a .atom to the end of a URL (before the query
-porition) that returns one or more tiddlers.
+portion) that returns one or more tiddlers.
 
 To use this code add 'atomplugin' to system_plugins in your tiddlywebconfig.py:
 
@@ -20,11 +20,17 @@ config = {
 And put atomplugin.py, atom.py and htmlatom.py in your TiddlyWeb instance
 directory.
 
+If differ.py[1] is on sys.path and a depth=<some number> argument is
+supplied to the feed URL, then the resulting feed will be the tiddlers
+requested presented as diffs between tiddler revisions. The number of
+revisions shown is controlled by <some number>.
+
 The Atom code is borrowed from Django's django/utils/feedgenerator.py
 
   http://www.djangoproject.com/documentation/syndication_feeds/
   http://code.djangoproject.com/browser/django/trunk/django/utils/feedgenerator.py
 
+[1] http://github.com/FND/tiddlyweb-plugins/blob/master/differ.py
 -- 
 Chris Dent
 <cdent@peemore.com>
