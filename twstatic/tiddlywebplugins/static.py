@@ -28,13 +28,15 @@ directories in your 'static_file_dir'
 Here is sample configuration to put in tiddlywebconfig.py
 
     config = {
-            'css_uri': '/static/tiddlyweb.css',
-            'system_plugins': ['static'],
+            'css_uri': '/stuff/html/tiddlyweb.css',
+            'system_plugins': ['tiddlywebplugins.static'],
             'static_url_dir': 'stuff/html',
             'static_file_dir': '/home/foobar/mystuff',
             'log_level': 'DEBUG',
             }
 """
+
+__version__ = '0.7'
 
 import mimetypes
 import os
