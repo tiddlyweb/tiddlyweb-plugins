@@ -34,8 +34,14 @@ def handler(environ, start_response):
 
     # need this to come in on the form input
     tiddler_title = input['tiddler_title']
+    del input['tiddler_title']
 
     tiddler = Tiddler(tiddler_title, TARGET_BAG) # XXX is this the bag you want?
+    try:
+        tiddler.text = input['text']
+        del input['text']
+    except KeyError:
+        tiddler.text = ''
     tiddler.fields = input
 
     store.put(tiddler)
