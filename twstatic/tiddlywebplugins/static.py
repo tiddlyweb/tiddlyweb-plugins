@@ -36,8 +36,6 @@ Here is sample configuration to put in tiddlywebconfig.py
             }
 """
 
-__version__ = '0.7'
-
 import mimetypes
 import os
 
