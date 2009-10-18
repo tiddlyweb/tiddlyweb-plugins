@@ -1,7 +1,8 @@
 
 import os
 from setuptools import setup, find_packages
-from tiddlywebplugins.status import __version__ as VERSION
+
+VERSION = '0.3'
 
 setup(
         namespace_packages = ['tiddlywebplugins'],

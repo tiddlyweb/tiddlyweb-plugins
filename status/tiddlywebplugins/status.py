@@ -23,7 +23,6 @@ This is primarily used to determine who is the current
 TiddlyWeb user.
 """
 
-__version__ = '0.2'
 __author__ = 'Chris Dent (cdent@peermore.com)'
 __copyright__ = 'Copyright UnaMesa Association 2008-2009'
 __contributors__ = ['Frederik Dohr']
