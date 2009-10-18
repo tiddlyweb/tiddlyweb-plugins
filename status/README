@@ -1,12 +1,17 @@
 
-Give a JSON report on the current state of the server:
+status is a TiddlyWeb plugins which gives a JSON report on
+the current state of the server including:
 
 * current user
-* tiddlyweb version
+* TiddlyWeb version
 * available challengers
 
-Other things to consider for future versions:
+Other information that may be considered for future versions:
 
 * store being used
 * available serializations
 * available extractors
+
+For more information on TiddlyWeb see http://tiddlyweb.com
+
+For installation instructions run 'pydoc tiddlywebplugins.status'.
