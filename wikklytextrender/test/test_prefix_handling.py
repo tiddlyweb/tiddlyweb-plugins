@@ -1,10 +1,7 @@
-
 import sys
-sys.path.insert(0, '.')
-from wikklytextrender import render
-
+sys.path.insert(0, '')
+from twp.wikklytextrender import render
 from tiddlyweb.model.tiddler import Tiddler
-
 
 def test_simple_render():
     tiddler = Tiddler('bar')

@@ -1,5 +1,5 @@
 A TiddlyWiki wiki syntax to HTML renderer for use with 
-TiddlyWeb by using wikklytext.
+TiddlyWeb. Rendering is done using wikklytext.
 
 To use add one or both of the following to tiddlywebconfig.py:
 
@@ -13,3 +13,5 @@ Requires: wikklytext, available via easy_install.
 If 'wikklytext.safe_mode' is set to False, HTML within tiddler.text
 that is wrapped in <html> tags will be preserved. If True, the HTML 
 is removed. True is the default.
+
+See also: http://tiddlyweb.com/ and http://wikklytext.com/
