@@ -25,8 +25,8 @@ To use this add 'reloader' to system_plugins in tiddlywebconfig.py.
 Additional options include 
 
     'reloader_interval': The number of (floating point) seconds to
-                         wait putting checking files. Defaults to 1.
-    'reloader_extra_file': A list of other files, besides Python modules
+                         wait between checking files. Defaults to 1.
+    'reloader_extra_files': A list of other files, besides Python modules
                          to check for modification. Defaults to [].
 
 """
