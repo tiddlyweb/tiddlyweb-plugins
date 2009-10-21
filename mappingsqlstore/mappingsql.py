@@ -1,7 +1,7 @@
 """
 Fiddle about with mapping an existing sql table to tiddlers.
 """
-from sqlalchemy import Table, Column, Unicode, create_engine, MetaData
+from sqlalchemy import Table, Column, Unicode, Integer, create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,7 +37,7 @@ class Store(StorageInterface):
         if not Store.mapped:
             table_name = self.environ['tiddlyweb.config']['mappingsql.table']
             _tiddlers = Table(table_name, meta,
-                        Column('id', Unicode(128), primary_key=True),
+                        Column('id', Integer, primary_key=True),
                         autoload=True,
                         )
             mapper(sTiddler, _tiddlers)
@@ -49,7 +49,7 @@ class Store(StorageInterface):
 
         if not (hasattr(bag, 'skinny') and bag.skinny):
             tiddlers = self.session.query(sTiddler.id).all()
-            bag.add_tiddlers(Tiddler(str(tiddler.id)) for tiddler in tiddlers)
+            bag.add_tiddlers(Tiddler(unicode(tiddler.id)) for tiddler in tiddlers)
         bag.policy.create = ["NONE"]
         bag.policy.write = ["NONE"]
         bag.policy.delete = ["NONE"]
@@ -71,9 +71,11 @@ class Store(StorageInterface):
             if column.startswith('_'):
                 continue
             if hasattr(tiddler, column):
-                setattr(tiddler, column, getattr(stiddler, column))
+                setattr(tiddler, column, unicode(getattr(stiddler, column)))
             else:
-                tiddler.fields[column] = getattr(stiddler, column)
+                tiddler.fields[column] = unicode(getattr(stiddler, column))
+	if not tiddler.text:
+            tiddler.text = ''
         return tiddler
 
 
