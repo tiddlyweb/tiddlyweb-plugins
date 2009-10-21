@@ -1,0 +1,34 @@
+mappingsql is TiddlyWeb StorageInterface implementation
+that stubs out some ideas for mapping any arbitrary 
+RDBMS table to a tiddler.
+
+It has many limitations (on purpose):
+
+* It is READ ONLY
+* It only supports one bag.
+* It has no support for recipes.
+* It has no support revisions.
+* It has no support for search.
+
+You tell tiddlywebconfig.py what database you want to look
+at, what table you want to map, and what bag name you want
+that table to think of itself as. The column name 'id'[1]
+is mapped to tiddler.title. Any column names that map to 
+Tiddler attributes are applied. Otherwise, columns are
+mapped into tiddler.fields.
+
+TODO:
+
+* Map title columns correctly.
+* Make mapping of columns to tiddler attributes optional.
+* Cast column data to unicode with flair.
+
+This work was created by Chris Dent <cdent@peermore.com>
+for Peermore Limited, working for Yellowcar Limited, under
+the auspices of the wiki-data project of Avox.
+
+It is license under the BSD license.
+See COPYRIGHT for more information.
+
+[1] In the future it will be possible to map a specific 
+column to tiddler.title. 
