@@ -33,11 +33,15 @@ class Store(StorageInterface):
         meta.bind = engine
         Session.configure(bind=engine)
         self.session = Session()
+        self.id_column = self.environ['tiddlyweb.config'].get(
+                'mappingsql.id_column', 'id')
 
         if not Store.mapped:
+            id_column = self.environ['tiddlyweb.config'].get(
+                    'mappingsql.id_column', 'id')
             table_name = self.environ['tiddlyweb.config']['mappingsql.table']
             _tiddlers = Table(table_name, meta,
-                        Column('id', Integer, primary_key=True),
+                        Column(self.id_column, Integer, primary_key=True),
                         autoload=True,
                         )
             mapper(sTiddler, _tiddlers)
@@ -48,8 +52,11 @@ class Store(StorageInterface):
         self._validate_bag_name(bag.name)
 
         if not (hasattr(bag, 'skinny') and bag.skinny):
-            tiddlers = self.session.query(sTiddler.id).all()
-            bag.add_tiddlers(Tiddler(unicode(tiddler.id)) for tiddler in tiddlers)
+            stiddlers = self.session.query(
+                    getattr(sTiddler, self.id_column)).all()
+            bag.add_tiddlers(Tiddler(
+                unicode(getattr(stiddler, self.id_column)))
+                for stiddler in stiddlers)
         bag.policy.create = ["NONE"]
         bag.policy.write = ["NONE"]
         bag.policy.delete = ["NONE"]
@@ -65,13 +72,13 @@ class Store(StorageInterface):
         self._validate_bag_name(tiddler.bag)
         try:
             stiddler = self.session.query(sTiddler).filter(
-                    sTiddler.id==tiddler.title).one()
+                    getattr(sTiddler, self.id_column)==tiddler.title).one()
         except NoResultFound, exc:
             raise NoTiddlerError('tiddler %s not found, %s' %
                     (tiddler.title, exc))
         # now we need to map the sTiddlers columns to a tiddler
         columns = stiddler.__dict__.keys()
-        columns.remove('id')
+        columns.remove(self.id_column)
         for column in columns:
             if column.startswith('_'):
                 continue
