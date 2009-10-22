@@ -100,7 +100,7 @@ class Store(StorageInterface):
             current_user = self.environ['tiddlyweb.usersign']
         except KeyError:
             return False
-        if current_user['name'] is not 'GUEST':
+        if current_user['name'] != u'GUEST':
             return True
         return False
 

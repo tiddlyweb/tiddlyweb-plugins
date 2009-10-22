@@ -62,7 +62,7 @@ def test_tiddler_limit_field():
 
     store = Store('mappingsql', {
         'tiddlyweb.config': config,
-        'tiddlyweb.usersign': {'name': 'GUEST'}
+        'tiddlyweb.usersign': {'name': u'GUEST'}
         })
     tiddler = Tiddler('monkey', 'avox')
     tiddler = store.get(tiddler)

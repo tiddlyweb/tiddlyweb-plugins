@@ -19,7 +19,6 @@ mapped into tiddler.fields.
 
 TODO:
 
-* Map title columns correctly.
 * Make mapping of columns to tiddler attributes optional.
 * Cast column data to unicode with flair.
 
