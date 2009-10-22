@@ -57,6 +57,11 @@ class Store(StorageInterface):
         return bag
 
     def tiddler_get(self, tiddler):
+        full_access = self._determine_user_access()
+        open_fields = self.environ[
+                'tiddlyweb.config'].get(
+                        'mappingsql.open_fields', [])
+
         self._validate_bag_name(tiddler.bag)
         try:
             stiddler = self.session.query(sTiddler).filter(
@@ -70,6 +75,8 @@ class Store(StorageInterface):
         for column in columns:
             if column.startswith('_'):
                 continue
+            if not full_access and column not in open_fields:
+                continue
             if hasattr(tiddler, column):
                 setattr(tiddler, column, unicode(getattr(stiddler, column)))
             else:
@@ -78,6 +85,17 @@ class Store(StorageInterface):
             tiddler.text = ''
         return tiddler
 
+    def _determine_user_access(self):
+        """
+        For now we return true if the user is authenticated.
+        """
+        try:
+            current_user = self.environ['tiddlyweb.usersign']
+        except KeyError:
+            return False
+        if current_user['name'] is not 'GUEST':
+            return True
+        return False
 
     def _validate_bag_name(self, name):
         bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']

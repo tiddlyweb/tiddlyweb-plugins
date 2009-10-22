@@ -40,3 +40,32 @@ def test_tiddler_not_bag():
     store = Store('mappingsql', {'tiddlyweb.config': config})
     tiddler = Tiddler('monkey', 'test')
     py.test.raises(NoBagError, 'tiddler = store.get(tiddler)')
+
+
+def test_tiddler_limit_field():
+    store = Store('mappingsql', {'tiddlyweb.config': config})
+    tiddler = Tiddler('monkey', 'avox')
+    tiddler = store.get(tiddler)
+    assert tiddler.fields['field_one'] == 'fat'
+    assert 'field_three' not in tiddler.fields
+    assert 'field_two' not in tiddler.fields
+
+    store = Store('mappingsql', {
+        'tiddlyweb.config': config,
+        'tiddlyweb.usersign': {'name': 'zow'}
+        })
+    tiddler = Tiddler('monkey', 'avox')
+    tiddler = store.get(tiddler)
+    assert tiddler.fields['field_one'] == 'fat'
+    assert 'field_three' in tiddler.fields
+    assert 'field_two' in tiddler.fields
+
+    store = Store('mappingsql', {
+        'tiddlyweb.config': config,
+        'tiddlyweb.usersign': {'name': 'GUEST'}
+        })
+    tiddler = Tiddler('monkey', 'avox')
+    tiddler = store.get(tiddler)
+    assert tiddler.fields['field_one'] == 'fat'
+    assert 'field_three' not in tiddler.fields
+    assert 'field_two' not in tiddler.fields
