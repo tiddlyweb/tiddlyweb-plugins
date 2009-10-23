@@ -12,6 +12,8 @@ from tiddlyweb.model.bag import Bag
 from tiddlyweb.stores import StorageInterface
 from tiddlyweb.store import NoBagError, NoTiddlerError
 
+IGNORE_PARAMS = []
+
 Base = declarative_base()
 Session = sessionmaker()
 
@@ -110,12 +112,15 @@ class Store(StorageInterface):
         if name != bag_name:
             raise NoBagError('Bag %s does not exist' % name)
 
-    def search(self, search_query):
+    def search(self, search_query=''):
         full_access = self._determine_user_access()
         open_fields = self.environ[
                 'tiddlyweb.config'].get(
                         'mappingsql.open_fields', [])
-        query_string, fields = self._parse_query(search_query)
+
+        query_string, fields = query_dict_to_search_tuple(
+                self.environ.get('tiddlyweb.query', {}))
+
         query = self.session.query(getattr(sTiddler, self.id_column))
         have_query = False
 
@@ -136,7 +141,9 @@ class Store(StorageInterface):
         for field in fields:
             if not full_access and field not in open_fields:
                 continue
-            query = query.filter(getattr(sTiddler, field)==fields[field])
+            terms = fields[field]
+            # TODO: For now we only accept the first term provided
+            query = query.filter(getattr(sTiddler, field)==terms[0])
             have_query = True
 
         if have_query:
@@ -150,16 +157,54 @@ class Store(StorageInterface):
 
         return tiddlers
 
-    def _parse_query(self, query):
-        # todo: deal with quotes
-        pieces = query.split()
-        query_strings = []
-        fields = {}
-        for piece in pieces:
-            if ':' in piece:
-                key, value = piece.split(':', 1)
-                fields[key] = value
-            else:
-                query_strings.append(piece)
-        query_string = ' '.join(query_strings)
-        return query_string, fields
+
+def query_dict_to_search_tuple(query_dict):
+    main_terms = []
+    field_terms = {}
+    while query_dict:
+        keys = query_dict.keys()
+        key = keys.pop()
+        values = query_dict[key]
+        del query_dict[key]
+        if key in IGNORE_PARAMS:
+            continue
+
+        if key == 'q':
+            main_terms.extend([value.lower() for value in values])
+        else:
+            if key.endswith('_field'):
+                prefix = key.rsplit('_', 1)[0]
+                value_key = '%s_value' % prefix
+                key = values[0].lower().replace(' ', '_')
+                try:
+                    values = query_dict[value_key]
+                    del query_dict[value_key]
+                except KeyError:
+                    values = []
+                if not values:
+                    continue
+            elif key.endswith('_value'):
+                prefix = key.rsplit('_', 1)[0]
+                field_key = '%s_field' % prefix
+                try:
+                    key = query_dict[field_key][0].lower().replace(' ', '_')
+                    del query_dict[field_key]
+                except KeyError:
+                    key = ''
+                if not key:
+                    continue
+
+            if key == 'avid' and not values[0].isdigit():
+                continue
+
+            for value in values:
+                try:
+                    field_terms[key].append(value.lower())
+                except KeyError:
+                    field_terms[key] = [value.lower()]
+    def quote_term(term):
+        if ' ' in term:
+            return '"%s"' % term
+        return term
+    main_terms = [quote_term(term) for term in main_terms]
+    return ' '.join(main_terms), field_terms

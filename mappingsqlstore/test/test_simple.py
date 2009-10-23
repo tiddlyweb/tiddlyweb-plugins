@@ -72,20 +72,40 @@ def test_tiddler_limit_field():
 
 
 def test_search():
-    store = Store('mappingsql', {'tiddlyweb.config': config})
-    tiddlers = list(store.search('cdent field_one:fat'))
+    store = Store('mappingsql', {
+        'tiddlyweb.config': config,
+        'tiddlyweb.query': {
+            'q': ['cdent'],
+            'field_one': ['fat'],
+            }
+        })
+    tiddlers = list(store.search(''))
     assert tiddlers[0].title == 'monkey'
 
-    store = Store('mappingsql', {'tiddlyweb.config': config})
-    tiddlers = list(store.search('field_one:fat'))
+    store = Store('mappingsql', {
+        'tiddlyweb.config': config,
+        'tiddlyweb.query': {
+            'field_one': ['fat'],
+            }
+        })
+    tiddlers = list(store.search(''))
     assert tiddlers[0].title == 'monkey'
 
-    tiddlers = list(store.search('field_two:clean'))
+    store = Store('mappingsql', {
+        'tiddlyweb.config': config,
+        'tiddlyweb.query': {
+            'field_two': ['clean'],
+            }
+        })
+    tiddlers = list(store.search(''))
     assert len(tiddlers) == 0
 
     store = Store('mappingsql', {
         'tiddlyweb.config': config,
-        'tiddlyweb.usersign': {'name': u'zow'}
+        'tiddlyweb.usersign': {'name': u'zow'},
+        'tiddlyweb.query': {
+            'field_two': ['clean'],
+            }
         })
-    tiddlers = list(store.search('field_two:clean'))
+    tiddlers = list(store.search(''))
     assert len(tiddlers) == 1
