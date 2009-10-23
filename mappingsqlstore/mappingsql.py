@@ -111,28 +111,43 @@ class Store(StorageInterface):
             raise NoBagError('Bag %s does not exist' % name)
 
     def search(self, search_query):
-        print search_query
+        full_access = self._determine_user_access()
+        open_fields = self.environ[
+                'tiddlyweb.config'].get(
+                        'mappingsql.open_fields', [])
         query_string, fields = self._parse_query(search_query)
-        if self.environ['tiddlyweb.config'].get('mappingsql.full_text', False):
-            query = self.session.query(
-                    getattr(sTiddler, self.id_column)).filter(
-                            'MATCH(%s) AGAINST(:query in boolean mode)' %
-                            ','.join(
-                                self.environ['tiddlyweb.config']
-                                ['mappingsql.default_search_fields'])
-                            ).params(query=query_string)
-        else:
-            query = self.session.query(
-                    getattr(sTiddler, self.id_column)).filter(or_(
-                        sTiddler.id.like('%%%s%%' % query_string),
-                        sTiddler.modifier.like('%%%s%%' % query_string)))
+        query = self.session.query(getattr(sTiddler, self.id_column))
+        have_query = False
+
+        if query_string:
+            if self.environ['tiddlyweb.config'].get('mappingsql.full_text', False):
+                query = query.filter(
+                                'MATCH(%s) AGAINST(:query in boolean mode)' %
+                                ','.join(
+                                    self.environ['tiddlyweb.config']
+                                    ['mappingsql.default_search_fields'])
+                                ).params(query=query_string)
+            else:
+                query = query.filter(or_(
+                            sTiddler.id.like('%%%s%%' % query_string),
+                            sTiddler.modifier.like('%%%s%%' % query_string)))
+            have_query = True
+
         for field in fields:
+            if not full_access and field not in open_fields:
+                continue
             query = query.filter(getattr(sTiddler, field)==fields[field])
-        print query
-        stiddlers = query.all()
+            have_query = True
+
+        if have_query:
+            stiddlers = query.all()
+        else:
+            stiddlers = []
+
         bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']
         tiddlers =  (Tiddler(unicode(getattr(stiddler, self.id_column)), bag_name)
                 for stiddler in stiddlers)
+
         return tiddlers
 
     def _parse_query(self, query):

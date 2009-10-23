@@ -8,4 +8,4 @@ create table test (
 );
 
 insert into test (id, modifier, field_one, field_two, field_three)
-    values('monkey', 'cdent', 'fat', NULL, NULL);
+    values('monkey', 'cdent', 'fat', 'clean', 'dirt');

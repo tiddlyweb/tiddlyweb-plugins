@@ -75,3 +75,17 @@ def test_search():
     store = Store('mappingsql', {'tiddlyweb.config': config})
     tiddlers = list(store.search('cdent field_one:fat'))
     assert tiddlers[0].title == 'monkey'
+
+    store = Store('mappingsql', {'tiddlyweb.config': config})
+    tiddlers = list(store.search('field_one:fat'))
+    assert tiddlers[0].title == 'monkey'
+
+    tiddlers = list(store.search('field_two:clean'))
+    assert len(tiddlers) == 0
+
+    store = Store('mappingsql', {
+        'tiddlyweb.config': config,
+        'tiddlyweb.usersign': {'name': u'zow'}
+        })
+    tiddlers = list(store.search('field_two:clean'))
+    assert len(tiddlers) == 1
