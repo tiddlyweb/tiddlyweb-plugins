@@ -69,3 +69,9 @@ def test_tiddler_limit_field():
     assert tiddler.fields['field_one'] == 'fat'
     assert 'field_three' not in tiddler.fields
     assert 'field_two' not in tiddler.fields
+
+
+def test_search():
+    store = Store('mappingsql', {'tiddlyweb.config': config})
+    tiddlers = list(store.search('cdent field_one:fat'))
+    assert tiddlers[0].title == 'monkey'

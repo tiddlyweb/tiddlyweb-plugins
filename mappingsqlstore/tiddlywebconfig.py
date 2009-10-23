@@ -4,6 +4,7 @@ config = {
         'mappingsql.table': 'test',
         'mappingsql.bag': 'avox',
         'mappingsql.open_fields': ['field_one'],
+        'mappingsql.default_search_fields': ['id', 'modifier'],
         # TODO
         #'mappingsql.title_column': 'id',
         }

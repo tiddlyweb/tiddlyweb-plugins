@@ -2,6 +2,7 @@
 Fiddle about with mapping an existing sql table to tiddlers.
 """
 from sqlalchemy import Table, Column, Unicode, Integer, create_engine, MetaData
+from sqlalchemy.sql import or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -108,3 +109,39 @@ class Store(StorageInterface):
         bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']
         if name != bag_name:
             raise NoBagError('Bag %s does not exist' % name)
+
+    def search(self, search_query):
+        print search_query
+        query_string, fields = self._parse_query(search_query)
+        if self.environ['tiddlyweb.config'].get('mappingsql.full_text', False):
+            stiddlers = self.session.query(
+                    getattr(sTiddler, self.id_column)).filter(
+                            'MATCH(%s) AGAINST(:query in boolean mode)' %
+                            self.environ['tiddlyweb.config']['mappingsql.default_search_fields']
+                            ).params(query=query_string)
+        else:
+            query = self.session.query(
+                    getattr(sTiddler, self.id_column)).filter(or_(
+                        sTiddler.id.like('%%%s%%' % query_string),
+                        sTiddler.modifier.like('%%%s%%' % query_string)))
+        for field in fields:
+            query = query.filter(getattr(sTiddler, field)==fields[field])
+        print query
+        stiddlers = query.all()
+        tiddlers =  (Tiddler(unicode(getattr(stiddler, self.id_column)))
+                for stiddler in stiddlers)
+        return tiddlers
+
+    def _parse_query(self, query):
+        # todo: deal with quotes
+        pieces = query.split()
+        query_strings = []
+        fields = {}
+        for piece in pieces:
+            if ':' in piece:
+                key, value = piece.split(':', 1)
+                fields[key] = value
+            else:
+                query_strings.append(piece)
+        query_string = ' '.join(query_strings)
+        return query_string, fields
