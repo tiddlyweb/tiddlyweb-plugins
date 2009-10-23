@@ -140,7 +140,8 @@ class Store(StorageInterface):
             have_query = True
 
         if have_query:
-            stiddlers = query.all()
+            limit = self.environ['tiddlyweb.config'].get('mappingsql.limit', 50)
+            stiddlers = query.limit(limit).all()
         else:
             stiddlers = []
 
