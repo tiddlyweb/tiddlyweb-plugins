@@ -114,10 +114,12 @@ class Store(StorageInterface):
         print search_query
         query_string, fields = self._parse_query(search_query)
         if self.environ['tiddlyweb.config'].get('mappingsql.full_text', False):
-            stiddlers = self.session.query(
+            query = self.session.query(
                     getattr(sTiddler, self.id_column)).filter(
                             'MATCH(%s) AGAINST(:query in boolean mode)' %
-                            self.environ['tiddlyweb.config']['mappingsql.default_search_fields']
+                            ','.join(
+                                self.environ['tiddlyweb.config']
+                                ['mappingsql.default_search_fields'])
                             ).params(query=query_string)
         else:
             query = self.session.query(
@@ -128,7 +130,8 @@ class Store(StorageInterface):
             query = query.filter(getattr(sTiddler, field)==fields[field])
         print query
         stiddlers = query.all()
-        tiddlers =  (Tiddler(unicode(getattr(stiddler, self.id_column)))
+        bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']
+        tiddlers =  (Tiddler(unicode(getattr(stiddler, self.id_column)), bag_name)
                 for stiddler in stiddlers)
         return tiddlers
 
