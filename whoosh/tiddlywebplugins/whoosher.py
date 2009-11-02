@@ -1,5 +1,39 @@
 """
 Whoosh based index/search system for TiddlyWeb.
+
+whoosher is a plugin for tiddlyweb. To use, update
+tiddlywebconfig.py to include 'tiddlywebplugins.whoosher'
+in system_plugins and twanager_plugins:
+
+    config = {
+            'twanager_plugins': ['tiddlywebplugins.whoosher'],
+            'system_plugins': ['tiddlywebplugins.whoosher'],
+    }
+
+Use 'twanager wreindex' to establish an index for an existing
+store. For very large stores it is necessary to index in chunks,
+do this by providing an optional prefix. If the tiddlers to be
+indexed do not start with prefix, they will not be indexed. For
+example 'twanager wreindex a' will index all tiddlers whose
+title starts with 'a' (case sensitive!).
+
+Over time the index files will be get lumpy. To optimize them,
+you may run 'twanager woptimize'. This will lock the index so it
+is best to do while the instance server is off.
+
+By default the index is located in a directory called 'indexdir'
+off the main instance directory. This may be changed by setting
+
+        'wsearch.indexdir': 'indexdir',
+
+to an absolute or relative path.
+
+Whoosh uses a schema to describe the structure of the index. whoosher
+has a reasonable default for this in its static variable SEARCH_DEFAULTS.
+That default does not index fields. If there are tiddlers fields that need
+to be indexed for a particular installation or application, wsearch.schema
+and wsearch.default_fields can be set. _Read the code_ to understand how
+these can be used.
 """
 import os, sys
 
@@ -9,7 +43,7 @@ from whoosh.index import create_in, open_dir, EmptyIndexError
 from whoosh.fields import Schema, ID, KEYWORD, TEXT
 from whoosh.qparser import MultifieldParser, QueryParser
 
-from tiddlywebplugins import get_store, replace_handler
+from tiddlywebplugins.utils import get_store, replace_handler
 
 from tiddlyweb.manage import make_command
 from tiddlyweb.stores import StorageInterface
