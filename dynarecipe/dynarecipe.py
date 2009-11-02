@@ -29,7 +29,7 @@ def dyna(environ, start_response):
     bag = Bag('tmp', tmpbag=True)
     bag.add_tiddlers(tiddlers)
     return send_tiddlers(environ, start_response, bag)
-    
+
 
 def init(config):
     config['selector'].add('/dyna/{name}', GET=dyna)

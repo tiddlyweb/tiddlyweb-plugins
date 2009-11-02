@@ -123,7 +123,7 @@ class Store(StorageInterface):
             tiddlers[tiddler.title].append(tiddler)
         except KeyError:
             tiddlers[tiddler.title] = [tiddler]
-        # XXX fairly certain needing to set this represents 
+        # XXX fairly certain needing to set this represents
         # a bug throughout the system.
         tiddler.revision = len(tiddlers[tiddler.title])
 

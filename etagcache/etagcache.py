@@ -1,15 +1,15 @@
 """
 A plugin that provides middleware which keeps an
-update to date cache of the ETags produced for 
+update to date cache of the ETags produced for
 various URLs.
 
 If an incoming GET request has an If-None-Match header,
 then the current REQUEST_URI is looked up in the cache.
 If the If-None-Match and the value (if any) in the cache
-are the same, an HTTP 304 is immediately returned and 
+are the same, an HTTP 304 is immediately returned and
 internal processing is not done.
 
-As the response is being processed, if the outgoing 
+As the response is being processed, if the outgoing
 response (to a GET request) has an ETag, then that
 ETag is returned to the cache as the value for the key
 of REQUEST_URI.
@@ -30,10 +30,10 @@ from tiddlyweb.stores import StorageInterface
 ETAGS = {}
 
 class EtagCache(object):
-    
+
     def __init__(self, application):
         self.application = application
-        
+
     def _canonical_url(self, environ):
         url = environ['SCRIPT_NAME'] or environ['PATH_INFO']
         server_prefix = environ['tiddlyweb.config']['server_prefix']

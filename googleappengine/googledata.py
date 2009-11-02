@@ -66,7 +66,7 @@ class Store(StorageInterface):
 
         if not gdrecipe:
             raise NoRecipeError
-        
+
         recipe_list = []
         for line in gdrecipe.recipe:
             bag, filter = line.split('?')
@@ -103,7 +103,7 @@ class Store(StorageInterface):
 
         bag_tiddler_query = GDTiddler.gql('WHERE bag = :1')
         bag_tiddler_query.bind(bag.name)
-        
+
         bag.desc = gdbag.desc
         policy = Policy(owner=gdbag.owner, read=gdbag.read,
                 write=gdbag.write, create=gdbag.create, delete=gdbag.delete_,

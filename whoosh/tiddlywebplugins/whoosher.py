@@ -139,7 +139,7 @@ def get_index(config):
     """
     Return the current index object if there is one.
     If not attempt to open the index in wsearch.indexdir.
-    If there isn't one in the dir, create one. If there is 
+    If there isn't one in the dir, create one. If there is
     not dir, create the dir.
     """
     index_dir = config.get('wsearch.indexdir', SEARCH_DEFAULTS['wsearch.indexdir'])

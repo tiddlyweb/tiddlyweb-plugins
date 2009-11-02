@@ -1,7 +1,7 @@
 """
 A very simple bookmarking application that uses
 TiddlyWeb as its datastore. This version is built
-to work under googleappengine, but that's not 
+to work under googleappengine, but that's not
 really a requirement.
 
 To run this we must put user.html and bookmarklet.html
@@ -35,7 +35,7 @@ template_env = Environment(loader=FileSystemLoader('.'))
 
 def base(environ, start_response):
     """
-    Where a user comes to /twoter redirect to 
+    Where a user comes to /twoter redirect to
     their own location, or if they aren't logged
     in, have them log in.
     """

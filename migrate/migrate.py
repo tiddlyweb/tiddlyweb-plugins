@@ -1,12 +1,12 @@
 """
-A quick plugin that allows migrating entities from one 
+A quick plugin that allows migrating entities from one
 tiddlyweb data store to another. It works by having two
 Store instances, one using the source configuration and
 and another using the target configuration. Each container
 entity is enumerated and then put to the new store.
 
 To use add a 'target_store' key to the _source_
-tiddlywebconfig.py and run 'twanager migrate'. 
+tiddlywebconfig.py and run 'twanager migrate'.
 
 'target_store' has the same exact format as 'server_store'.
 See tiddlyweb.config for more details.

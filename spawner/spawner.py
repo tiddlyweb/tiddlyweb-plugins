@@ -1,5 +1,5 @@
 """
-A factory for use with spawning so TiddlyWeb can 
+A factory for use with spawning so TiddlyWeb can
 run under that high performance, non-blocking web
 server.
 

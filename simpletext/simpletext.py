@@ -1,6 +1,6 @@
 """
 A StorageInterface that uses a simplified directory
-structure compared to the default text store. 
+structure compared to the default text store.
 
 Bugs:
 

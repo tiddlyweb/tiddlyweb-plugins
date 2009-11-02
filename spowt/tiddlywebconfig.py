@@ -11,5 +11,5 @@ config = {
         'auth_systems': ['openid'],
         'manager_plugins': ['fromsvn'],
         }
-    
+
 

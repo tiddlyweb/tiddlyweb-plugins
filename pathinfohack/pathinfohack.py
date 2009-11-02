@@ -1,17 +1,17 @@
 """
 A plugin that remedies an URI encoding problem
 encountered when running TiddlyWeb under Apache.
-The plugin reverts the path in the PATH_INFO variable 
+The plugin reverts the path in the PATH_INFO variable
 to its undecoded form.
 
 The problem being addressed occurs with URIs containing
-%2F characters (encoded forward slashes). 
+%2F characters (encoded forward slashes).
 
-Currently Apache supplies the PATH_INFO variable in decoded form. 
-As a result, all instances of %2F in the URI are replaced 
-with a / character in PATH_INFO. The Selector is then 
-thrown off since it depends on forward slashes to match 
-handlers. No match, and the requested PUT, GET, DELETE, 
+Currently Apache supplies the PATH_INFO variable in decoded form.
+As a result, all instances of %2F in the URI are replaced
+with a / character in PATH_INFO. The Selector is then
+thrown off since it depends on forward slashes to match
+handlers. No match, and the requested PUT, GET, DELETE,
 etc., operation goes unhandled.
 
 """
@@ -23,7 +23,7 @@ from tiddlyweb.web.query import Query
 class PathInfoHack(object):
     """
     WSGI environment manipulator that replaces
-    the decoded path in PATH_INFO with an undecoded 
+    the decoded path in PATH_INFO with an undecoded
     copy from the original request URI.
     """
 
@@ -45,7 +45,7 @@ class PathInfoHack(object):
 	   path_info = path_info.replace('?' + query_string, "", 1)
 	   environ['PATH_INFO'] = path_info
 	except AttributeError:
-	   pass # server didn't set request_uri 
+	   pass # server didn't set request_uri
 
 def init(config):
     config['server_request_filters'].insert(

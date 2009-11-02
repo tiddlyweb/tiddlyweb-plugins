@@ -10,7 +10,7 @@ Which appears to be licensed with
 
 PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2
 
-Thanks to those guys for making a feed library that hides the 
+Thanks to those guys for making a feed library that hides the
 nasty XML details.
 
 """

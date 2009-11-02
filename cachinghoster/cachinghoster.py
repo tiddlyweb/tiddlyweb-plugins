@@ -1,10 +1,10 @@
 """
 A plugin which listens at '/'
-and effectively redirects (by code not HTTP) to 
+and effectively redirects (by code not HTTP) to
 specified tiddlywiki generating recipes depending
 on whether the current user has a particular role.
 
-When possible a cache of the generated wikis will 
+When possible a cache of the generated wikis will
 be maintained. The cache is used at two level:
 if the incoming request has an If-None-Match header
 the etag will be validated. If valid, a 304 response
@@ -17,7 +17,7 @@ is erased.
 
 Originally developed to host http://www.osmosoft.com/
 
-To use, set the constants below. These will 
+To use, set the constants below. These will
 eventually work through tiddlywebconfig.py.
 
 """
@@ -95,7 +95,7 @@ def _validate_cache(etag, name):
     if etag == linked_etag and os.path.exists(path):
         logging.debug('validated %s' % etag)
         raise HTTP304(etag)
-    
+
 
 def _read_cache(name):
     logging.debug('attempt to read %s from cache' % name)

@@ -8,7 +8,7 @@ setup(
         namespace_packages = ['tiddlywebplugins'],
         name = 'tiddlywebplugins.wikklytextrender',
         version = VERSION,
-        description = 'A TiddlyWeb plugin that render TiddlyWiki syntax to HTML, server-side.',
+        description = 'A TiddlyWeb plugin to render TiddlyWiki markup to HTML, server-side.',
         long_description=file(os.path.join(os.path.dirname(__file__), 'README')).read(),
         author = 'Chris Dent',
         url = 'http://pypi.python.org/pypi/tiddlywebplugins.wikklytextrender',

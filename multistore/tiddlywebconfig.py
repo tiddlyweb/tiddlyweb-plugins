@@ -2,7 +2,7 @@
 #
 # There can be as many readers and writers as desired.
 #
-# If there are multiple readers, all readers are read, 
+# If there are multiple readers, all readers are read,
 # but the content returned comes from the last reader.
 #
 # The items in the readers and writers lists are formatter

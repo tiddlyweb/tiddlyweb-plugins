@@ -18,7 +18,7 @@ def validate_modifier(tiddler, environ):
 
     By default the GUEST user means incoming modifier
     will be accepted, any authed user will clobber incoming
-    modifier. 
+    modifier.
 
     This is _strange_ behavior, so this validator can
     override it.

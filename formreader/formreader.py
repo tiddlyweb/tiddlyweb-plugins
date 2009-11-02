@@ -1,5 +1,5 @@
 """
-A quick hack to parse CGI form fields into fields on a 
+A quick hack to parse CGI form fields into fields on a
 tiddler.
 
 TODO:
@@ -47,4 +47,4 @@ def handler(environ, start_response):
     store.put(tiddler)
 
     url = '/' # XXX replace with real url
-    raise HTTP302(url) 
+    raise HTTP302(url)

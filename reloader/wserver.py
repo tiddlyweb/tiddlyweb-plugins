@@ -1,7 +1,7 @@
 """
-A twanager plugin which provides the same job as 
+A twanager plugin which provides the same job as
 the reloader.py but uses multiple process to do the
-watching, rather than threads, thus getting around 
+watching, rather than threads, thus getting around
 problems on some architectures (notably OS X).
 """
 

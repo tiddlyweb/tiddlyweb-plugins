@@ -1,5 +1,5 @@
 """
-The barest beginnings of one way to do a recent 
+The barest beginnings of one way to do a recent
 changes plugin.
 
 This version takes recipe or bag query parameter plus
@@ -7,7 +7,7 @@ an optional since parameter as some portion of a YYYYMMDDHHMMSS
 timestamp.
 
 Using that information the tiddlers in the recipe or bag
-are traversed, including revisions, generating a list of 
+are traversed, including revisions, generating a list of
 tiddler information to present.
 
 There's an argument to be made here that this could/should

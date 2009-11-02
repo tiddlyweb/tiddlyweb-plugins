@@ -100,10 +100,10 @@ class sTiddler(Base):
     title = Column(Unicode(128), primary_key=True, index=True)
     bag_name = Column(Unicode(128), ForeignKey('bags.name'), primary_key=True, index=True)
 
-    revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
+    revisions = relation(sRevision, primaryjoin=sRevision.tiddler_id==id,
             order_by=sRevision.revision_id, cascade='delete')
 
-    current_revision = relation(sRevision, primaryjoin=sRevision.tiddler_id==id, 
+    current_revision = relation(sRevision, primaryjoin=sRevision.tiddler_id==id,
             order_by=sRevision.revision_id.desc(), cascade='delete', uselist=False,
             lazy=False)
 
@@ -141,7 +141,7 @@ class sPolicy(object):
     Empty mapper class for a policy.
     """
     pass
-# The policies table. Each constraint's value is a 
+# The policies table. Each constraint's value is a
 # string that looks a bit like a list.
 policies = Table('policies', Base.metadata,
         Column('id', Integer, primary_key=True, index=True),
@@ -209,7 +209,7 @@ class sRole(Base):
 
     def __repr__(self):
         return "<sRole('%s:%s')>" % (self.usersign, self.role_name)
-    
+
 
 class sUser(Base):
     __tablename__ = 'users'
@@ -217,7 +217,7 @@ class sUser(Base):
     usersign = Column(Unicode(256), primary_key=True, index=True)
     note = Column(Unicode(1024))
     password = Column(String(128))
-    
+
     roles = relation(sRole, primaryjoin=sRole.usersign==usersign, cascade='delete',
             lazy=False)
 

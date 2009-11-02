@@ -264,7 +264,7 @@ def test_me():
             print 'Tiddler title:', tiddler.title.encode('UTF-8')
             print 'modified:', tiddler.modified
             print tiddler.text.encode('UTF-8')
-            print 
+            print
 
 if __name__ == '__main__':
     test_me()

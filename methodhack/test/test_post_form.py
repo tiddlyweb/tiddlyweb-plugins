@@ -2,7 +2,7 @@
 mahemoff identified a problem with methodhack
 when dealing with form encoded input coming in
 on a POST attempting to a be a PUT. The system
-tries to read wsgi.input twice and hangs. 
+tries to read wsgi.input twice and hangs.
 
 By moving methodhack before Query, this should
 fix it. But we'll see.
@@ -29,7 +29,7 @@ def setup_module(module):
     def app_fn():
         return serve.load_app()
     httplib2_intercept.install()
-    wsgi_intercept.add_wsgi_intercept('our_test_domain', 8001, app_fn) 
+    wsgi_intercept.add_wsgi_intercept('our_test_domain', 8001, app_fn)
     module.store = Store(config['server_store'][0], {'tiddlyweb.config': config})
 
 
