@@ -52,6 +52,8 @@ import tiddlyweb.web.handler.search
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
 
+from tiddlyweb.filters import FilterIndexRefused
+
 IGNORE_PARAMS = []
 
 SEARCH_DEFAULTS = {
@@ -104,6 +106,7 @@ def index_query(environ, **kwargs):
     Return a generator of tiddlers that match
     the provided arguments.
     """
+    raise FilterIndexRefused()
     config = environ['tiddlyweb.config']
     store = environ['tiddlyweb.store']
     query_parts = []
