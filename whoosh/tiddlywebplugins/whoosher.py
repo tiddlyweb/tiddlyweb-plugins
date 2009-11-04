@@ -62,7 +62,7 @@ SEARCH_DEFAULTS = {
             'modified': ID,
             'modifier': ID,
             'created': ID,
-            'tags': TEXT,
+            'tags': KEYWORD(scorable=True, lowercase=True),
             'field_1': TEXT,
             'field_2': TEXT},
         'wsearch.indexdir': 'indexdir',
@@ -97,6 +97,27 @@ def whoosh_search(environ):
     return tiddlers
 
 tiddlyweb.web.handler.search.get_tiddlers = whoosh_search
+
+
+def index_query(environ, **kwargs):
+    """
+    Return a generator of tiddlers that match
+    the provided arguments.
+    """
+    config = environ['tiddlyweb.config']
+    store = environ['tiddlyweb.store']
+    query_parts = []
+    for field, value in kwargs.items():
+        if field == 'tag':
+            field = 'tags'
+        query_parts.append('%s:%s' % (field, value))
+    query_string = ' '.join(query_parts)
+    results = search(config, query_string)
+    def tiddler_from_result(result):
+        bag, title = result['id'].split(':', 1)
+        tiddler = Tiddler(title, bag)
+        return store.get(tiddler)
+    return (tiddler_from_result(result) for result in results)
 
 
 @make_command()
