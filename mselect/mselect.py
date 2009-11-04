@@ -19,7 +19,7 @@ def mselect(command, tiddlers):
 
 
 def mselect_parse(command):
-    def selector(tiddlers):
+    def selector(tiddlers, indexable=False, environ={}):
         return mselect(command, tiddlers)
     return selector
 
