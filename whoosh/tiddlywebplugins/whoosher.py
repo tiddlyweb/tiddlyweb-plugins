@@ -112,11 +112,19 @@ def index_query(environ, **kwargs):
             field = 'tags'
         query_parts.append('%s:%s' % (field, value))
     query_string = ' '.join(query_parts)
-    results = search(config, query_string)
+
+    schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
+    searcher = get_searcher(config)
+    parser = QueryParser('text', schema=Schema(**schema))
+    query = parser.parse(query_string)
+    logging.debug('query parsed to %s' % query)
+    results = searcher.search(query)
+
     def tiddler_from_result(result):
         bag, title = result['id'].split(':', 1)
         tiddler = Tiddler(title, bag)
         return store.get(tiddler)
+
     return (tiddler_from_result(result) for result in results)
 
 
@@ -237,6 +245,8 @@ def index_tiddler(tiddler, schema, writer):
                 value = ','.join(value)
                 data[key] = unicode(value.lower())
         except (KeyError, TypeError), exc:
+            pass
+        except UnicodeDecodeError, exc:
             pass
     data['id'] = _tiddler_id(tiddler)
     writer.update_document(**data)
