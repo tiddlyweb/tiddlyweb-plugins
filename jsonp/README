@@ -1,0 +1,17 @@
+tiddlywebplugins.jsonp is a subclass of the JSON serializer
+which optionally allows the JSON output from TiddlyWeb to be
+packaged as JSONP (JSON with padding). This is a method for
+getting around cross domain constraints. You should only use
+this if you know what you are doing with regard to security
+issues.
+
+To use, add 'jsonp' to system_plugins in tiddlywebconfig.py.
+
+When requests are made for JSON if there is a jsonp_callback
+query parameter the value of that parameter will be prepended
+to the output, with the required '(' and ')'.
+
+Created by Chris Dent, <cdent@peermore.com>, for the Wiki-Data
+project: http://www.wiki-data.com/
+
+Licensed as TiddlyWeb itself.
