@@ -203,10 +203,11 @@ def query_dict_to_search_tuple(original_query_dict):
                 continue
 
             for value in values:
-                try:
-                    field_terms[key].append(value.lower())
-                except KeyError:
-                    field_terms[key] = [value.lower()]
+                if len(value):
+                    try:
+                        field_terms[key].append(value.lower())
+                    except KeyError:
+                        field_terms[key] = [value.lower()]
     def quote_term(term):
         if ' ' in term:
             return '"%s"' % term
