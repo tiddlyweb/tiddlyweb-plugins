@@ -12,6 +12,8 @@ from tiddlyweb.model.bag import Bag
 from tiddlyweb.stores import StorageInterface
 from tiddlyweb.store import NoBagError, NoTiddlerError
 
+import logging
+
 IGNORE_PARAMS = []
 
 Base = declarative_base()
@@ -147,6 +149,7 @@ class Store(StorageInterface):
             have_query = True
 
         if have_query:
+            logging.debug('query is: %s' % query)
             limit = self.environ['tiddlyweb.config'].get('mappingsql.limit', 50)
             stiddlers = query.limit(limit).all()
         else:
@@ -159,7 +162,8 @@ class Store(StorageInterface):
         return tiddlers
 
 
-def query_dict_to_search_tuple(query_dict):
+def query_dict_to_search_tuple(original_query_dict):
+    query_dict = dict(original_query_dict)
     main_terms = []
     field_terms = {}
     while query_dict:
