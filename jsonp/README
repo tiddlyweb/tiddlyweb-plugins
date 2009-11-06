@@ -5,7 +5,7 @@ getting around cross domain constraints. You should only use
 this if you know what you are doing with regard to security
 issues.
 
-To use, add 'jsonp' to system_plugins in tiddlywebconfig.py.
+To use, add 'tiddlywebplugins.jsonp' to system_plugins in tiddlywebconfig.py.
 
 When requests are made for JSON if there is a jsonp_callback
 query parameter the value of that parameter will be prepended
