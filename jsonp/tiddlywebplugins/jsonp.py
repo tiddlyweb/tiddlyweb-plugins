@@ -9,7 +9,7 @@ jsonp, otherwise, do the normal JSON results.
 from tiddlyweb.serializations.json import Serialization as JSON
 
 SERIALIZERS = {
-        'application/json': ['jsonp', 'application/json; charset=UTF-8'],
+        'application/json': ['tiddlywebplugins.jsonp', 'application/json; charset=UTF-8'],
         }
 
 
