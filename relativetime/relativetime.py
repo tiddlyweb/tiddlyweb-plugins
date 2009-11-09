@@ -43,7 +43,6 @@ def _parse_relative_time(datestring):
         raise FilterError('unknown time type in filter')
     time_object = datetime.utcnow() - delta
     datestring = unicode(time_object.strftime('%Y%m%d%H%M%S'))
-    print 'datestring is', datestring
     return datestring
 
 
