@@ -1,5 +1,5 @@
 
-The modules in this directory provide serialization modules to
+The tiddlywebplugins.atom packages provide serialization modules to
 do a very simple Atom format syndication of collections of tiddlers
 (including one tiddler, and filtered tiddlers).
 
@@ -11,14 +11,12 @@ Atom formatted output can be had by requesting the application/atom+xml
 format, or by appending a .atom to the end of a URL (before the query
 portion) that returns one or more tiddlers.
 
-To use this code add 'atomplugin' to system_plugins in your tiddlywebconfig.py:
+To use this code instally the package and then add 'tiddlywebplugins.atom'
+to system_plugins in the tiddlywebconfig.py of your instance:
 
 config = {
-    'system_plugins': ['atomplugin'],
+    'system_plugins': ['tiddlywebplugins.atom'],
 }
-
-And put atomplugin.py, atom.py and htmlatom.py in your TiddlyWeb instance
-directory.
 
 If differ.py[1] is on sys.path and a depth=<some number> argument is
 supplied to the feed URL, then the resulting feed will be the tiddlers
@@ -31,6 +29,7 @@ The Atom code is borrowed from Django's django/utils/feedgenerator.py
   http://code.djangoproject.com/browser/django/trunk/django/utils/feedgenerator.py
 
 [1] http://github.com/FND/tiddlyweb-plugins/blob/master/differ.py
--- 
-Chris Dent
-<cdent@peemore.com>
+
+Created by Chris Dent, <cdent@peermore.com>.
+
+Licensed as TiddlyWeb itself.
