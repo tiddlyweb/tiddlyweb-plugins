@@ -122,6 +122,13 @@ class sTiddler(Base):
         """
         return self.revisions[0].modified
 
+    def creator(self):
+        """
+        Calculate the creator field for this tiddler from
+        the first revision.
+        """
+        return self.revisions[0].modifier
+
     def __init__(self, title, bag_name, rev=None):
         self.id = str(uuid())
         self.title = title
@@ -538,6 +545,7 @@ class Store(StorageInterface):
                 tiddler.fields[sfield.name.name] = sfield.value
 
             tiddler.created = stiddler.created()
+            tiddler.creator = stiddler.creator()
 
             return tiddler
         except IndexError, exc:

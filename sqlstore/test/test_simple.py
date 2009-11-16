@@ -44,6 +44,7 @@ def test_store():
 
     tiddler = Tiddler(u'tidlname', bag.name)
     tiddler.text = u'foo'
+    tiddler.modifier = u'nancy'
     store.put(tiddler)
 
     stiddler = store.storage.session.query(sql.sTiddler).filter(sql.sTiddler.title == u'tidlname').filter(sql.sTiddler.bag_name == u'bar').one()
@@ -53,6 +54,7 @@ def test_store():
 
     tiddler = Tiddler(u'tidlname', bag.name)
     tiddler.text = u'foo1'
+    tiddler.modifier = u'karl'
     store.put(tiddler)
 
     stiddler = store.storage.session.query(sql.sTiddler).filter(sql.sTiddler.title == u'tidlname').filter(sql.sTiddler.bag_name == u'bar').one()
@@ -65,6 +67,8 @@ def test_store():
     tiddler_d = store.get(tiddler_d)
 
     assert tiddler_d.text == tiddler.text
+    assert tiddler_d.modifier == u'karl'
+    assert tiddler_d.creator == u'nancy'
 
     tiddlers = store.list_tiddler_revisions(tiddler_d)
     assert len(tiddlers) == 2
