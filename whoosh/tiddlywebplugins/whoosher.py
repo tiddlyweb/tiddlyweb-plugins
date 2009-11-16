@@ -106,7 +106,6 @@ def index_query(environ, **kwargs):
     Return a generator of tiddlers that match
     the provided arguments.
     """
-    raise FilterIndexRefused()
     config = environ['tiddlyweb.config']
     store = environ['tiddlyweb.store']
     query_parts = []
