@@ -1,10 +1,10 @@
 """
 A plugin which listens at '/'
-and effectively redirects (by code not HTTP) to
+and effectively redirects (by code not HTTP) to 
 specified tiddlywiki generating recipes depending
 on whether the current user has a particular role.
 
-When possible a cache of the generated wikis will
+When possible a cache of the generated wikis will 
 be maintained. The cache is used at two level:
 if the incoming request has an If-None-Match header
 the etag will be validated. If valid, a 304 response
@@ -17,7 +17,7 @@ is erased.
 
 Originally developed to host http://www.osmosoft.com/
 
-To use, set the constants below. These will
+To use, set the constants below. These will 
 eventually work through tiddlywebconfig.py.
 
 """
@@ -25,13 +25,12 @@ eventually work through tiddlywebconfig.py.
 
 import logging
 import os
+import urllib
 
-from tiddlywebplugins import replace_handler
+from tiddlywebplugins.utils import replace_handler
 from tiddlyweb.web.handler.recipe import get_tiddlers
 from tiddlyweb.web.http import HTTP304
 
-
-import tiddlyweb.stores.text
 
 DEFAULT_RECIPE = 'docs'
 EDITOR_RECIPE = 'editor'
@@ -46,9 +45,6 @@ def tiddler_written_handler(self, tiddler):
                 os.listdir(WIKI_CACHE_DIR) if not file.startswith('.')]
     except (IOError, OSError), exc:
         logging.warn('unable to unlink in %s: %s' % (WIKI_CACHE_DIR, exc))
-
-# XXX: note this is a dependency on the text store, which is _bad_
-tiddlyweb.stores.text.Store.tiddler_written = tiddler_written_handler
 
 
 def home(environ, start_response):
@@ -69,33 +65,35 @@ def home(environ, start_response):
         logging.debug('response has etag of %s' % etag)
         start_response(status, headers)
 
+    cache_file_name = '%s:%s' % (recipe_name, environ['tiddlyweb.usersign']['name'])
+
     try:
-        _validate_cache(if_none_match, recipe_name)
-        output, out_etag = _read_cache(recipe_name)
+        _validate_cache(if_none_match, cache_file_name)
+        output, out_etag = _read_cache(cache_file_name)
         start_response('200 OK', [
             ('Content-Type', 'text/html; charset=UTF-8'),
             ('Etag', out_etag),
             ])
     except (IOError, OSError), exc:
-        logging.debug('cache miss for %s: %s' % (recipe_name, exc))
+        logging.debug('cache miss for %s: %s' % (cache_file_name, exc))
         environ['wsgiorg.routing_args'][1]['recipe_name'] = recipe_name
         environ['tiddlyweb.type'] = 'text/x-tiddlywiki'
         output = get_tiddlers(environ, our_start_response)
-        _write_cache(recipe_name, saved_headers.get('etag', None), output)
+        _write_cache(cache_file_name, saved_headers.get('etag', None), output)
     return output
 
 
 def _validate_cache(etag, name):
     if not etag:
         return
-    path = os.path.join(WIKI_CACHE_DIR, etag)
+    path = os.path.join(WIKI_CACHE_DIR, urllib.quote(etag, safe=''))
     link_filename = os.path.join(WIKI_CACHE_DIR, name)
     linked_etag = os.path.basename(os.path.realpath(link_filename))
     logging.debug('attempting to validate %s' % path)
     if etag == linked_etag and os.path.exists(path):
         logging.debug('validated %s' % etag)
         raise HTTP304(etag)
-
+    
 
 def _read_cache(name):
     logging.debug('attempt to read %s from cache' % name)
@@ -105,7 +103,7 @@ def _read_cache(name):
 
 
 def _write_cache(name, etag, output):
-    etag_filename = os.path.join(WIKI_CACHE_DIR, etag)
+    etag_filename = os.path.join(WIKI_CACHE_DIR, urllib.quote(etag, safe=''))
     link_filename = os.path.join(WIKI_CACHE_DIR, name)
     file = open(etag_filename, 'w')
     content = ''.join(output)
@@ -128,6 +126,11 @@ def init(config):
     except (IOError, OSError), exc:
         logging.warn('unable to create %s: %s' % (WIKI_CACHE_DIR, exc))
     replace_handler(config['selector'], '/', dict(GET=home))
+    # XXX this next line must be customized for whatever store
+    # is currently being used. This could be done via inspecting
+    # tiddlyweb.config['server_store']
+    from sql import Store
+    Store.tiddler_written = tiddler_written_handler
 
 
 def _header_value(headers, name):
