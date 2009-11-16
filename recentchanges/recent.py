@@ -23,7 +23,7 @@ from tiddlyweb.filters.select import select_parse
 from tiddlyweb.filters.sort import sort_by_attribute
 from tiddlyweb import control
 
-from tiddlywebplugins import do_html
+from tiddlywebplugins.utils import do_html
 
 
 @do_html()
