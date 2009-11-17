@@ -10,6 +10,27 @@ tiddlywebconfig.py and run 'twanager migrate'.
 
 'target_store' has the same exact format as 'server_store'.
 See tiddlyweb.config for more details.
+
+Here's an example that will migrate from the sql store
+to the text store, with the data stored in a dir in
+/tmp:
+
+config = {
+    'twanager_plugins': ['tiddlywebplugins.migrate'],
+    'server_store': ['sql', {'db_config': 'sqlite:///test.db'}],
+    'target_store': ['text', {'store_root': '/tmp/backupstore'}],
+}
+
+Once the configuration is set the twanager command is run:
+
+    twanager migrate
+
+If the store is large this may take some time.
+
+When tiddlers are migrated from one store to another, they
+are stored as new revisions, so if the target store already
+exists and has a tiddler of the same name in the same bag,
+it will create a new one, extending the revisions.
 """
 
 import copy
