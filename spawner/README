@@ -1,0 +1,20 @@
+A factory for use with Spawning so TiddlyWeb can
+run under that high performance, non-blocking web
+server.
+
+Use like so:
+
+    spawn --factory=tiddlywebplugins.spawner.factory ''
+
+(The empty string argument is necessary for the time being).
+
+spawning can be found on pypi:
+
+    http://pypi.python.org/pypi/Spawning
+
+
+For more information on TiddlyWeb see http://tiddlyweb.com
+
+This plugin is licensed under the same terms as TiddlyWeb itself.
+
+Copyright 2009 Chris Dent.

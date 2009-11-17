@@ -5,7 +5,7 @@ server.
 
 Use like so:
 
-    spawn --factory=spawner.factory ''
+    spawn --factory=tiddlywebplugins.spawner.factory ''
 
 (The empty string argument is necessary for the time being).
 
@@ -19,7 +19,7 @@ from tiddlyweb.config import config
 
 
 def factory(args):
-    args['app_factory'] = 'spawner.app_factory'
+    args['app_factory'] = 'tiddlywebplugins.spawner.app_factory'
     return args
 
 
