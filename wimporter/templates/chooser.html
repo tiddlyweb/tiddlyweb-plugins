@@ -1,0 +1,15 @@
+<a href="">start over</a>
+<form method="POST" enctype="multipart/form-data">
+    Choose a bag to put these doods in: <select name="bag">
+        {% for bag in bags %}
+        <option value="{{ bag.name }}">{{ bag.name }}</option>
+        {% endfor %}
+    </select><br/>
+    Select Tiddlers<br/>
+    {% for tiddler in tiddlers %}
+    <input type="checkbox" name="tiddler" value="{{ tiddler.title }}" />
+    {{ tiddler.title }}<br />
+    {% endfor %}
+    <input type="hidden" name="tmpbag" value="{{ tmpbag }}" />
+    <input type="submit" value="submit" />
+</form>
