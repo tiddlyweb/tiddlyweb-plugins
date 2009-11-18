@@ -4,7 +4,7 @@ Twanager commands that mimic unix command.
 
 import sys
 
-from tiddlyweb.manage import make_command, usage
+from tiddlyweb.manage import make_command, usage, ltiddlers
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler, current_timestring
 from tiddlyweb.store import NoBagError, NoTiddlerError
@@ -57,6 +57,10 @@ def touch(args):
     source_tiddler.modified = current_timestring()
     _write_new_tiddler(source_tiddler)
 
+@make_command()
+def ls(args):
+    """List all the tiddlers on the system. [<bag> <bag> <bag>] to limit."""
+    ltiddlers(args)
 
 def _delete_tiddler(bagname, tiddlertitle):
     # remove the previous tiddler
