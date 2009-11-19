@@ -58,6 +58,7 @@ def wimport(environ, start_response):
 
 def _process_choices(environ, start_response, form):
     store = environ['tiddlyweb.store']
+    user = environ['tiddlyweb.usersign']
 
     tmp_bag = form['tmpbag'].value
     bag = form['bag'].value
@@ -66,8 +67,11 @@ def _process_choices(environ, start_response, form):
     try:
         bag.skinny = True
         bag = store.get(bag)
+        bag.policy.allows(user, 'write')
     except NoBagError:
         return _send_wimport(environ, start_response, 'chosen bag does not exist')
+    except (ForbiddenError, UserRequiredError):
+        return _send_wimport(environ, start_response, 'you may not write to that bag')
 
     tiddler_titles = form.getlist('tiddler')
     for title in tiddler_titles:
@@ -149,16 +153,9 @@ def _get_bags(environ):
         bag = store.get(bag)
         try:
             bag.policy.allows(user, 'write')
-            print 'appending bag %s, with write' % bag.name
             kept_bags.append(bag)
             continue
         except (ForbiddenError, UserRequiredError):
-            try:
-                bag.policy.allows(user, 'create')
-                print 'appending bag %s, with create' % bag.name
-                kept_bags.append(bag)
-                continue
-            except (ForbiddenError, UserRequiredError):
-                pass
+            pass
 
     return sorted(kept_bags, key=operator.attrgetter('name'))
