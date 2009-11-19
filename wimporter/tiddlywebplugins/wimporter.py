@@ -20,6 +20,7 @@ from tiddlywebwiki.tiddlywiki import import_wiki, import_wiki_file
 
 from tiddlyweb.control import filter_tiddlers_from_bag
 from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.policy import ForbiddenError, UserRequiredError
 from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.store import NoBagError
 from tiddlyweb.web.util import bag_url
@@ -29,13 +30,13 @@ def init(config):
     config['selector'].add('/import', GET=interface, POST=wimport)
 
 
-@entitle('Import a Wiki')
+@entitle('Import Tiddlers')
 @do_html()
 def interface(environ, start_response):
     return _send_wimport(environ, start_response)
 
 
-@entitle('Import a Wiki')
+@entitle('Import Tiddlers')
 @do_html()
 def wimport(environ, start_response):
     form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
@@ -113,8 +114,24 @@ def _make_bag(environ):
     store = environ['tiddlyweb.store']
     bag_name = str(uuid())
     bag = Bag(bag_name)
+    _set_restricted_policy(environ, bag)
     store.put(bag)
     return bag
+
+def _set_restricted_policy(environ, bag):
+    """
+    Set this bag to only be visible and usable by
+    the current user, if the current user is not
+    guest.
+    """
+    username = environ['tiddlyweb.usersign']['name']
+    if username == 'GUEST':
+        return
+    bag.policy.owner = username
+    # accept does not matter here
+    for constraint in ['read', 'write', 'create', 'delete', 'manage']:
+        setattr(bag.policy, constraint, [username])
+    return
 
 
 def _send_wimport(environ, start_response, message=''):
@@ -125,5 +142,23 @@ def _send_wimport(environ, start_response, message=''):
 def _get_bags(environ):
 # XXX we need permissions handling here
     store = environ['tiddlyweb.store']
+    user = environ['tiddlyweb.usersign']
     bags = store.list_bags()
-    return sorted(bags, key=operator.attrgetter('name'))
+    kept_bags = []
+    for bag in bags:
+        bag = store.get(bag)
+        try:
+            bag.policy.allows(user, 'write')
+            print 'appending bag %s, with write' % bag.name
+            kept_bags.append(bag)
+            continue
+        except (ForbiddenError, UserRequiredError):
+            try:
+                bag.policy.allows(user, 'create')
+                print 'appending bag %s, with create' % bag.name
+                kept_bags.append(bag)
+                continue
+            except (ForbiddenError, UserRequiredError):
+                pass
+
+    return sorted(kept_bags, key=operator.attrgetter('name'))
