@@ -14,10 +14,8 @@ import urllib2
 
 from uuid import uuid4 as uuid
 
-from jinja2 import Environment, FileSystemLoader
-template_env = Environment(loader=FileSystemLoader('templates'))
-
 from tiddlywebplugins.utils import entitle, do_html
+from tiddlywebplugins.templates import get_template
 from tiddlywebwiki.tiddlywiki import import_wiki, import_wiki_file
 
 from tiddlyweb.control import filter_tiddlers_from_bag
@@ -88,7 +86,7 @@ def _show_chooser(environ, bag):
     bag.skinny = True
     bag = store.get(bag)
     tiddlers = filter_tiddlers_from_bag(bag, 'sort=title')
-    template = template_env.get_template('chooser.html')
+    template = get_template(environ, 'chooser.html')
     return template.generate(tiddlers=tiddlers,
             tmpbag=bag.name,
             bags=_get_bags(environ))
@@ -120,7 +118,7 @@ def _make_bag(environ):
 
 
 def _send_wimport(environ, start_response, message=''):
-    template = template_env.get_template('wimport.html')
+    template = get_template(environ, 'wimport.html')
     return template.generate(message=message)
 
 

@@ -1,0 +1,8 @@
+
+TiddlyWeb plugin for server-side imports of tiddlers into a bag
+from a TiddlyWiki.
+
+Provide a url or a file indicating the wiki to a form and the
+tiddlers in that wiki will be sucked into a temporary bag. Then
+select which tiddlers you want from a list and which bag they
+should go in.
