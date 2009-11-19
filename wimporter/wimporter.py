@@ -9,6 +9,7 @@ driven.
 """
 
 import cgi
+import operator
 import urllib2
 
 from uuid import uuid4 as uuid
@@ -19,8 +20,10 @@ template_env = Environment(loader=FileSystemLoader('templates'))
 from tiddlywebplugins.utils import entitle, do_html
 from tiddlywebwiki.tiddlywiki import import_wiki, import_wiki_file
 
+from tiddlyweb.control import filter_tiddlers_from_bag
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
+from tiddlyweb.store import NoBagError
 from tiddlyweb.web.util import bag_url
 from tiddlyweb.web.http import HTTP302
 
@@ -50,23 +53,31 @@ def wimport(environ, start_response):
         except ValueError: # file or url was not right
             return _send_wimport(environ, start_response, 'could not read that')
     elif 'bag' in form:
-        return _process_choices(environ, form)
+        return _process_choices(environ, start_response, form)
     else:
         return _send_wimport(environ, start_response, 'missing field info')
 
-def _process_choices(environ, form):
+def _process_choices(environ, start_response, form):
     store = environ['tiddlyweb.store']
-    bag = form['bag'].value
+
     tmp_bag = form['tmpbag'].value
+    bag = form['bag'].value
+
+    bag = Bag(bag)
+    try:
+        bag.skinny = True
+        bag = store.get(bag)
+    except NoBagError:
+        return _send_wimport(environ, start_response, 'chosen bag does not exist')
+
     tiddler_titles = form.getlist('tiddler')
     for title in tiddler_titles:
         tiddler = Tiddler(title, tmp_bag)
         tiddler = store.get(tiddler)
-        tiddler.bag = bag
+        tiddler.bag = bag.name
         store.put(tiddler)
     tmp_bag = Bag(tmp_bag)
     store.delete(tmp_bag)
-    bag = Bag(bag)
     bagurl = bag_url(environ, bag) + '/tiddlers'
     raise HTTP302(bagurl)
 
@@ -74,9 +85,11 @@ def _process_choices(environ, form):
 def _show_chooser(environ, bag):
     # refresh the bag object
     store = environ['tiddlyweb.store']
+    bag.skinny = True
     bag = store.get(bag)
+    tiddlers = filter_tiddlers_from_bag(bag, 'sort=title')
     template = template_env.get_template('chooser.html')
-    return template.generate(tiddlers=bag.gen_tiddlers(),
+    return template.generate(tiddlers=tiddlers,
             tmpbag=bag.name,
             bags=_get_bags(environ))
 
@@ -115,4 +128,4 @@ def _get_bags(environ):
 # XXX we need permissions handling here
     store = environ['tiddlyweb.store']
     bags = store.list_bags()
-    return bags
+    return sorted(bags, key=operator.attrgetter('name'))
