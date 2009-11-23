@@ -1,0 +1,2 @@
+include README Makefile mangler.py
+recursive-include test *

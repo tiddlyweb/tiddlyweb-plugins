@@ -1,8 +1,5 @@
-import sys
-sys.path.insert(0, '.')
-
 from tiddlyweb.model.tiddler import Tiddler
-from  mselect import mselect
+from  tiddlywebplugins.mselect import mselect
 
 
 tiddlers = [Tiddler('1'), Tiddler('c'), Tiddler('a'), Tiddler('b')]

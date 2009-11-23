@@ -1,5 +1,13 @@
 
-This is a plugin which extends the new filter syntax 
-released in TiddyWeb 0.9.31 to add 'mselect' which 
-provides multiple selects in one selection. See the
-test for a simple example.
+This is a TiddlyWeb plugin which extends the TiddlyWeb filter syntax 
+to add 'mselect' which provides multiple selects in one selection. The
+following example will select those tiddlers which have tag blog OR tag
+published and then sort by modified time:
+
+    mselect=tag:blog,tag:published;sort=-modified
+
+For more information on TiddlyWeb see http://tiddlyweb.com
+
+This code is licensed under the same terms as TiddlyWeb itself.
+
+Copyright 2009 Chris Dent.
