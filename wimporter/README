@@ -1,8 +1,14 @@
+TiddlyWeb plugin for server-side import into a selected bag
+of tiddlers from a TiddlyWiki.
 
-TiddlyWeb plugin for server-side imports of tiddlers into a bag
-from a TiddlyWiki.
+A form hosted at {server_prefix}/import provides and interface for
+uploading a tiddlywiki by URL or file (from local disk). The tiddlers
+in that wiki will be loaded into a temporary bag. An interface is
+then provided to select from those tiddlers a subset to be installed
+into a target bag.
 
-Provide a url or a file indicating the wiki to a form and the
-tiddlers in that wiki will be sucked into a temporary bag. Then
-select which tiddlers you want from a list and which bag they
-should go in.
+For more information on TiddlyWeb see http://tiddlyweb.com
+
+This code is licensed under the same terms as TiddlyWeb itself.
+
+Copyright 2009 Chris Dent.

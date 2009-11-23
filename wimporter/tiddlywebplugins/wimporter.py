@@ -6,6 +6,9 @@ a selection system.
 
 This is intentionally a UI driven thing, rather than API
 driven.
+
+Two templates are used 'chooser.html' and 'wimport.html'.
+These may be overridden locally. See tiddlywebplugins.templates.
 """
 
 import cgi
