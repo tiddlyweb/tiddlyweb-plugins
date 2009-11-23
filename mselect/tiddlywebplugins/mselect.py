@@ -1,4 +1,15 @@
+"""
+Provide an mselect filter type. This extends the filter syntax
+to allow a union of two or more select type filters in one
+filter step. This allows for union or multiple type selections.
+The following example will select those tiddlers which have tag
+blog OR tag published and then sort by modified time:
 
+        mselect=tag:blog,tag:published;sort=-modified
+
+Install by adding 'tiddlywebplugins.mselect' to 'system_plugins'
+in tiddlywebconfig.py.
+"""
 
 from tiddlyweb.filters import FILTER_PARSERS
 from tiddlyweb.filters.select import select_parse
