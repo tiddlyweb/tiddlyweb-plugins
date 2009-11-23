@@ -18,7 +18,7 @@ dist: test
 
 upload: clean pypi peermore
 
-pypi:
+pypi: test
 	python setup.py sdist upload
 
 peermore:
