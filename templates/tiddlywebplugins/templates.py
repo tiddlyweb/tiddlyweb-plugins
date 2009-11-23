@@ -1,6 +1,21 @@
 """
 Manage locating jinja2 templates in the tiddlywebplugins
-package.
+package or a local templates dir.
+
+Jinja2 uses a 'loader' to locate requests templates. This
+package sets up two loaders, tried in sequence. The first
+loader looks in the 'templates' directory in the current
+TiddlyWeb instances. This directory name be overridden by
+setting plugin_local_templates in tiddlywebconfig.py to
+some path.
+
+The second loader looks inside the tiddlywebplugins.templates
+package. TiddlyWeb plugins can package default templates into
+this location (see tiddlywebplugins.wimporter for an example).
+
+If template is not found in either location, the jinja
+TemplateNotFound exception is raised, replicating the standard
+jinja behavior.
 """
 from jinja2 import Environment, FileSystemLoader, PackageLoader, TemplateNotFound
 template_env = None

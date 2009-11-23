@@ -1,4 +1,21 @@
 
-TiddlyWeb plugin for hosting templates in the tiddlywebplugins
-package space, overridable, by config.
+TiddlyWeb tool establishing package based hosting of Jinja2
+templates in the tiddlywebplugins package space.
 
+The templates are overridable with local templates in the
+TiddlyWeb instance.
+
+The tool provides a get_template method which takes a template
+name or path. First the tiddlyweb.config['plugin_local_templates']
+directory (defaulting to 'templates') is searched. Then the
+tiddlywebplugins.templates package space is searched (looking
+for the template as a pkg_resource).
+
+This searching may not work for all packaging systems. This has
+been tested with pip.
+
+For more information on TiddlyWeb see http://tiddlyweb.com
+
+This code is licensed under the same terms as TiddlyWeb itself.
+
+Copyright 2009 Chris Dent.
