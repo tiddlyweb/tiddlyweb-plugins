@@ -1,8 +1,23 @@
+A TiddlyWeb plugin that remedies an URI encoding problem
+encountered when running TiddlyWeb under Apache.
+The plugin reverts the path in the PATH_INFO variable
+to its undecoded form.
 
-Plugin enabling forward slashes in tiddler titles under Apache.
- 
-grew from this discussion: 
+The problem being addressed occurs with URIs containing
+%2F characters (encoded forward slashes).
 
-http://groups.google.com/group/TiddlyWikiDev/browse_thread/thread/7002fe12f15c0e6c
+Currently Apache supplies the PATH_INFO variable in decoded form.
+As a result, all instances of %2F in the URI are replaced
+with a / character in PATH_INFO. The Selector is then
+thrown off since it depends on forward slashes to match
+handlers. No match, and the requested PUT, GET, DELETE,
+etc., operation goes unhandled.
 
-Contributed by Oveek
+Install the plugin by adding 'tiddlywebplugins.pathinfohack' to
+'system_plugins' in tiddlywebconfig.py.
+
+config = {
+    'system_plugins': ['tiddlywebplugins.pathinfohack'],
+}
+
+For more info on TiddlyWeb see http://tiddlyweb.com/

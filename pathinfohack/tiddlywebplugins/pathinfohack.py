@@ -14,11 +14,16 @@ thrown off since it depends on forward slashes to match
 handlers. No match, and the requested PUT, GET, DELETE,
 etc., operation goes unhandled.
 
+Install the plugin by adding 'tiddlywebplugins.pathinfohack' to
+'system_plugins' in tiddlywebconfig.py.
+
+config = {
+    'system_plugins': ['tiddlywebplugins.pathinfohack'],
+}
 """
 
-import logging
-
 from tiddlyweb.web.query import Query
+
 
 class PathInfoHack(object):
     """
@@ -46,6 +51,7 @@ class PathInfoHack(object):
 	   environ['PATH_INFO'] = path_info
 	except AttributeError:
 	   pass # server didn't set request_uri
+
 
 def init(config):
     config['server_request_filters'].insert(
