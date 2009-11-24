@@ -8,6 +8,7 @@ clean:
 	find . -name "*.pyc" |xargs rm || true
 	rm -r dist || true
 	rm -r build || true
+	rm -r *.egg-info || true
 
 test: 
 	py.test -x test
