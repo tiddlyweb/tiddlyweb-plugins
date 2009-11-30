@@ -1,0 +1,4 @@
+Scratchpad for experimenting with loading system_plugins from
+a list, in additional to tiddlywebconfig.py.
+
+Essentially this is a plugin which can load other plugins.
