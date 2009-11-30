@@ -1,4 +1,19 @@
-Scratchpad for experimenting with loading system_plugins from
-a list, in additional to tiddlywebconfig.py.
+tiddlywebplugins.plugins is a system_plugin for TiddlyWeb which
+will read a file in the current instance as a list of additional
+system_plugins to add to the instance.
 
-Essentially this is a plugin which can load other plugins.
+This is done so automation of the plugins currently in use in 
+an instance is more flexible.
+
+To use, add 'tiddlywebplugins.plugins' to system_plugins in
+tiddlywebconfig.py. Add other system_plugins to a file named
+'extra_plugins'. This file can be overridden by setting 'plugin_file'
+in tiddlywebconfig.py.
+
+Copyright 2009 Chris Dent <cdent@peermore.com>, who was assuming
+someone else was going to write this in their own efforts to better
+manage configurations.
+
+Licensed under the same terms as TiddlyWeb itself.
+
+For more on TiddlyWeb see http://tiddlyweb.com/

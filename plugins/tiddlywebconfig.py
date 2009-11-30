@@ -1,4 +1,5 @@
+import mangler
 config = {
         'log_level': 'DEBUG',
-        'system_plugins': ['plugins'],
+        'system_plugins': ['tiddlywebplugins.plugins'],
         }
