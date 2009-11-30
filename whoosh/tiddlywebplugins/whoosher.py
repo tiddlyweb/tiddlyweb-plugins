@@ -46,6 +46,7 @@ from whoosh.qparser import MultifieldParser, QueryParser
 from tiddlywebplugins.utils import get_store, replace_handler
 
 from tiddlyweb.manage import make_command
+from tiddlyweb.store import NoTiddlerError
 from tiddlyweb.stores import StorageInterface
 import tiddlyweb.web.handler.search
 
@@ -225,6 +226,15 @@ def search(config, query):
     return searcher.search(query, limit=limit)
 
 
+def delete_tiddler(tiddler, writer):
+    """
+    Delete the named tiddler from the index.
+    """
+    logging.debug('deleting tiddler: %s' % tiddler.title)
+    id = _tiddler_id(tiddler)
+    writer.delete_by_term('id', id)
+
+
 def index_tiddler(tiddler, schema, writer):
     """
     Index the given tiddler with the given schema using
@@ -262,7 +272,11 @@ def _tiddler_written_handler(self, tiddler):
     schema = self.environ['tiddlyweb.config'].get('wsearch.schema',
             SEARCH_DEFAULTS['wsearch.schema'])
     writer = get_writer(self.environ['tiddlyweb.config'])
-    index_tiddler(tiddler, schema, writer)
+    try:
+        temp_tiddler = self.environ['tiddlyweb.store'].get(Tiddler(tiddler.title, tiddler.bag))
+        index_tiddler(tiddler, schema, writer)
+    except NoTiddlerError:
+        delete_tiddler(tiddler, writer)
     writer.commit()
 
 
