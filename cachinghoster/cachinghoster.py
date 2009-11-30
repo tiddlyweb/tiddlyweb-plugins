@@ -86,7 +86,7 @@ def home(environ, start_response):
 def _validate_cache(etag, name):
     if not etag:
         return
-    path = os.path.join(WIKI_CACHE_DIR, urllib.quote(etag, safe=''))
+    path = os.path.join(WIKI_CACHE_DIR, etag)
     link_filename = os.path.join(WIKI_CACHE_DIR, name)
     linked_etag = os.path.basename(os.path.realpath(link_filename))
     logging.debug('attempting to validate %s' % path)
