@@ -15,5 +15,3 @@ def extend_plugins(config):
         plugins = []
 
     config['system_plugins'].extend(plugins)
-
-    print config
