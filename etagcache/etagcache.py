@@ -37,10 +37,10 @@ class EtagCache(object):
         self.application = application
 
     def _canonical_url(self, environ):
-        url = environ['SCRIPT_NAME'] or environ['PATH_INFO']
+        url = environ['REQUEST_URI'] or environ['PATH_INFO']
         server_prefix = environ['tiddlyweb.config']['server_prefix']
-        if server_prefix and server_prefix in uri:
-            url = uri.replace(server_prefix, '', 1)
+        if server_prefix and server_prefix in url:
+            url = url.replace(server_prefix, '', 1)
         extensions = environ['tiddlyweb.config'].get('extension_types', {}).keys()
         try:
             shorter_url, url_extension = url.rsplit('.', 1)
@@ -85,14 +85,13 @@ class EtagCache(object):
     def _check_etag(self, environ, url):
         if '/bags/' in url:
             try:
-                logging.debug('checking for etag')
                 etag = environ['HTTP_IF_NONE_MATCH']
                 content_type = get_serialize_type(environ)[1]
                 content_type = content_type.split(';', 1)[0]
                 username = environ['tiddlyweb.usersign']['name']
                 key = '%s:%s:%s' % (url, content_type, username)
-                logging.debug('checking etag: %s:%s' % (etag, key))
                 found_etag = ETAGS.get(str(key))
+                logging.debug('checking etag: %s:%s:%s' % (etag, key, found_etag))
                 if etag == found_etag:
                     logging.debug('etag match in cache: %s:%s' % (etag, key))
                     raise HTTP304(found_etag)
