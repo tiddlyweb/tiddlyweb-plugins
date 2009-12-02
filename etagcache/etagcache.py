@@ -1,6 +1,6 @@
 """
 A plugin that provides middleware which keeps an
-update to date cache of the ETags produced for
+up to date cache of the ETags produced for
 various URLs.
 
 If an incoming GET request has an If-None-Match header,
@@ -16,18 +16,20 @@ of REQUEST_URI.
 
 tiddler_written, from the store, is hooked to delete
 entries in the cache related to that tiddler, determining
-what these entries should be is niggling.
+what these entries should be is difficult when considering
+recipes so for the time being only bag based URIs are cached.
 """
 
 import logging
 
-from tiddlyweb.web.query import Query
+from tiddlyweb.web.negotiate import Negotiate
 from tiddlyweb.web.http import HTTP304
-from tiddlyweb.web.util import tiddler_url
+from tiddlyweb.web.util import tiddler_url, get_serialize_type
 
 from tiddlyweb.stores import StorageInterface
 
-ETAGS = {}
+import memcache
+ETAGS = None
 
 class EtagCache(object):
 
@@ -66,12 +68,16 @@ class EtagCache(object):
         if '/bags/' in url:
             try:
                 found_etag = [value for header, value in self.headers if header.lower() == 'etag'][0]
+                content_type = [value for header, value in self.headers if header.lower() == 'content-type'][0]
+                content_type = content_type.split(';', 1)[0]
+                username = environ['tiddlyweb.usersign']['name']
             except IndexError:
                 found_etag = None
 
             if found_etag:
-                logging.debug('setting cache with %s for %s' % (found_etag, url))
-                ETAGS[url] = found_etag
+                key = '%s:%s:%s' % (url, content_type, username)
+                logging.debug('setting cache with %s for %s' % (found_etag, key))
+                ETAGS.set(str(key), found_etag)
 
         start_response(self.status, self.headers)
         return output
@@ -81,11 +87,14 @@ class EtagCache(object):
             try:
                 logging.debug('checking for etag')
                 etag = environ['HTTP_IF_NONE_MATCH']
-                logging.debug('checking etag: %s' % etag)
-                found_etag = ETAGS[url]
-
+                content_type = get_serialize_type(environ)[1]
+                content_type = content_type.split(';', 1)[0]
+                username = environ['tiddlyweb.usersign']['name']
+                key = '%s:%s:%s' % (url, content_type, username)
+                logging.debug('checking etag: %s:%s' % (etag, key))
+                found_etag = ETAGS.get(str(key))
                 if etag == found_etag:
-                    logging.debug('etag match in cache: %s' % etag)
+                    logging.debug('etag match in cache: %s:%s' % (etag, key))
                     raise HTTP304(found_etag)
             except KeyError:
                 pass # no etag just carry on with normal processing
@@ -94,28 +103,12 @@ class EtagCache(object):
 def _tiddler_written_handler(self, tiddler):
     bag_name = tiddler.bag
     recipe_name = tiddler.recipe
-    decache_uris = []
-    if bag_name:
-        tiddler.recipe = None
-        single_tiddler_url = tiddler_url(self.environ, tiddler)
-        single_tiddler_url = '/' + single_tiddler_url.split('/', 3)[3]
-        bag_tiddlers_url = single_tiddler_url.rsplit('/', 1)[0]
-        decache_uris.append(single_tiddler_url)
-        decache_uris.append(bag_tiddlers_url)
-        if recipe_name:
-            tiddler.recipe = recipe_name
-
-    server_prefix = self.environ.get('tiddlyweb.config', {}).get('server_prefix', '')
-    for uri in decache_uris:
-        if server_prefix and server_prefix in uri:
-            uri = uri.replace(server_prefix, '', 1)
-        try:
-            logging.debug('attempting to de-cache: %s' % uri)
-            del ETAGS[uri]
-            logging.debug('de-cached: %s' % uri)
-        except KeyError:
-            pass
-
+    # There's no good way to review each key in the cache, so
+    # if we do a write, just flush everything!
+    global ETAGS
+    if not ETAGS:
+        ETAGS = memcache.Client(self.environ['tiddlyweb.config']['memcache_hosts'])
+    ETAGS.flush_all()
 
 StorageInterface.tiddler_written = _tiddler_written_handler
 
@@ -123,4 +116,6 @@ def init(config):
     # XXX we need to only add to filters if we are over web
     if config['selector']:
         config['server_request_filters'].insert(
-                config['server_request_filters'].index(Query) + 1, EtagCache)
+                config['server_request_filters'].index(Negotiate) + 1, EtagCache)
+    global ETAGS
+    ETAGS = memcache.Client(config['memcache_hosts'])
