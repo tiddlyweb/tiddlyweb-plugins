@@ -37,7 +37,7 @@ def render(tiddler, environ):
     Render text in the provided tiddler to HTML.
     """
     wiki_link_base = environ.get('tiddlyweb.config', {}).get('markdown.wiki_link_base', None)
-    if wiki_link_base:
+    if wiki_link_base is not None:
         link_patterns = [
             # Match a wiki page link LikeThis.
             (re.compile(r"(\b[A-Z][a-z]+[A-Z]\w+\b)"), WikiLinker(wiki_link_base))
