@@ -12,10 +12,13 @@ clean:
 test:
 	py.test -x test
 
-dist: test
+dist:
 	python setup.py sdist
 
-upload: clean pypi
+upload: clean pypi peermore
 
-pypi: dist
-	python setup.py upload
+pypi:
+	python setup.py sdist upload
+
+peermore:
+	scp -P 8022 dist/tiddlywebplugins*.gz cdent@heavy.peermore.com:public_html/tiddlyweb.peermore.com/dist
