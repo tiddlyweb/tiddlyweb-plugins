@@ -1,7 +1,11 @@
 
-A quick hack to support markdown syntax when rendering tiddlers.
+A markdown wikitext renderer for TiddlyWeb.
 
-All this is does is call markdown2.markdown(tiddler.text) and return
-the generated HTML.
+ALPHA.
 
-Which works a treat.
+See the code for details.
+
+Copyright 2009, Chris Dent <cdent@peemore.com>
+
+Licensed under the same terms as TiddlyWeb
+http://tiddlyweb.com/
