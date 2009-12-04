@@ -9,15 +9,15 @@ clean:
 	rm -r build || true
 	rm -r *.egg-info || true
 
-test:
+test: clean
 	py.test -x test
 
-dist:
+dist: test
 	python setup.py sdist
 
 upload: clean pypi peermore
 
-pypi:
+pypi: test
 	python setup.py sdist upload
 
 peermore:

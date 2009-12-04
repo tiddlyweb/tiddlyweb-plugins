@@ -15,5 +15,5 @@ setup(
         packages = find_packages(exclude='test'),
         author_email = 'cdent@peermore.com',
         platforms = 'Posix; MacOS X; Windows',
-        install_requires = ['setuptools', 'tiddlyweb', 'Spawning'],
+        install_requires = ['Spawning', 'tiddlyweb'],
         )
