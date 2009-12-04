@@ -13,10 +13,10 @@ clean:
 test: clean
 	py.test -x test
 
-dist: test
+dist:
 	python setup.py sdist
 
-upload: test pypi peermore
+upload: pypi peermore
 
 pypi:
 	python setup.py sdist upload
