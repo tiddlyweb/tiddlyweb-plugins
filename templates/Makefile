@@ -10,13 +10,13 @@ clean:
 	rm -r build || true
 	rm -r *.egg-info || true
 
-test: 
+test: clean
 	py.test -x test
 
 dist: test
 	python setup.py sdist
 
-upload: clean pypi peermore
+upload: test pypi peermore
 
 pypi:
 	python setup.py sdist upload
