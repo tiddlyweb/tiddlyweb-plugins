@@ -146,22 +146,22 @@ class Serialization(HTMLSerialization):
         revision_ids = store.list_tiddler_revisions(tiddler)
         while depth >= 0:
             try:
-                rev2 = Tiddler(tiddler.title, tiddler.bag)
-                rev2.revision = revision_ids[depth + 1]
-                rev2 = store.get(rev2)
+                rev_older = Tiddler(tiddler.title, tiddler.bag)
+                rev_older.revision = revision_ids[depth + 1]
+                rev_older = store.get(rev_older)
             except IndexError:
                 depth -= 1
                 continue
-            rev1 = Tiddler(tiddler.title, tiddler.bag)
-            rev1.revision = revision_ids[depth]
-            rev1 = store.get(rev1)
+            rev_current = Tiddler(tiddler.title, tiddler.bag)
+            rev_current.revision = revision_ids[depth]
+            rev_current = store.get(rev_current)
             if tiddler.type and tiddler.type != 'None' and not tiddler.type.startswith('text/'):
                 self._add_item(feed, tiddler, link, tiddler.title, 'Binary Content')
             else:
                 title = '%s comparing version %s to %s' % (tiddler.title,
-                        rev1.revision, rev2.revision)
-                self._add_item(feed, rev1, link, title,
-                        '<pre>' + compare_tiddlers(rev1, rev2) + '</pre>')
+                        rev_older.revision, rev_current.revision)
+                self._add_item(feed, rev_current, link, title,
+                        '<pre>' + compare_tiddlers(rev_older, rev_current) + '</pre>')
             depth -= 1
 
     def _add_item(self, feed, tiddler, link, title, description):
