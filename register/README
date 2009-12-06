@@ -1,0 +1,30 @@
+
+An example user registration plugin for TiddlyWeb.
+
+What this does is validate an OpenID and then create a
+TiddlyWeb user of that OpenID and assign a Role to it.
+This allows the system to go beyond a Policy of 'ANY'
+to one of 'R:MEMBER'. This is a way to provide member
+access to people with openIds while not allowing all
+openids.
+
+It uses a few optional configuration settings:
+
+    register.role: The role assigned to newly registered
+        users. Defaults to "MEMBER".
+    register.start_href: The link to send users to after
+        they have registered. Defaults to "/".
+    register.start_title: The title of the link. Defaults
+        to "Get Started".
+    register.blacklist: A list of openids to never allow
+        to register. Defaults to an empty list.
+
+Because tiddlywebplugins.templates is being used, the 
+register.html and registered.html templates may be overriden
+per instance by creating a templates directory in the instance
+directory and putting new versions of the templates in there.
+
+Copyright 2009, Chris Dent <cdent@peemore.com>
+
+Licensed under the same terms at TiddlyWeb itself.
+http://tiddlyweb.com/
