@@ -12,7 +12,7 @@ clean:
 	rm -r store1 || true
 	rm -r store2 || true
 
-test:
+test: clean
 	py.test -x test
 
 dist: test
