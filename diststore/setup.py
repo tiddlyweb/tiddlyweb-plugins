@@ -1,5 +1,3 @@
-
-# YOU NEED TO EDIT THESE
 AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.diststore'
@@ -9,8 +7,6 @@ VERSION = '0.2'
 import os
 from setuptools import setup, find_packages
 
-# You should review the below so that it seems correct. install_requires
-# especially.
 setup(
         namespace_packages = ['tiddlywebplugins'],
         name = NAME,

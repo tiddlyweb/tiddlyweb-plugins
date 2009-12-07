@@ -14,7 +14,7 @@ the main collection of tiddler data is kept in one highly optimized bag
 using the mappingsql store, while users and other system data are stored
 in a text store. Here's the relevant config:
 
-        'server_store': ['diststore', {
+        'server_store': ['tiddlywebplugins.diststore', {
             'main': ['text', {'store_root': 'store'}],
             'extras': [
                 (r'^example$', ['mappingsql',
@@ -24,8 +24,8 @@ in a text store. Here's the relevant config:
         }],
 
 To use this plugin you must modify tiddlywebconfig.py to set the
-'server_store' item. Do not add 'diststore' to 'system_plugins' or
-'twanager_plugins'.
+'server_store' item. Do not add 'tiddlywebplugins.diststore' to
+'system_plugins' or 'twanager_plugins'.
 
 Copyright 2009, Chris Dent <cdent@peermore.com>
 
