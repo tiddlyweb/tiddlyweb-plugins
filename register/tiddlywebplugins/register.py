@@ -60,6 +60,7 @@ def handle(environ, start_response):
     log in as someone else. Otherwise send closing
     material with a link to get started.
     """
+    pretty_name = environ['tiddlyweb.query'].get('pretty_name', [None])[0]
     target_role = environ['tiddlyweb.config'].get('register_role', 'MEMBER')
     store = environ['tiddlyweb.store']
     username = environ['tiddlyweb.usersign']['name']
@@ -72,6 +73,8 @@ def handle(environ, start_response):
     except NoUserError:
         pass # is cool if they don't exist yet
     user.add_role('%s' % target_role)
+    if pretty_name:
+        user.note = pretty_name
     store.put(user)
     environ['tiddlyweb.usersign'] = {'name': user.usersign,
             'roles': user.list_roles()}
