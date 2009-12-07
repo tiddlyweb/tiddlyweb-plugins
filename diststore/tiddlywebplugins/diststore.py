@@ -1,3 +1,20 @@
+"""
+Distribute storage of bag based entities to different
+storage sytems based on rules defined in tiddlywebconfig.py.
+
+The rules are regular expressions which match the name of a bag. When a
+tiddler or bag is accessed (for read or write) if the name of the bag
+matches a regular expression in the store's "extras" dictionary, the
+store named in the value is responsible for the entity being accessed.
+Otherwise the store named in "main" is used.
+
+The value of the main key and of each regular expression entry in
+the extras takes the same form as the 'server_store' entry: a list
+or tuple of two items:
+
+    * The name of the module providing the store.
+    * A dictionary with the configuration information the store needs.
+"""
 import copy
 import re
 

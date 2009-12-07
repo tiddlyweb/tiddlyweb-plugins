@@ -1,11 +1,33 @@
 
-A TiddlyWeb store that makes it possible to store some 
-content in different stores.
+A TiddlyWeb store that makes it possible to store some content in
+different stores, based on rules defined in tiddlywebconfig.py.
 
-This mostly for the sake of exploring the concept, although
-it would probably be useful once fleshed out.
+The rules are regular expressions which match the name of a bag. When a
+tiddler or bag is accessed (for read or write) if the name of the bag
+matches a regular expression in the store's "extras" dictionary, the
+store named in the value is responsible for the entity being accessed.
+Otherwise the store named in "main" is used.
 
-For a first pass will have a sequence of rules against which
-a bag name matches, somewhat like routes.
+This is an experimental store, but it is being reliably used in
+production with the http://www.wiki-data.com/ website. In that service,
+the main collection of tiddler data is kept in one highly optimized bag
+using the mappingsql store, while users and other system data are stored
+in a text store. Here's the relevant config:
 
-We'll start with static rules.
+        'server_store': ['diststore', {
+            'main': ['text', {'store_root': 'store'}],
+            'extras': [
+                (r'^example$', ['mappingsql',
+                    {'db_config':
+                        'mysql://example@localhost/example?charset=utf8'}]),
+            ],
+        }],
+
+To use this plugin you must modify tiddlywebconfig.py to set the
+'server_store' item. Do not add 'diststore' to 'system_plugins' or
+'twanager_plugins'.
+
+Copyright 2009, Chris Dent <cdent@peermore.com>
+
+Licensed under the same terms as TiddlyWeb.
+http://tiddlyweb.com/
