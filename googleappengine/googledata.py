@@ -174,6 +174,7 @@ class Store(StorageInterface):
                 logging.warning('attempting to set key %s' % key)
                 gdtiddler.__setattr__(key, db.Text(tiddler.fields[key]))
         gdtiddler.put()
+        tiddler.revision = 1
 
     def user_get(self, user):
         pass
