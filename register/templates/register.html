@@ -24,9 +24,11 @@
 <div id='authgreet'>
     <p>
     You are logged in as user <strong>{{ username }}</strong>, but that
-    user is not yet registered as a member. Click below to register.
+    user is not yet registered as a member. Click below to register. Add
+    a name you'd like to be called, if you like.
     </p>
     <p class='login'><form method="POST">
+        <input name="pretty_name" type="text" />
         <input type="submit" value="Register"/>
     </form></p>
     <p>
