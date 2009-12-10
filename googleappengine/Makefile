@@ -1,23 +1,26 @@
 
-TIDDLYBASE=/Users/cdent/src/tiddlywiki/association/serversides/tiddlyweb/core
-PLUGINDIR=/Users/cdent/sc/tiddlywiki/contributors/ChrisDent/experimental/tiddlyweb-plugins
+BASEFILES = app.yaml google_user_challenger.py google_user_extractor.py googledata.py main.py tiddlywebconfig.py static
 
-links: baselinks googlelinks pluginlinks
+clean: cleango cleangotmp
 
-baselinks: lib tiddlyweb urls.map
-	for file in $^; do \
-		ln -s $(TIDDLYBASE)/$$file . ; \
-	done
+cleango:
+	rm -rf go || true
 
-googlelinks: app.yaml google_user_challenger.py google_user_extractor.py googledata.py main.py tiddlywebconfig.py 
-	for file in $^; do \
-		ln -s $(PLUGINDIR)/googleappengine/$$file . ; \
-	done
+cleangotmp:
+	rm -rf go.tmp || true
 
-pluginlinks: atom twoter/twoter.py twoter/user.html twoter/bookmarklet.html
-	for file in $^; do \
-		ln -s $(PLUGINDIR)/$$file . ; \
-	done
+installenv:
+	virtualenv --no-site-packages go.tmp
+	pip -E ./go.tmp install -U tiddlywebwiki
+
+go: installenv fill
+
+fill:
+	mkdir go
+	( cd go ; \
+	for file in $(BASEFILES); do ln -s ../$$file . ; done ; \
+	for file in ../go.tmp/lib/python*/site-packages/* ; do ln -s $$file . ; done ;\
+	touch tiddlywebplugins/__init__.py )
 
 .DEFAULT:
 	echo $@

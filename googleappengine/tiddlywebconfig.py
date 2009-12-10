@@ -18,10 +18,9 @@ else:
 
 config = {
         # plugins
-        'system_plugins': ['atomplugin'],
+        'system_plugins': ['tiddlywebwiki'],
         # how are we storing data
-        'server_store': ['caching', {}],
-        'cached_store': ['googledata', {}],
+        'server_store': ['googledata', {}],
         # how do we extract user information from requests
         'extractors': ['google_user_extractor'],
         # how do we authenticate (if needed)
