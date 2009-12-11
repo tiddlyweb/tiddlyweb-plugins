@@ -1,74 +1,81 @@
 
 It is possible to run TiddlyWeb on Google's AppEngine service, 
-with some work.
+with a bit of work. The process has evolved over time and become
+more simple. If you've investigated this process in the past and
+thought, no way, look again.
 
-*** Familiarity with AppEngine is required for any of this to 
-*** make sense. This development was done using the OS X
-*** GoogleAppEngineLauncher.
+The code in this directory provides two categories of things:
 
-The basic requirements are to create a Store that uses the google
-appengine data system and a challenger and extractor that use
-google users. Once that is made it is just a matter of
-gathering up the necessary required modules in an appengine 
-directory and then deploying to the service.
+* Code necessary for TiddlyWeb running on Google App Engine to
+  work there.
+* Code used to build the tiddlyweb google app engine application
+  that can be deployed to the App Engine servers (or run locally
+  with the SDK).
 
-The store, challenger and extractor are included in the directory
-with this README: googledata.py, google_user_challenger.py,
-google_user_extractor.py
+The first category includes:
 
-For the sake of simplicity tiddlers revisions and user roles are
-not supported. Neither are required for TiddlyWeb to operate (as
-long as you don't request a revisions URL). Simple db.Model
-classes that mirror Recipe, Tiddler and Bag are used for storage. 
+* googledata.py: A StorageInterface implementation which stores
+  bag, recipes and tiddlers in the App Engine data store. Revisions
+  and Users are not currently handled (patches welcomed!).
 
-main.py is the script which appengine uses to get things going.
-Because TiddlyWeb is a pure WSGI application with no framework 
-requirements, there's not a lot that happens here: we just provide
-the WSGI app to a handler.
+* google_user_challenger.py: A TiddlyWeb challenger that launches
+  an interface requesting the current user log into their google account.
 
-The AppEngine SDK should create app.yaml and index.yaml files
-for you in a directory. The penultimate step is gathering the necessary
-libraries and files into that directory. This can be done by symlink 
-or copy. Don't forget the External requirements. Do not use eggs. 
+* google_user_extractor.py: A TidlyWeb extractor that asks the App
+  engine API for info on the current user.
 
-Here's a list of external requirements:
+* tiddlywebconfig.py: A basic config which establishes the necessary
+  settings for the store, challenger and extractor to be used.
 
-* selector.py
-* resolver.py
-* simplejson
-* BeautifulSoup.py
-* html5lib
-* wikklytext 
-* ply
-* boodebr
+* main.py: A simple script which bridges App Engine and TiddlyWeb's
+  WSGI nature.
 
-The tiddlywebconfig.py included with this code is commented to explain
-what each entry does. Take note: it references the atom plugin for 
-TiddlyWeb, which you can learn about at
+* app.yaml: App Engine configuration for the current app.
 
-  http://tiddlyweb.peermore.com/wiki/#atom
+In the second category is a Makefile which includes targets that
+use pip, virtualenv, mkdir and symlinks to gather together the
+required Python dependencies and build the necessary directory 
+hierarchy.
 
-You will need to put some content in your TiddlyWeb to be able
-to use it. There are a few different ways to do this. 
+The install process is as follows:
 
-* You can PUT to create bags and recipes and you can POST an entire
-  tiddlywiki to an existing bag.
-** Look at the test code in the tiddlyweb distribution for examples
-   on how to do these things.
+* Get and install the Google App Engine SDK for your OS from
+  http://code.google.com/appengine/downloads.html
 
-* See tiddlywebweb, an experimental library for accessing
-  a remote TiddlyWeb through another TiddlyWeb in 
-  http://svn.tiddlywiki.org/Trunk/contributors/ChrisDent/experimental/tiddlywebweb/
-  to create bags, recipes and tiddlers. This works rather (in
-  fact extremely) well.
+* Make sure you have pip and virtualenv, available from PyPI.
 
-If you want to be able to sync or autosave you will need
-the plugins which make up the TiddlyWebWiki vertical. See:
- 
-  http://tiddlyweb.peermore.com/wiki/#TiddlyWebWiki
+* In the directory with the Makefile:
+** edit tiddlywebconfig.py to set the host information near the top
+** edit app.yaml to set the name of the application if you will be 
+   deploy to appspot.com.
+** run 'make go'
+** If that completes without errors, in the directory 'go' will
+   be your ready to mount App Engine application.
 
-Feel free to contact me with questions. Or post to the
-TiddlyWikiDev google group.
--- 
-Chris Dent
-<cdent@peermore.com>
+There are some limitations to this setup:
+
+* Though you may use google usernames in policies, there is as yet
+  not storage for Roles.
+
+* Tiddler revisions are not supported.
+
+* Because an App Engine application is web only, there's no way to
+  add content to the store other than through the web. Techniques
+  for bootstrapping an instance are described below.
+
+To get things started you will need at least one bag on the server.
+More likely you'll want a few bags, a recipe, and a few tiddlers.
+To add content you have a few options:
+
+* You can make direct HTTP calls to the server, using curl or other 
+  similar tools. See:
+  http://tiddlyweb.peermore.com/wiki/recipes/docs/tiddlers?select=text:curl
+
+* You can use tiddlywebweb to proxy local twanager actions through
+  to the app engine web server. See:
+  http://github.com/tiddlyweb/tiddlyweb-plugins/tree/master/tiddlywebweb
+  This is the recommended method.
+
+This code was created by Chris Dent, <cdent@peermore.com> and
+is Copyright, 2009. It is licensed under the same terms as TiddlyWeb
+itself.
