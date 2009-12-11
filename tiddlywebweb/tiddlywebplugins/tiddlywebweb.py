@@ -9,6 +9,7 @@ import urllib
 
 from base64 import b64encode
 
+from tiddlyweb.model.policy import UserRequiredError
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler
@@ -42,11 +43,15 @@ class Store(StorageInterface):
     def __init__(self, environ={}):
         self.environ = environ
         #self.http = httplib2.Http('.cache')
-        self.http = httplib2.Http()
         server_info = self.environ['tiddlyweb.config']['server_store'][1]
         self._base = server_info['server_base']
         user = server_info.get('user', None)
         password = server_info.get('password', None)
+        cache = server_info.get('use_cache', False)
+        if cache:
+            self.http = httplib2.Http('.cache')
+        else:
+            self.http = httplib2.Http()
         self.authorization = None
         if user and password:
             self.authorization = b64encode('%s:%s' % (user, password))
@@ -67,12 +72,12 @@ class Store(StorageInterface):
         return self._base
 
     def _is_success(self, response):
-        return response['status'].startswith('20') or response['status'] == 304
+        return response['status'].startswith('20') or response['status'] == '304'
 
     def _any_delete(self, url, target_object):
         response, content = self._request('DELETE', url)
         if not self._is_success(response):
-            raise TiddlyWebWebError, '%s: %s' % (response['status'], content)
+            raise TiddlyWebWebError('%s: %s' % (response['status'], content))
 
     def _any_get(self, url, target_object):
         response, content = self._request('GET', url)
@@ -83,21 +88,24 @@ class Store(StorageInterface):
             else:
                 # XXX got a binary tiddler
                 pass
+        elif response['status'] == '401':
+            raise UserRequiredError('you do not have permission')
         else:
-            raise TiddlyWebWebError, '%s: %s' % (response['status'], content)
+            print response, content
+            raise TiddlyWebWebError('%s: %s' % (response['status'], content))
 
     def _any_put(self, url, target_object):
         self.serializer.object = target_object
         data = self.serializer.to_string()
         response, content = self._request('PUT', url, data)
         if not self._is_success(response):
-            raise TiddlyWebWebError, '%s: %s' % (response['status'], content)
+            raise TiddlyWebWebError('%s: %s' % (response['status'], content))
 
     def doit(self, url, object, method, exception):
         try:
             method(url, object)
         except TiddlyWebWebError, e:
-            raise exception, e
+            raise exception(e)
 
     def recipe_delete(self, recipe):
         url = self.recipe_url % _encode_name(recipe.name)
@@ -119,12 +127,13 @@ class Store(StorageInterface):
     def bag_get(self, bag):
         url = self.bag_url % _encode_name(bag.name)
         self.doit(url, bag, self._any_get, NoBagError)
-        url = self.bag_tiddlers_url % bag.name
-        response, content = self._request('GET', url)
-        if self._is_success(response):
-            tiddlers = simplejson.loads(content)
-            for tiddler in tiddlers:
-                bag.add_tiddler(Tiddler(tiddler['title']))
+        if not (hasattr(bag, 'skinny') and bag.skinny):
+            url = self.bag_tiddlers_url % bag.name
+            response, content = self._request('GET', url)
+            if self._is_success(response):
+                tiddlers = simplejson.loads(content)
+                for tiddler in tiddlers:
+                    bag.add_tiddler(Tiddler(tiddler['title']))
         return bag
 
     def bag_put(self, bag):
@@ -228,7 +237,7 @@ def _encode_name(name):
 def test_me():
     environ = {'tiddlyweb.config': {}}
     environ['tiddlyweb.config']['server_store'] = \
-            ['tiddlywebweb.tiddlywebstore', {'server_base':'http://tiddlyweb.peermore.com/wiki'}]
+            ['tiddlywebplugins.tiddlywebweb', {'use_cache': True, 'server_base':'http://tiddlyweb.peermore.com/wiki'}]
 
     store = Store(environ)
     recipes = store.list_recipes()
@@ -263,7 +272,10 @@ def test_me():
                 pass
             print 'Tiddler title:', tiddler.title.encode('UTF-8')
             print 'modified:', tiddler.modified
-            print tiddler.text.encode('UTF-8')
+            if tiddler.type != None and tiddler.type != 'None':
+                print '#### got a special type: %s' % tiddler.type
+            else:
+                print tiddler.text.encode('UTF-8')
             print
 
 if __name__ == '__main__':

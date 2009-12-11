@@ -4,6 +4,8 @@ of a different TiddlyWeb instance as its datastore.
 
 It has been created for several reasons:
 
+* Because it is useful for doing things like interacting with
+  TiddlyWeb on Google App Engine.
 * To demonstrate the extensibility and flexibility of the TiddlyWeb
   system. Including "code A does not need to be near code B".
 * To stimulate the creation a python-based client side library for
@@ -13,24 +15,29 @@ It has been created for several reasons:
 * To confirm HTTP cache header handling.
 * To do the luscious CSci wankery of self-hosting.
 
-The primary change is the creation of a StorageInterface that 
-uses httplib2 to talk to a different tiddlyweb server, sending 
-and receiving JSON.
+Once the package is installed, to use add the following to 
+the tiddlywebconfig.py of an existing instance:
 
-What we should end up with are:
+        'server_store': ['tiddlywebplugins.tiddlywebweb', {
+            'server_base': 'http://0.0.0.0:8000',
 
-tiddlywebweb/tiddlywebstore.py: implements StorageInterface
-tiddlywebconfig.py: required configuration directives
+Setting server_base to the URL (including server_prefix) of
+the root (without the trailing /) of the target TiddlyWeb.
 
-Look at test_me() in tiddlywebweb/tiddlywebstore.py for some
-sample test code that goes through the motions of retrieving
-content from http://tiddlyweb.peermore.com/, the TiddlyWeb
-home site.
+You can then do things like:
 
-Likely issues include:
+   twanager lbags
 
-* Authentication and Authorization completely left out for now.
-* Does TiddlyWeb cache well enough?
+to list all the bags on the remote server. You can also start 
+the local server, and interact via tiddlywebweb with the 
+remote TiddlyWeb.
+
+TODO:
+* Authentication and Authorization handling very limited.
 
 See this blog posting for some relatively old information:
 http://cdent.tumblr.com/post/46209623/webs-of-tiddlywebs-with-tiddlywebweb
+
+Copyright 2009, Chris Dent <cdent@peermore.com>
+
+Licensed under the same terms as TiddlyWeb itself.
