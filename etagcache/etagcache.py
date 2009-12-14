@@ -106,7 +106,11 @@ def _tiddler_written_handler(self, tiddler):
     # if we do a write, just flush everything!
     global ETAGS
     if not ETAGS:
-        ETAGS = memcache.Client(self.environ['tiddlyweb.config']['memcache_hosts'])
+        try:
+            config = self.environ['tiddlyweb.config']
+        except KeyError:
+            from tiddlyweb.config import config
+        ETAGS = memcache.Client(config['memcache_hosts'])
     ETAGS.flush_all()
 
 StorageInterface.tiddler_written = _tiddler_written_handler

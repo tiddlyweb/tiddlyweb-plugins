@@ -23,12 +23,13 @@ class Store(StorageInterface):
             environ = {}
         self.environ = environ
 
-        internal_store_environ  = {
-                'tiddlyweb.config': {
-                    'server_store': config['cached_store'],
-                    }
+        internal_environ = {}
+        internal_store_environ_config  = {
+                'server_store': config['cached_store'],
                 }
-        self.cached_store = StoreBoss(config['cached_store'][0], environ=internal_store_environ)
+        internal_environ.update(environ)
+        internal_environ['tiddlyweb.config'].update(internal_store_environ_config)
+        self.cached_store = StoreBoss(config['cached_store'][0], environ=internal_environ)
         self.prefix = self.environ['tiddlyweb.config']['server_prefix']
         self.host = self.environ['tiddlyweb.config']['server_host']['host']
 
