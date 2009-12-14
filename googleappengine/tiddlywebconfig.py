@@ -7,7 +7,7 @@ if os.environ['SERVER_SOFTWARE'].startswith('Dev'):
     server_host = {
             'scheme': 'http',
             'host': 'localhost',
-            'port': '8000',
+            'port': '8080',
             }
 else:
     server_host = {
