@@ -20,9 +20,12 @@ the tiddlywebconfig.py of an existing instance:
 
         'server_store': ['tiddlywebplugins.tiddlywebweb', {
             'server_base': 'http://0.0.0.0:8000',
+        },
 
-Setting server_base to the URL (including server_prefix) of
+Set server_base to the URL (including server_prefix) of
 the root (without the trailing /) of the target TiddlyWeb.
+
+See pydoc tiddlywebplugins.tiddlywebweb for more details.
 
 You can then do things like:
 

@@ -1,5 +1,26 @@
 """
-A StorageInterface that stores in another TiddlyWeb.
+A StorageInterface for TiddlyWeb that stores and retrieves
+content to and from another TiddlyWeb server via the TiddlyWeb
+HTTP API. It is used by configuring tiddlywebweb as the store
+and configuring it with a pointer to the other server.
+
+An example:
+
+    'server_store': ['tiddlywebplugins.tiddlywebweb', {
+        'server_base': 'http://tiddlyweb.example.com/wiki',
+        'use_cache': True,
+        'user': 'somebody', # if you wish to use basic auth
+        'password': 'somepass',
+    }
+
+Of the options show, server_base is required. This is the base
+URL of the remote TiddlyWeb server (server_host + server_prefix).
+
+'use_cache' is a boolean declaring whether httplib2 (which drives
+the http requests) should use a local cache.
+
+'user' and 'password', if present, are presented as HTTP Basic
+Auth credentials on every request to the remote server.
 """
 
 import httplib2
@@ -14,17 +35,24 @@ from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.serializer import Serializer
-from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError, NoUserError
+from tiddlyweb.store import NoBagError, NoRecipeError, NoTiddlerError
 from tiddlyweb.stores import StorageInterface
-
-# XXX can't remember why this was needed :(
-#urllib.always_safe = urllib.always_safe.replace('.', '')
+from tiddlyweb.web.util import encode_name
 
 class TiddlyWebWebError(Exception):
     pass
 
 class Store(StorageInterface):
+    """
+    Replicate the StorageInterface calls as a collection
+    of http requests to some other TiddlyWeb server.
 
+    Since this is just a series of GETs and PUTs of some
+    JSON data, what we need to do here is establish what
+    URL we can to go to, and then package whatever data
+    we might want. Much of the HTTP handling can be 
+    abstracted away.
+    """
     recipes_url = '/recipes'
     bags_url = '/bags'
 
@@ -42,7 +70,6 @@ class Store(StorageInterface):
 
     def __init__(self, environ={}):
         self.environ = environ
-        #self.http = httplib2.Http('.cache')
         server_info = self.environ['tiddlyweb.config']['server_store'][1]
         self._base = server_info['server_base']
         user = server_info.get('user', None)
@@ -64,12 +91,12 @@ class Store(StorageInterface):
         else:
             headers = {'Content-Type': 'application/json'}
         if self.authorization:
+            # httplib2's authorization handling is triggered only
+            # in response to 40x. We don't want that, we want to
+            # force authentication, so we just set the header.
             headers['Authorization'] = 'Basic %s' % self.authorization
-        url = self._server_base() + url
+        url = self._base + url
         return self.http.request(url, method=method, headers=headers, body=data)
-
-    def _server_base(self):
-        return self._base
 
     def _is_success(self, response):
         return response['status'].startswith('20') or response['status'] == '304'
@@ -91,7 +118,6 @@ class Store(StorageInterface):
         elif response['status'] == '401':
             raise UserRequiredError('you do not have permission')
         else:
-            print response, content
             raise TiddlyWebWebError('%s: %s' % (response['status'], content))
 
     def _any_put(self, url, target_object):
@@ -108,24 +134,24 @@ class Store(StorageInterface):
             raise exception(e)
 
     def recipe_delete(self, recipe):
-        url = self.recipe_url % _encode_name(recipe.name)
+        url = self.recipe_url % encode_name(recipe.name)
         self.doit(url, recipe, self._any_delete, NoRecipeError)
 
     def recipe_get(self, recipe):
-        url = self.recipe_url % _encode_name(recipe.name)
+        url = self.recipe_url % encode_name(recipe.name)
         self.doit(url, recipe, self._any_get, NoRecipeError)
         return recipe
 
     def recipe_put(self, recipe):
-        url = self.recipe_url % _encode_name(recipe.name)
+        url = self.recipe_url % encode_name(recipe.name)
         self.doit(url, recipe, self._any_put, NoRecipeError)
 
     def bag_delete(self, bag):
-        url = self.bag_url % _encode_name(bag.name)
+        url = self.bag_url % encode_name(bag.name)
         self.doit(url, bag, self._any_delete, NoBagError)
 
     def bag_get(self, bag):
-        url = self.bag_url % _encode_name(bag.name)
+        url = self.bag_url % encode_name(bag.name)
         self.doit(url, bag, self._any_get, NoBagError)
         if not (hasattr(bag, 'skinny') and bag.skinny):
             url = self.bag_tiddlers_url % bag.name
@@ -137,23 +163,23 @@ class Store(StorageInterface):
         return bag
 
     def bag_put(self, bag):
-        url = self.bag_url % _encode_name(bag.name)
+        url = self.bag_url % encode_name(bag.name)
         self.doit(url, bag, self._any_put, NoBagError)
 
     def tiddler_delete(self, tiddler):
-        url = self.tiddler_url % (_encode_name(tiddler.bag), _encode_name(tiddler.title))
+        url = self.tiddler_url % (encode_name(tiddler.bag), encode_name(tiddler.title))
         self.doit(url, tiddler, self._any_delete, NoTiddlerError)
 
     def tiddler_get(self, tiddler):
         if tiddler.revision:
-            url = self.revision_url % (_encode_name(tiddler.bag), _encode_name(tiddler.title), tiddler.revision)
+            url = self.revision_url % (encode_name(tiddler.bag), encode_name(tiddler.title), tiddler.revision)
         else:
-            url = self.tiddler_url % (_encode_name(tiddler.bag), _encode_name(tiddler.title))
+            url = self.tiddler_url % (encode_name(tiddler.bag), encode_name(tiddler.title))
         self.doit(url, tiddler, self._any_get, NoTiddlerError)
         return tiddler
 
     def tiddler_put(self, tiddler):
-        url = self.tiddler_url % (_encode_name(tiddler.bag), _encode_name(tiddler.title))
+        url = self.tiddler_url % (encode_name(tiddler.bag), encode_name(tiddler.title))
         tiddler.revision = self._tiddler_revision(tiddler) + 1
         self.doit(url, tiddler, self._any_put, NoTiddlerError)
         self.tiddler_written(tiddler)
@@ -203,7 +229,7 @@ class Store(StorageInterface):
             return []
 
     def list_tiddler_revisions(self, tiddler):
-        url = self.revisions_url % (_encode_name(tiddler.bag), _encode_name(tiddler.title))
+        url = self.revisions_url % (encode_name(tiddler.bag), encode_name(tiddler.title))
         response, content = self._request('GET', url)
         if self._is_success(response):
             revisions = simplejson.loads(content)
@@ -221,18 +247,13 @@ class Store(StorageInterface):
             tiddler.bag = result_dict['bag']
             tiddler.revision = result_dict['revision']
             return tiddler
-        url = self.search_url % _encode_name(search_query)
+        url = self.search_url % encode_name(search_query)
         response, content = self._request('GET', url)
         if self._is_success(response):
             results = simplejson.loads(content)
             return [_make_tiddler(result) for result in results]
         else:
             return []
-
-def _encode_name(name):
-    name = urllib.quote(name.encode('UTF-8'), safe='') # encode /
-    logging.debug(name)
-    return name
 
 def test_me():
     environ = {'tiddlyweb.config': {}}
@@ -280,5 +301,3 @@ def test_me():
 
 if __name__ == '__main__':
     test_me()
-
-
