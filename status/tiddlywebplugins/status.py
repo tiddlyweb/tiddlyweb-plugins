@@ -44,7 +44,10 @@ def status(environ, start_response):
 
 
 def init(config):
-    config['selector'].add('/status', GET=status)
+    try:
+        config['selector'].add('/status', GET=status)
+    except KeyError:
+        pass # not loaded as system_plugin
 
 
 def _gather_data(environ):
