@@ -134,10 +134,10 @@ class Serialization(HTMLSerialization):
 
     def _process_tiddler_revisions(self, feed, tiddler, link, do_revisions):
         try:
-            from differ import compare_tiddlers
+            from tiddlywebplugins.differ import compare_tiddlers
         except ImportError:
             self._add_item(feed, tiddler, link, tiddler.title,
-                    'unable to diff without differ module')
+                    'unable to diff without tiddlywebplugins.differ')
         try:
             depth = int(do_revisions)
         except ValueError:

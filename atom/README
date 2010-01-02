@@ -11,25 +11,26 @@ Atom formatted output can be had by requesting the application/atom+xml
 format, or by appending a .atom to the end of a URL (before the query
 portion) that returns one or more tiddlers.
 
-To use this code instally the package and then add 'tiddlywebplugins.atom'
+To use this code install the package and then add 'tiddlywebplugins.atom'
 to system_plugins in the tiddlywebconfig.py of your instance:
 
-config = {
-    'system_plugins': ['tiddlywebplugins.atom'],
-}
+    config = {
+        'system_plugins': ['tiddlywebplugins.atom'],
+    }
 
-If differ.py[1] is on sys.path and a depth=<some number> argument is
-supplied to the feed URL, then the resulting feed will be the tiddlers
-requested presented as diffs between tiddler revisions. The number of
-revisions shown is controlled by <some number>.
+If tiddlywebplugins.differ is on sys.path and a depth=<some number>
+argument is supplied to the feed URL, then the resulting feed will be
+the tiddlers requested presented as diffs between tiddler revisions. The
+number of revisions shown is controlled by <some number>.
+
+You can get tiddlywebplugins.differ from PyPI:
+http://pypi.python.org/pypi/tiddlywebplugins.differ
 
 The Atom code is borrowed from Django's django/utils/feedgenerator.py
 
-  http://www.djangoproject.com/documentation/syndication_feeds/
-  http://code.djangoproject.com/browser/django/trunk/django/utils/feedgenerator.py
+* http://www.djangoproject.com/documentation/syndication_feeds/
+* http://code.djangoproject.com/browser/django/trunk/django/utils/feedgenerator.py
 
-[1] http://github.com/FND/tiddlyweb-plugins/blob/master/differ.py
-
-Created by Chris Dent, <cdent@peermore.com>.
+Copyright 2010, Chris Dent <cdent@peermore.com>.
 
 Licensed as TiddlyWeb itself.
