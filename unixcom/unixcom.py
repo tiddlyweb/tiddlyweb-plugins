@@ -4,7 +4,8 @@ Twanager commands that mimic unix command.
 
 import sys
 
-from tiddlyweb.manage import make_command, usage, ltiddlers
+from tiddlyweb.manage import make_command, usage
+from tiddlyweb.commands import ltiddlers
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler, current_timestring
 from tiddlyweb.store import NoBagError, NoTiddlerError
