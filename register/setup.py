@@ -3,7 +3,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.register'
 DESCRIPTION = 'A tiddlywebplugin for openId user registration.'
-VERSION = '0.1'
+VERSION = '0.2'
 
 import os
 from setuptools import setup, find_packages

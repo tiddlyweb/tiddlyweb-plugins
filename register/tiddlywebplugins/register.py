@@ -90,7 +90,6 @@ def _send_finish(environ, start_response):
             }
     return template.generate(start=start, username=username,
             home=server_base_url(environ) + '/')
-    
 
 
 def _blacklisted(environ, username):
