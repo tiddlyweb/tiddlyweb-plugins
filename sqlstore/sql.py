@@ -25,6 +25,7 @@ from sqlalchemy.sql import and_, or_, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, backref, mapper, sessionmaker, aliased
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.pool import NullPool
 
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.policy import Policy
@@ -250,7 +251,10 @@ class Store(StorageInterface):
         """
         store_type = self._db_config().split(':', 1)[0]
         if store_type == 'sqlite' or not Store.session:
-            engine = create_engine(self._db_config(), pool_recycle=3600)
+            if store_type == 'sqlite':
+                engine = create_engine(self._db_config(), poolclass=NullPool)
+            else:
+                engine = create_engine(self._db_config(), pool_recycle=3600)
             Base.metadata.create_all(engine)
             Session.configure(bind=engine)
             Store.session = Session()
@@ -551,4 +555,4 @@ class Store(StorageInterface):
         except IndexError, exc:
             raise NoTiddlerError('No revision %s for tiddler %s, %s' % (stiddler.rev, stiddler.title, exc))
 
-__version__ = '0.2'
+__version__ = '0.3'
