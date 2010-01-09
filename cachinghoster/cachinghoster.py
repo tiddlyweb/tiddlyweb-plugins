@@ -40,11 +40,12 @@ WIKI_CACHE_DIR = '.wiki_cache'
 
 def tiddler_written_handler(self, tiddler):
     try:
+        cachedir = os.path.join(self.environ['tiddlyweb.config']['root_dir'], WIKI_CACHE_DIR)
         logging.debug('attempting to unlink cache')
-        [os.unlink(os.path.join(WIKI_CACHE_DIR, file)) for file in
-                os.listdir(WIKI_CACHE_DIR) if not file.startswith('.')]
+        [os.unlink(os.path.join(cachedir, file)) for file in
+                os.listdir(cachedir) if not file.startswith('.')]
     except (IOError, OSError), exc:
-        logging.warn('unable to unlink in %s: %s' % (WIKI_CACHE_DIR, exc))
+        logging.warn('unable to unlink in %s: %s' % (cachedir, exc))
 
 
 def home(environ, start_response):
@@ -68,8 +69,8 @@ def home(environ, start_response):
     cache_file_name = '%s:%s' % (recipe_name, environ['tiddlyweb.usersign']['name'])
 
     try:
-        _validate_cache(if_none_match, cache_file_name)
-        output, out_etag = _read_cache(cache_file_name)
+        _validate_cache(environ, if_none_match, cache_file_name)
+        output, out_etag = _read_cache(environ, cache_file_name)
         start_response('200 OK', [
             ('Content-Type', 'text/html; charset=UTF-8'),
             ('Etag', out_etag),
@@ -79,15 +80,18 @@ def home(environ, start_response):
         environ['wsgiorg.routing_args'][1]['recipe_name'] = recipe_name
         environ['tiddlyweb.type'] = 'text/x-tiddlywiki'
         output = get_tiddlers(environ, our_start_response)
-        _write_cache(cache_file_name, saved_headers.get('etag', None), output)
+        _write_cache(environ, cache_file_name, saved_headers.get('etag', None), output)
     return output
 
 
-def _validate_cache(etag, name):
+def _validate_cache(environ, etag, name):
+    logging.debug('entering _validate_cache')
     if not etag:
         return
-    path = os.path.join(WIKI_CACHE_DIR, etag)
-    link_filename = os.path.join(WIKI_CACHE_DIR, name)
+    logging.debug('etag %s name %s', etag, name)
+    cachedir = os.path.join(environ['tiddlyweb.config']['root_dir'], WIKI_CACHE_DIR)
+    path = os.path.join(cachedir, etag)
+    link_filename = os.path.join(cachedir, name)
     linked_etag = os.path.basename(os.path.realpath(link_filename))
     logging.debug('attempting to validate %s' % path)
     if etag == linked_etag and os.path.exists(path):
@@ -95,16 +99,18 @@ def _validate_cache(etag, name):
         raise HTTP304(etag)
     
 
-def _read_cache(name):
+def _read_cache(environ, name):
     logging.debug('attempt to read %s from cache' % name)
-    path = os.path.join(WIKI_CACHE_DIR, name)
+    cachedir = os.path.join(environ['tiddlyweb.config']['root_dir'], WIKI_CACHE_DIR)
+    path = os.path.join(cachedir, name)
     real_path = os.path.basename(os.path.realpath(path))
-    return open(os.path.join(WIKI_CACHE_DIR, name)).readlines(), real_path
+    return open(os.path.join(cachedir, name)).readlines(), real_path
 
 
-def _write_cache(name, etag, output):
-    etag_filename = os.path.join(WIKI_CACHE_DIR, urllib.quote(etag, safe=''))
-    link_filename = os.path.join(WIKI_CACHE_DIR, name)
+def _write_cache(environ, name, etag, output):
+    cachedir = os.path.join(environ['tiddlyweb.config']['root_dir'], WIKI_CACHE_DIR)
+    etag_filename = os.path.join(cachedir, urllib.quote(etag, safe=''))
+    link_filename = os.path.join(cachedir, name)
     file = open(etag_filename, 'w')
     content = ''.join(output)
     file.write(content.encode('UTF-8'))
@@ -121,10 +127,11 @@ def _write_cache(name, etag, output):
 
 
 def init(config):
+    cachedir = os.path.join(config['root_dir'], WIKI_CACHE_DIR)
     try:
-        os.mkdir(WIKI_CACHE_DIR)
+        os.mkdir(cachedir)
     except (IOError, OSError), exc:
-        logging.warn('unable to create %s: %s' % (WIKI_CACHE_DIR, exc))
+        logging.warn('unable to create %s: %s' % (cachedir, exc))
     replace_handler(config['selector'], '/', dict(GET=home))
     # XXX this next line must be customized for whatever store
     # is currently being used. This could be done via inspecting
@@ -140,4 +147,3 @@ def _header_value(headers, name):
     except IndexError:
         found_value = None
     return found_value
-
