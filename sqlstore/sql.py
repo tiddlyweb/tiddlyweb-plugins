@@ -16,6 +16,7 @@ The entities created are:
     users:     A User.
 """
 import logging
+import os, sys
 
 from uuid import uuid4 as uuid
 from base64 import b64encode, b64decode
@@ -23,7 +24,7 @@ from base64 import b64encode, b64decode
 from sqlalchemy import Table, ForeignKey, Column, String, Unicode, Integer, UnicodeText, create_engine
 from sqlalchemy.sql import and_, or_, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relation, backref, mapper, sessionmaker, aliased
+from sqlalchemy.orm import relation, backref, mapper, sessionmaker, aliased, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.pool import NullPool
 
@@ -41,7 +42,7 @@ EMPTY_TIDDLER = Tiddler('empty')
 
 # Base class for declarative mapper classes.
 Base = declarative_base()
-Session = sessionmaker()
+Session = scoped_session(sessionmaker())
 
 class sFieldName(Base):
     __tablename__ = 'field_names'
@@ -263,6 +264,15 @@ class Store(StorageInterface):
 
     def _db_config(self):
         store_config = self.environ['tiddlyweb.config']['server_store'][1]
+        db_config = store_config['db_config']
+        store_type, path = db_config.split(':', 1)
+        if store_type == 'sqlite':
+            if path.startswith('////'):
+                return store_type + ':' + path
+            else:
+                return (store_store + ':' +
+                        self.environ['tiddlyweb.config']['root_dir'] +
+                        path)
         return store_config['db_config']
 
     def recipe_delete(self, recipe):
