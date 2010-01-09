@@ -105,6 +105,8 @@ def append_plugin(config, plugin_name):
 
 def get_plugins(config):
     plugin_file = config.get('plugin_file', 'extra_plugins')
+    if not os.path.isabs(plugin_file):
+        plugin_file = os.path.join(config['root_dir'], plugin_file)
     try:
         plugins = [line.strip() for line in open(plugin_file).readlines()
                 if not line.startswith('#')]
