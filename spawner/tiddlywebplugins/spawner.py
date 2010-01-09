@@ -15,7 +15,6 @@ spawning can be found on pypi:
 """
 
 import tiddlyweb.web.serve
-from tiddlyweb.config import config
 
 
 def factory(args):
@@ -24,4 +23,4 @@ def factory(args):
 
 
 def app_factory(args):
-    return tiddlyweb.web.serve.load_app(prefix=config['server_prefix'])
+    return tiddlyweb.web.serve.load_app()

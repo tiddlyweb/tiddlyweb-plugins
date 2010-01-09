@@ -10,10 +10,7 @@ clean:
 	rm -r build || true
 	rm -r *egg-info || true
 
-test: 
-	py.test -x test
-
-dist: test
+dist:
 	python setup.py sdist
 
 upload: clean pypi
