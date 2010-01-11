@@ -145,7 +145,11 @@ class Store(StorageInterface):
                 continue
             terms = fields[field]
             # TODO: For now we only accept the first term provided
-            query = query.filter(getattr(sTiddler, field)==terms[0])
+            try:
+                query = query.filter(getattr(sTiddler, field)==terms[0])
+            except AttributeError:
+                # someone has provided a bogus field
+                pass
             have_query = True
 
         if have_query:
