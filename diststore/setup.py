@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.diststore'
 DESCRIPTION = 'Use multiple stores in the same TiddlyWeb instance.'
-VERSION = '0.3'
+VERSION = '0.4'
 
 import os
 from setuptools import setup, find_packages
@@ -18,6 +18,6 @@ setup(
         packages = find_packages(exclude='test'),
         author_email = AUTHOR_EMAIL,
         platforms = 'Posix; MacOS X; Windows',
-        install_requires = ['setuptools', 'tiddlyweb'],
+        install_requires = ['setuptools', 'tiddlyweb>=0.9.95'],
         zip_safe = False,
         )
