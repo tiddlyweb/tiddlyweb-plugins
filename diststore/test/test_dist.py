@@ -30,7 +30,9 @@ def setup_module(module):
 
 
 def test_where_it_goes():
-    store = Store('tiddlywebplugins.diststore', environ=ENVIRON)
+    store = Store(SAMPLE_CONFIG['server_store'][0],
+            SAMPLE_CONFIG['server_store'][1],
+            environ=ENVIRON)
     bbag = Bag('bbag')
     cbag = Bag('cbag')
     store.put(bbag)

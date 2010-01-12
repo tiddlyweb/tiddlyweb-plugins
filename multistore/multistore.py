@@ -24,8 +24,8 @@ from tiddlyweb.stores import StorageInterface
 
 class Store(StorageInterface):
 
-    def __init__(self, environ=None):
-        super(Store, self).__init__(environ)
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
         self.readers = []
         self.writers = []
         self._init_store()
@@ -36,15 +36,10 @@ class Store(StorageInterface):
         readers = store_config['readers']
         writers = store_config['writers']
 
-        server_store_copy = copy.deepcopy(server_store)
-        # XXX dedup!
         for reader in readers:
-            self.environ['tiddlyweb.config']['server_store'] = reader
-            self.readers.append(Storer(reader[0], self.environ))
+            self.readers.append(Storer(reader[0], reader[1], self.environ))
         for writer in writers:
-            self.environ['tiddlyweb.config']['server_store'] = writer
-            self.writers.append(Storer(writer[0], self.environ))
-        self.environ['tiddlyweb.config']['server_store'] = server_store_copy
+            self.writers.append(Storer(writer[0], reader[1], self.environ))
 
     def _delete(self, entity):
         for writer in self.writers:

@@ -19,7 +19,7 @@ from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler
 
 def setup_module(module):
-    module.store = Store('ramstore', {})
+    module.store = Store('ramstore', {}, {})
     config['server_store'] = ['ramstore', {}]
     def app_fn():
         return serve.load_app()

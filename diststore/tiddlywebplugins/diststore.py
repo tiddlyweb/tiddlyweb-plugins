@@ -23,8 +23,8 @@ from tiddlyweb.stores import StorageInterface
 
 class Store(StorageInterface):
 
-    def __init__(self, environ=None):
-        super(Store, self).__init__(environ)
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
         self.main_store = None
         self.stores = []
         self._init_store()
@@ -36,13 +36,13 @@ class Store(StorageInterface):
         main_store_config = server_store[1]['main']
 
         self.environ['tiddlyweb.config']['server_store'] = main_store_config
-        self.main_store = Storer(main_store_config[0], self.environ)
+        self.main_store = Storer(main_store_config[0], main_store_config[1], self.environ)
 
         for rule, store in extra_store_config:
             pattern = re.compile(rule)
             self.environ['tiddlyweb.config']['server_store'] = store
             self.environ['tiddlyweb.config']['main_store'] = self.main_store
-            self.stores.append((pattern, Storer(store[0], self.environ)))
+            self.stores.append((pattern, Storer(store[0], store[1], self.environ)))
         self.environ['tiddlyweb.config']['server_store'] = server_store_copy
 
     def recipe_delete(self, recipe):

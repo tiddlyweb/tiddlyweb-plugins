@@ -7,7 +7,7 @@ from tiddlyweb.model.tiddler import Tiddler
 from tiddlywebplugins.whoosher import init, search
 
 environ = {'tiddlyweb.config': config}
-store = Store(config['server_store'][0], environ)
+store = Store(config['server_store'][0], config['server_store'][1], environ)
 environ['tiddlyweb.store'] = store
 
 init(config)

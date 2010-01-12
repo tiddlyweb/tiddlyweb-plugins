@@ -68,9 +68,9 @@ class Store(StorageInterface):
 
     search_url = '/search?q=%s'
 
-    def __init__(self, environ={}):
-        self.environ = environ
-        server_info = self.environ['tiddlyweb.config']['server_store'][1]
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
+        server_info = self.store_config
         self._base = server_info['server_base']
         user = server_info.get('user', None)
         password = server_info.get('password', None)
@@ -260,7 +260,8 @@ def test_me():
     environ['tiddlyweb.config']['server_store'] = \
             ['tiddlywebplugins.tiddlywebweb', {'use_cache': True, 'server_base':'http://tiddlyweb.peermore.com/wiki'}]
 
-    store = Store(environ)
+    store = Store({'use_cache': True,
+        'server_base':'http://tiddlyweb.peermore.com/wiki'}, environ)
     recipes = store.list_recipes()
     print 'Recipes: ', [recipe.name for recipe in recipes]
     bags = store.list_bags()

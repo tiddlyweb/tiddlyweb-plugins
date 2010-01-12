@@ -11,7 +11,9 @@ class Store(StorageInterface):
 
     _MC = None
 
-    def __init__(self, environ=None):
+    def __init__(self, store_config=None, environ=None):
+        if store_config is None:
+            store_config = {}
         if environ is None:
             environ = {}
         self.environ = environ
@@ -33,15 +35,10 @@ class Store(StorageInterface):
                     self._MC = memcache.Client(self.config['memcache_hosts'])
             self._mc = self._MC
 
-        internal_environ = {}
-        internal_store_environ_config  = {
-                'server_store': self.config['cached_store'],
-                }
-        internal_environ.update(environ)
-        internal_environ['tiddlyweb.config'].update(internal_store_environ_config)
-        self.cached_store = StoreBoss(self.config['cached_store'][0], environ=internal_environ)
-        self.prefix = self.config['server_prefix']
-        self.host = self.config['server_host']['host']
+            self.cached_store = StoreBoss(self.config['cached_store'][0],
+                    self.config['cached_store'][1], environ=environ)
+            self.prefix = self.config['server_prefix']
+            self.host = self.config['server_host']['host']
 
     def recipe_delete(self, recipe):
         key = self._recipe_key(recipe)
@@ -49,6 +46,7 @@ class Store(StorageInterface):
         self.cached_store.delete(recipe)
 
     def recipe_get(self, recipe):
+        logging.debug('doing a cached get on a recipe named %s', recipe.name)
         key = self._recipe_key(recipe)
         cached_recipe = self._get(key)
         if cached_recipe:

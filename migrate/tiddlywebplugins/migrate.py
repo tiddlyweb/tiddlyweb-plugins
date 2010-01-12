@@ -45,8 +45,8 @@ def migrate(args):
     source_environ = {'tiddlyweb.config': config}
     target_environ = copy.deepcopy(source_environ)
     target_environ['tiddlyweb.config']['server_store'] = config['target_store']
-    source_store = Store(config['server_store'][0], source_environ)
-    target_store = Store(config['target_store'][0], target_environ)
+    source_store = Store(config['server_store'][0], config['server_store'][1], source_environ)
+    target_store = Store(config['target_store'][0], config['target_store'][1], target_environ)
 
     migrate_users(source_store, target_store)
     migrate_recipes(source_store, target_store)

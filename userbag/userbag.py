@@ -23,8 +23,8 @@ DEFAULT_POLICY = {
 
 class Store(StorageInterface):
 
-    def __init__(self, environ=None):
-        super(Store, self).__init__(environ)
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
         self.main_store = self.environ['tiddlyweb.config']['main_store']
 
     def list_bags(self):

@@ -30,7 +30,8 @@ def setup_module(module):
         return serve.load_app()
     httplib2_intercept.install()
     wsgi_intercept.add_wsgi_intercept('our_test_domain', 8001, app_fn)
-    module.store = Store(config['server_store'][0], {'tiddlyweb.config': config})
+    module.store = Store(config['server_store'][0], config['server_store'][1],
+            {'tiddlyweb.config': config})
 
 
 def test_post_a_form_put():

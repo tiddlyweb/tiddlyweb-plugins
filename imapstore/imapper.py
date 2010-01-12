@@ -18,8 +18,8 @@ from tiddlyweb.stores import StorageInterface
 class Store(StorageInterface):
 
 
-    def __init__(self, environ=None):
-        super(Store, self).__init__(environ)
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
         server_info = self.environ['tiddlyweb.config']['server_store'][1]
         self.server = server_info['imap_server']
         self.user = server_info['user']

@@ -241,8 +241,8 @@ class Store(StorageInterface):
 
     session = None
 
-    def __init__(self, environ=None):
-        super(Store, self).__init__(environ)
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
         self._init_store()
 
     def _init_store(self):
@@ -263,17 +263,18 @@ class Store(StorageInterface):
         self.serializer = Serializer('text')
 
     def _db_config(self):
-        store_config = self.environ['tiddlyweb.config']['server_store'][1]
-        db_config = store_config['db_config']
+        db_config = self.store_config['db_config']
         store_type, path = db_config.split(':', 1)
         if store_type == 'sqlite':
             if path.startswith('////'):
                 return store_type + ':' + path
             else:
-                return (store_store + ':' +
-                        self.environ['tiddlyweb.config']['root_dir'] +
-                        path)
-        return store_config['db_config']
+                root_dir = self.environ['tiddlyweb.config']['root_dir'] 
+                if root_dir:
+                    return (store_type + ':' + '///' +
+                            root_dir + '/' +
+                            path.lstrip('/'))
+        return db_config
 
     def recipe_delete(self, recipe):
         try:

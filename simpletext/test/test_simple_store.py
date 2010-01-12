@@ -24,7 +24,8 @@ def setup_module(module):
         shutil.rmtree('store')
 
     module.config = config
-    module.store = Store('simpletext', environ={'tiddlyweb.config': config})
+    module.store = Store('simpletext', {'store_root': 'store'},
+            environ={'tiddlyweb.config': config})
 
 def test_get_store():
     assert type(store.storage) == SimpleText

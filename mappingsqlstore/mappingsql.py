@@ -26,13 +26,12 @@ class Store(StorageInterface):
 
     mapped = False
 
-    def __init__(self, environ=None):
-        super(Store, self).__init__(environ)
+    def __init__(self, store_config=None, environ=None):
+        super(Store, self).__init__(store_config, environ)
         self._init_store()
 
     def _init_store(self):
-        db_config = self.environ[
-                'tiddlyweb.config']['server_store'][1]['db_config']
+        db_config = self.store_config['db_config']
         engine = create_engine(db_config)
         meta = MetaData()
         meta.bind = engine

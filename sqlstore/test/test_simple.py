@@ -18,7 +18,8 @@ EMPTY_TIDDLER=Tiddler('empty','empty')
 
 
 def setup_module(module):
-    module.store = Store('sql', environ={'tiddlyweb.config': config})
+    module.store = Store('sql', {'db_config': 'sqlite:///store.db'},
+            environ={'tiddlyweb.config': config})
 
 
 def test_store():
