@@ -19,7 +19,8 @@ from uuid import uuid4 as uuid
 
 from tiddlywebplugins.utils import entitle, do_html
 from tiddlywebplugins.templates import get_template
-from tiddlywebwiki.tiddlywiki import import_wiki, import_wiki_file
+from tiddlywebwiki.tiddlywiki import import_wiki
+from tiddlywebwiki.importer import import_one 
 
 from tiddlyweb.control import filter_tiddlers_from_bag
 from tiddlyweb.model.bag import Bag
@@ -101,8 +102,9 @@ def _show_chooser(environ, bag):
 
 
 def _process_url(environ, url):
-    file = urllib2.urlopen(url)
-    return _process_file(environ, file)
+    tmp_bag = _make_bag(environ)
+    import_one(tmp_bag.name, url, environ['tiddlyweb.store'])
+    return tmp_bag
 
 def _process_file(environ, file):
     tmp_bag = _make_bag(environ)
