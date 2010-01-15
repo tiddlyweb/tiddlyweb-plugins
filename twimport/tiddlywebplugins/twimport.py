@@ -6,16 +6,50 @@ import os
 import urllib2
 import urlparse
 
+from html5lib import HTMLParser, treebuilders
+
 from tiddlyweb.model.tiddler import Tiddler, string_to_tags_list
 from tiddlyweb.serializer import Serializer
-from html5lib import HTMLParser, treebuilders
+from tiddlyweb.manage import make_command
+
+from tiddlywebplugins.utils import get_store
 
 ACCEPTED_RECIPE_TYPES = ['tiddler', 'plugin', 'recipe']
 ACCEPTED_TIDDLER_TYPES = ['js', 'tid', 'tiddler']
 
-# add twimport in here when ready
-#def init(config):
-#    pass
+
+def init(config):
+
+    @make_command()
+    def twimport(args):
+        """Import one or more plugins, tiddlers or recipes in Cook format or a wiki: <bag> <URI>"""
+        bag = args[0]
+        urls = args[1:]
+        if not bag or not urls:
+            raise IndexError('missing args')
+        import_list(bag, urls, get_store(config))
+
+
+def import_list(bag_name, urls, store):
+    """Import a list of URIs into bag."""
+    for url in urls:
+        import_one(bag_name, url, store)
+
+
+def import_one(bag_name, url, store):
+    """Import one URI into bag."""
+    if url.endswith('.recipe'):
+        urls = recipe_to_urls(url)
+        tiddlers = [url_to_tiddler(tiddler_url) for
+                tiddler_url in recipe_to_urls(url)]
+    elif url.endswith('.wiki') or url.endswith('.html'):
+        tiddlers = wiki_to_tiddlers(url)
+    else: # we have a tiddler of some form
+        tiddlers = [url_to_tiddler(url)]
+
+    for tiddler in tiddlers:
+        tiddler.bag = bag_name
+        store.put(tiddler)
 
 
 def recipe_to_urls(url):
@@ -72,6 +106,26 @@ def url_to_tiddler(url):
         # binary tiddler
         tiddler = from_special(url, handle)
     return tiddler
+
+
+def wiki_to_tiddlers(url):
+    # XXX dupes with above for the moment
+    try:
+        handle = urllib2.urlopen(url)
+    except ValueError:
+        # If ValueError happens again we want it to raise
+        url = 'file:' + os.path.abspath(url)
+        handle = urllib2.urlopen(url)
+
+    parser = HTMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
+    soup = parser.parse(handle.read())
+    store_area = soup.find('div', id='storeArea')
+    divs = store_area.findAll('div')
+
+    tiddlers = []
+    for tiddler_div in divs:
+        tiddlers.append(_get_tiddler_from_div(tiddler_div))
+    return tiddlers
 
 
 def from_plugin(uri, handle):
@@ -132,10 +186,10 @@ def from_tiddler(uri, handle):
     """
     content = handle.read()
 
-    parser = HTMLParser(tree=treebuilders.getTreeBuilder("beautifulsoup"))
+    parser = HTMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
     content = _escape_brackets(content)
     doc = parser.parse(content)
-    node = doc.find("div")
+    node = doc.find('div')
 
     return _get_tiddler_from_div(node)
 
@@ -144,12 +198,12 @@ def _escape_brackets(content):
     """
     escapes angle brackets in tiddler's HTML representation
     """
-    open_pre = content.index("<pre>")
-    close_pre = content.rindex("</pre>")
+    open_pre = content.index('<pre>')
+    close_pre = content.rindex('</pre>')
     start = content[0:open_pre + 5]
     middle = content[open_pre + 5:close_pre]
     end = content[close_pre:]
-    middle = middle.replace(">", "&gt;").replace("<", "&lt;")
+    middle = middle.replace('>', '&gt;').replace('<', '&lt;')
     return start + middle + end
 
 

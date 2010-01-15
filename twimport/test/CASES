@@ -1,19 +1,15 @@
 A brainstorm of the test cases we need:
 
-* recursively parse a recipe to list of tiddler-like data structures
-* parse a tiddlywiki to a list of tiddler-like data structures
-* parse .tiddlers, .tid and .js files
+X recursively parse a recipe to list of tiddler-like data structures
+X parse .tiddlers, .tid and .js files
+X parse a tiddlywiki to a list of tiddler-like data structures
 
 * distinguish between importing into a bag and caching for instancer
+  (this may happen automagically)
 
-* import a binary thing into a bag?
+X import a binary thing into a bag?
 * import a tarball or zipfile into a bag binariwise?
 
-What assumptions can we make about how we handle data?
+BIG: We need to validate in the face of unicode situations.
 
-Let's assume upfront that we are always using URLs (http, file,
-otherwise).
-
-So we need some sample data.
-
-We need to validate in the face of unicode situations...
+We need to more robust about bad input.

@@ -23,6 +23,10 @@ setup(
     packages = find_packages(exclude='test'),
     author_email = AUTHOR_EMAIL,
     platforms = 'Posix; MacOS X; Windows',
-    install_requires = ['setuptools', 'tiddlyweb', 'tiddlywebwiki'],
+    install_requires = ['setuptools',
+        'tiddlyweb',
+        'tiddlywebplugins.utils',
+        'html5lib',
+        'BeautifulSoup'],
     zip_safe = False
     )
