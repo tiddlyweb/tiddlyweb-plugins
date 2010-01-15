@@ -1,0 +1,5 @@
+tiddler: plugins/aplugin.js
+tiddler: Welcome.tid
+tiddler: Greetings.tiddler
+tiddler: ../beta/Hello.tid
+recipe: ../beta/buried/short.recipe
