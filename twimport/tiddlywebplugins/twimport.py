@@ -19,10 +19,13 @@ ACCEPTED_TIDDLER_TYPES = ['js', 'tid', 'tiddler']
 
 
 def init(config):
+    """
+    Initialize the plugin, establishing twanager commands.
+    """
 
     @make_command()
     def twimport(args):
-        """Import one or more plugins, tiddlers or recipes in Cook format or a wiki: <bag> <URI>"""
+        """Import tiddlers, recipes, wikis, binary content: <bag> <URI>"""
         bag = args[0]
         urls = args[1:]
         if not bag or not urls:
@@ -39,7 +42,6 @@ def import_list(bag_name, urls, store):
 def import_one(bag_name, url, store):
     """Import one URI into bag."""
     if url.endswith('.recipe'):
-        urls = recipe_to_urls(url)
         tiddlers = [url_to_tiddler(tiddler_url) for
                 tiddler_url in recipe_to_urls(url)]
     elif url.endswith('.wiki') or url.endswith('.html'):
@@ -57,12 +59,7 @@ def recipe_to_urls(url):
     Provided a url or path to a recipe, explode the recipe to
     a list of URLs of tiddlers (of various types).
     """
-    try:
-        handle = urllib2.urlopen(url)
-    except ValueError:
-        # If ValueError happens again we want it to raise
-        url = 'file:' + os.path.abspath(url)
-        handle = urllib2.urlopen(url)
+    url, handle = _get_url_handle(url)
 
     urls = []
     for line in handle.readlines():
@@ -88,13 +85,7 @@ def url_to_tiddler(url):
     Given a url to a tiddlers of some form,
     return a Tiddler object.
     """
-    # XXX dupes with above for the moment
-    try:
-        handle = urllib2.urlopen(url)
-    except ValueError:
-        # If ValueError happens again we want it to raise
-        url = 'file:' + os.path.abspath(url)
-        handle = urllib2.urlopen(url)
+    url, handle = _get_url_handle(url)
 
     if url.endswith('.js'):
         tiddler = from_plugin(url, handle)
@@ -109,13 +100,10 @@ def url_to_tiddler(url):
 
 
 def wiki_to_tiddlers(url):
-    # XXX dupes with above for the moment
-    try:
-        handle = urllib2.urlopen(url)
-    except ValueError:
-        # If ValueError happens again we want it to raise
-        url = 'file:' + os.path.abspath(url)
-        handle = urllib2.urlopen(url)
+    """
+    Retrieve a .wiki or .html and extract the contained tiddlers.
+    """
+    url, handle = _get_url_handle(url)
 
     parser = HTMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
     soup = parser.parse(handle.read())
@@ -278,6 +266,20 @@ def _get_tiddler_from_div(node):
     tiddler.tags = string_to_tags_list(node.get('tags', ''))
 
     return tiddler
+
+
+def _get_url_handle(url):
+    """
+    Open the url using urllib2.urlopen. If the url is a filepath
+    transform it into a file url.
+    """
+    try:
+        handle = urllib2.urlopen(url)
+    except ValueError:
+        # If ValueError happens again we want it to raise
+        url = 'file:' + os.path.abspath(url)
+        handle = urllib2.urlopen(url)
+    return url, handle
 
 
 def _html_decode(text):
