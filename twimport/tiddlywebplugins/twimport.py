@@ -60,24 +60,7 @@ def recipe_to_urls(url):
     a list of URLs of tiddlers (of various types).
     """
     url, handle = _get_url_handle(url)
-
-    urls = []
-    for line in handle.readlines():
-        line = line.lstrip().rstrip()
-        target_type, target = line.split(':', 1)
-        if target_type in ACCEPTED_RECIPE_TYPES:
-            target = target.lstrip().rstrip()
-            # Check to see if the target is a URL (has a scheme)
-            # if not we want to join it to the current url before
-            # carrying on.
-            scheme, _ = urllib2.splittype(target)
-            if not scheme:
-                target = urlparse.urljoin(url, target)
-            if target_type == 'recipe':
-                urls.extend(recipe_to_urls(target))
-            else:
-                urls.append(target)
-    return urls
+    return _expand_recipe(handle.read(), url)
 
 
 def url_to_tiddler(url):
@@ -104,9 +87,15 @@ def wiki_to_tiddlers(url):
     Retrieve a .wiki or .html and extract the contained tiddlers.
     """
     url, handle = _get_url_handle(url)
+    return wiki_string_to_tiddlers(handle.read())
 
+
+def wiki_string_to_tiddlers(content):
+    """
+    Turn a string that is a wiki into tiddler.
+    """
     parser = HTMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
-    soup = parser.parse(handle.read())
+    soup = parser.parse(content)
     store_area = soup.find('div', id='storeArea')
     divs = store_area.findAll('div')
 
@@ -218,6 +207,29 @@ def _strip_extension(title):
         return name
     else:
         return title
+
+
+def _expand_recipe(content, url=''):
+    urls = []
+    for line in content.splitlines():
+        line = line.lstrip().rstrip()
+        target_type, target = line.split(':', 1)
+        if target_type in ACCEPTED_RECIPE_TYPES:
+            target = target.lstrip().rstrip()
+            # Check to see if the target is a URL (has a scheme)
+            # if not we want to join it to the current url before
+            # carrying on.
+            scheme, _ = urllib2.splittype(target)
+            if not scheme:
+                if not '%' in target:
+                    target = urllib2.quote(target)
+                target = urlparse.urljoin(url, target)
+            if target_type == 'recipe':
+                urls.extend(recipe_to_urls(target))
+            else:
+                urls.append(target)
+    return urls
+
 
 
 def _get_url(url):
