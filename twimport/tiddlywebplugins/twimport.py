@@ -213,7 +213,10 @@ def _expand_recipe(content, url=''):
     urls = []
     for line in content.splitlines():
         line = line.lstrip().rstrip()
-        target_type, target = line.split(':', 1)
+        try:
+            target_type, target = line.split(':', 1)
+        except ValueError:
+            continue # blank line in recipe
         if target_type in ACCEPTED_RECIPE_TYPES:
             target = target.lstrip().rstrip()
             # Check to see if the target is a URL (has a scheme)
