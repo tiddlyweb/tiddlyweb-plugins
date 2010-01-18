@@ -46,7 +46,6 @@ class Store(StorageInterface):
         self.cached_store.delete(recipe)
 
     def recipe_get(self, recipe):
-        logging.debug('doing a cached get on a recipe named %s', recipe.name)
         key = self._recipe_key(recipe)
         cached_recipe = self._get(key)
         if cached_recipe:
