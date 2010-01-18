@@ -56,6 +56,8 @@ def test_import_empty_tiddler_div():
     assert div['title'] == 'GettingStopped'
 
     tiddler = _get_tiddler_from_div(div)
+    tiddler.bag = BAGNAME
+    store.put(tiddler)
 
     tiddler = Tiddler('GettingStopped', BAGNAME)
     tiddler = store.get(tiddler)
