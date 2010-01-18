@@ -1,9 +1,8 @@
-# YOU NEED TO EDIT THESE
 AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.twimport'
 DESCRIPTION = 'Tools for importing tiddlywiki stuff into tiddlyweb'
-VERSION = '0.1'
+VERSION = '0.2'
 
 
 import os
@@ -11,7 +10,6 @@ import os
 from setuptools import setup, find_packages
 
 
-# You should carefully review the below (install_requires especially).
 setup(
     namespace_packages = ['tiddlywebplugins'],
     name = NAME,
