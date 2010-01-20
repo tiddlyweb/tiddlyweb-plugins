@@ -626,7 +626,7 @@ diffFormatter.replaceFormatter();
 <div title="nnngh" server.title="nnngh" server.page.revision="1" modifier="fnd.lewcid.org" creator="fnd.lewcid.org" server.workspace="bags/dentlang" server.type="tiddlyweb" server.host="http://tiddlyweb.peermore.com/wiki/" server.recipe="dentlang" server.bag="dentlang" server.permissions="read, write, create, delete" modified="20100113103210" created="20100113103210" tags="" >
 <pre>an expression of suppressed pain and despair</pre>
 </div>
-<div title="ServerSideSavingPlugin" server.title="ServerSideSavingPlugin" server.page.revision="17" modifier="FND" creator="FND" server.workspace="bags/system" server.type="tiddlyweb" server.host="http://tiddlyweb.peermore.com/wiki/" server.recipe="dentlang" server.bag="system" server.permissions="read" modified="20100102173721" created="20090217160717" tags="systemConfig excludeLists excludeSearch" >
+<div title="ServerSideSavingPlugin" server.title="ServerSideSavingPlugin" server.page.revision="17" modifier="FND" creator="FND" server.workspace="bags/system" server.type="tiddlyweb" server.host="http://tiddlyweb.peermore.com/wiki/" server.recipe="dentlang" server.bag="system" server.permissions="read" modified="20100102173721" created="20090217160717" >
 <pre>/***
 |''Name''|ServerSideSavingPlugin|
 |''Description''|server-side saving|

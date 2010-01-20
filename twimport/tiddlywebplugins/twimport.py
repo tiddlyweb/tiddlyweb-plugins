@@ -94,10 +94,17 @@ def wiki_string_to_tiddlers(content):
     """
     Turn a string that is a wiki into tiddler.
     """
-    parser = HTMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
-    soup = parser.parse(content)
-    store_area = soup.find('div', id='storeArea')
-    divs = store_area.findAll('div')
+    parser = HTMLParser(tree=treebuilders.getTreeBuilder('dom'))
+    doc = parser.parse(content)
+    # minidom will not provide working getElementById without
+    # first having a valid document, which means some very specific
+    # doctype hooey. So we traverse 
+    body = doc.getElementsByTagName('body')[0]
+    body_divs = body.getElementsByTagName('div')
+    for div in body_divs:
+        if div.hasAttribute('id') and div.getAttribute('id') == 'storeArea':
+            divs = div.getElementsByTagName('div')
+            break
 
     tiddlers = []
     for tiddler_div in divs:
@@ -162,11 +169,11 @@ def from_tiddler(uri, handle):
     generates Tiddler from a Cook-style .tiddler file
     """
     content = handle.read().decode('utf-8')
-
-    parser = HTMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
     content = _escape_brackets(content)
-    doc = parser.parse(content)
-    node = doc.find('div')
+
+    parser = HTMLParser(tree=treebuilders.getTreeBuilder('dom'))
+    dom = parser.parse(content)
+    node = dom.getElementsByTagName('div')[0]
 
     return _get_tiddler_from_div(node)
 
@@ -256,28 +263,41 @@ def _from_text(title, content):
     return tiddler
 
 
+def _get_text(nodelist):
+    """
+    Traverse a list of dom nodes extracting contained text.
+    """
+    text = ''
+    for node in nodelist:
+        if node.nodeType == node.TEXT_NODE:
+            text = text + node.data
+        if node.childNodes:
+            text = text + _get_text(node.childNodes)
+    return text
+
+
 def _get_tiddler_from_div(node):
     """
     Create a Tiddler from an HTML div element.
     """
-    tiddler = Tiddler(node['title'])
+    tiddler = Tiddler(node.getAttribute('title'))
     try:
-        tiddler.text = _html_decode(node.find('pre').contents[0])
+        tiddler.text = _html_decode(_get_text(node.getElementsByTagName('pre')))
     except IndexError:
         # there are no contents in the tiddler
         tiddler.text = ''
 
-    for attr, _ in node.attrs:
-        data = node.get(attr, None)
+    for attr, value in node.attributes.items():
+        data = value
         if data and attr != 'tags':
             if attr in (['modifier', 'created', 'modified']):
                 tiddler.__setattr__(attr, data)
             elif (attr not in ['title', 'changecount'] and
                     not attr.startswith('server.')):
                 tiddler.fields[attr] = data
-    if not node.get('modified', None) and tiddler.created:
+    if not node.attributes.get('modified', None) and tiddler.created:
         tiddler.modified = tiddler.created
-    tiddler.tags = string_to_tags_list(node.get('tags', ''))
+    tiddler.tags = string_to_tags_list(str(node.getAttribute('tags')))
 
     return tiddler
 

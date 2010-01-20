@@ -43,7 +43,7 @@ def setup_module(module):
 
 def test_import_simple_tiddler_div():
     div = _parse(SAMPLE_BASIC_TIDDLER)
-    assert div['title'] == 'GettingStarted'
+    assert div.getAttribute('title') == 'GettingStarted'
 
     tiddler = _get_tiddler_from_div(div)
 
@@ -53,7 +53,7 @@ def test_import_simple_tiddler_div():
 
 def test_import_empty_tiddler_div():
     div = _parse(SAMPLE_EMPTY_TIDDLER)
-    assert div['title'] == 'GettingStopped'
+    assert div.getAttribute('title') == 'GettingStopped'
 
     tiddler = _get_tiddler_from_div(div)
     tiddler.bag = BAGNAME
@@ -117,7 +117,7 @@ def test_omit_reserved_fields():
     </div>
     """
     div = _parse(tiddler_element)
-    assert div['title'] == 'Hello World'
+    assert div.getAttribute('title') == 'Hello World'
 
     tiddler = _get_tiddler_from_div(div)
 
@@ -170,7 +170,7 @@ def test_handle_recipe_plugin():
 
 
 def _parse(content):
-    parser = html5lib.liberalxmlparser.XMLParser(tree=treebuilders.getTreeBuilder('beautifulsoup'))
-    soup = parser.parseFragment(content)
-    tiddler_div = soup.find('div')
+    parser = html5lib.HTMLParser(tree=treebuilders.getTreeBuilder('dom'))
+    dom = parser.parse(content)
+    tiddler_div = dom.getElementsByTagName('div')[0]
     return tiddler_div

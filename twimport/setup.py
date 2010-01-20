@@ -24,7 +24,6 @@ setup(
     install_requires = ['setuptools',
         'tiddlyweb',
         'tiddlywebplugins.utils',
-        'html5lib',
-        'BeautifulSoup'],
+        'html5lib'],
     zip_safe = False
     )
