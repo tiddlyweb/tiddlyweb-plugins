@@ -1,5 +1,5 @@
 """
-Import tiddlers, Cook recipes, TiddlyWikis into TiddlyWewb.
+Import tiddlers, Cook recipes, TiddlyWikis into TiddlyWeb.
 """
 
 import os
