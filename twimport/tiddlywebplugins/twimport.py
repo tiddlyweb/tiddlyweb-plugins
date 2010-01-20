@@ -1,5 +1,5 @@
 """
-Description of My Plugin.
+Import tiddlers, Cook recipes, TiddlyWikis into TiddlyWewb.
 """
 
 import os
