@@ -15,8 +15,11 @@ setup(
         packages = find_packages(exclude=['test']),
         author_email = 'cdent@peermore.com',
         platforms = 'Posix; MacOS X; Windows',
-        install_requires = ['setuptools', 'tiddlyweb', 'tiddlywebwiki',
-            'tiddlywebplugins.utils', 'tiddlywebplugins.templates'],
+        install_requires = ['setuptools',
+            'tiddlyweb',
+            'tiddlywebplugins.twimport',
+            'tiddlywebplugins.utils',
+            'tiddlywebplugins.templates'],
         include_package_data = True,
         zip_safe=False
         )

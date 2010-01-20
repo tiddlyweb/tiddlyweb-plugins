@@ -19,8 +19,7 @@ from uuid import uuid4 as uuid
 
 from tiddlywebplugins.utils import entitle, do_html
 from tiddlywebplugins.templates import get_template
-from tiddlywebwiki.tiddlywiki import import_wiki
-from tiddlywebwiki.importer import import_one 
+from tiddlywebplugins.twimport import import_one, wiki_string_to_tiddlers
 
 from tiddlyweb.control import filter_tiddlers_from_bag
 from tiddlyweb.model.bag import Bag
@@ -106,16 +105,15 @@ def _process_url(environ, url):
     import_one(tmp_bag.name, url, environ['tiddlyweb.store'])
     return tmp_bag
 
-def _process_file(environ, file):
+def _process_file(environ, filehandle):
     tmp_bag = _make_bag(environ)
-    wikitext = ''
-    while 1:
-        line = file.readline()
-        if not line:
-            break
-        wikitext += unicode(line, 'utf-8')
-    import_wiki(environ['tiddlyweb.store'], wikitext, tmp_bag.name)
-    file.close()
+    wikitext = filehandle.read().decode('utf-8')
+    filehandle.close()
+    tiddlers = wiki_string_to_tiddlers(wikitext)
+    store = environ['tiddlyweb.store']
+    for tiddler in tiddlers:
+        tiddler.bag = tmp_bag.name
+        store.put(tiddler)
     return tmp_bag
 
 
