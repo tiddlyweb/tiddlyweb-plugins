@@ -52,8 +52,9 @@ def wimport(environ, start_response):
             return _show_chooser(environ, tmp_bag)
         except AttributeError: # content was not right
             return _send_wimport(environ, start_response, 'that was not a wiki')
-        except ValueError: # file or url was not right
-            return _send_wimport(environ, start_response, 'could not read that')
+        except ValueError, exc: # file or url was not right
+            return _send_wimport(environ, start_response,
+                    'could not read that')
     elif 'bag' in form:
         return _process_choices(environ, start_response, form)
     else:
@@ -105,9 +106,10 @@ def _process_url(environ, url):
     import_one(tmp_bag.name, url, environ['tiddlyweb.store'])
     return tmp_bag
 
+
 def _process_file(environ, filehandle):
     tmp_bag = _make_bag(environ)
-    wikitext = filehandle.read().decode('utf-8')
+    wikitext = filehandle.read().decode('utf-8', 'replace')
     filehandle.close()
     tiddlers = wiki_string_to_tiddlers(wikitext)
     store = environ['tiddlyweb.store']
