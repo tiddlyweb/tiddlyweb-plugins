@@ -225,6 +225,8 @@ def _expand_recipe(content, url=''):
         except ValueError:
             continue # blank line in recipe
         if target_type in ACCEPTED_RECIPE_TYPES:
+            if isinstance(target, unicode):
+                target = target.encode('utf-8')
             target = target.lstrip().rstrip()
             # Check to see if the target is a URL (has a scheme)
             # if not we want to join it to the current url before
@@ -308,7 +310,13 @@ def _get_url_handle(url):
     transform it into a file url.
     """
     try:
-        handle = urllib2.urlopen(url)
+        try:
+            handle = urllib2.urlopen(url)
+        except urllib2.URLError:
+            scheme, netloc, path, params, query, fragment = urlparse.urlparse(url)
+            path = urllib2.quote(path)
+            newurl = urlparse.urlunparse((scheme, netloc, path, params, query, fragment))
+            handle = urllib2.urlopen(newurl)
     except ValueError:
         # If ValueError happens again we want it to raise
         url = 'file:' + os.path.abspath(url)
