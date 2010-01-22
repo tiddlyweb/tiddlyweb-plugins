@@ -64,8 +64,8 @@ def _process_choices(environ, start_response, form):
     store = environ['tiddlyweb.store']
     user = environ['tiddlyweb.usersign']
 
-    tmp_bag = form['tmpbag'].value
-    bag = form['bag'].value
+    tmp_bag = form['tmpbag'].value.decode('utf-8', 'ignore')
+    bag = form['bag'].value.decode('utf-8', 'ignore')
 
     bag = Bag(bag)
     try:
@@ -79,7 +79,7 @@ def _process_choices(environ, start_response, form):
 
     tiddler_titles = form.getlist('tiddler')
     for title in tiddler_titles:
-        tiddler = Tiddler(title, tmp_bag)
+        tiddler = Tiddler(title.decode('utf-8', 'ignore'), tmp_bag)
         tiddler = store.get(tiddler)
         tiddler.bag = bag.name
         store.put(tiddler)

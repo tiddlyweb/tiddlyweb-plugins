@@ -16,16 +16,16 @@ $(function() {
         <option value=""></option>
         {% for bag in bags %}
             {% if bag.name != tmpbag %}
-            <option value="{{ bag.name }}">{{ bag.name }}</option>
+            <option value="{{ bag.name|escape }}">{{ bag.name }}</option>
             {% endif %}
         {% endfor %}
     </select><br/>
     <input type="submit" value="submit" /><input type="reset" value="reset" /><br/>
     Select Tiddlers<br/>
     {% for tiddler in tiddlers %}
-    <input type="checkbox" name="tiddler" value="{{ tiddler.title }}" />
+    <input type="checkbox" name="tiddler" value="{{ tiddler.title|escape }}" />
     {{ tiddler.title }}<br />
     {% endfor %}
-    <input type="hidden" name="tmpbag" value="{{ tmpbag }}" />
+    <input type="hidden" name="tmpbag" value="{{ tmpbag|escape }}" />
     <input type="submit" value="submit" />
 </form>
