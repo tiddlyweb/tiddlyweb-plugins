@@ -1,2 +1,0 @@
-
-alert('i am here');
