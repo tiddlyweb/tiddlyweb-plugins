@@ -1,5 +1,5 @@
 """
-Import tiddlers, Cook recipes, TiddlyWikis into TiddlyWewb.
+Import tiddlers, Cook recipes, TiddlyWikis into TiddlyWeb.
 """
 
 import os
@@ -60,7 +60,7 @@ def recipe_to_urls(url):
     a list of URLs of tiddlers (of various types).
     """
     url, handle = _get_url_handle(url)
-    return _expand_recipe(handle.read().decode('utf-8'), url)
+    return _expand_recipe(handle.read().decode('utf-8', 'replace'), url)
 
 
 def url_to_tiddler(url):
@@ -87,7 +87,7 @@ def wiki_to_tiddlers(url):
     Retrieve a .wiki or .html and extract the contained tiddlers.
     """
     url, handle = _get_url_handle(url)
-    return wiki_string_to_tiddlers(handle.read().decode('utf-8'))
+    return wiki_string_to_tiddlers(handle.read().decode('utf-8', 'replace'))
 
 
 def wiki_string_to_tiddlers(content):
@@ -134,7 +134,7 @@ def from_plugin(uri, handle):
     tiddler_meta = "\n".join(line for line in meta_content.split("\n")
             if not line.startswith("title:")).rstrip()
 
-    plugin_content = handle.read().decode('utf-8')
+    plugin_content = handle.read().decode('utf-8', 'replace')
     tiddler_text = "%s\n\n%s" % (tiddler_meta, plugin_content)
 
     return _from_text(title, tiddler_text)
@@ -161,14 +161,14 @@ def from_tid(uri, handle):
     generates Tiddler from a TiddlyWeb-style .tid file
     """
     title = _get_title_from_uri(uri)
-    return _from_text(title, handle.read().decode('utf-8'))
+    return _from_text(title, handle.read().decode('utf-8', 'replace'))
 
 
 def from_tiddler(uri, handle):
     """
     generates Tiddler from a Cook-style .tiddler file
     """
-    content = handle.read().decode('utf-8')
+    content = handle.read().decode('utf-8', 'replace')
     content = _escape_brackets(content)
 
     parser = HTMLParser(tree=treebuilders.getTreeBuilder('dom'))
@@ -248,7 +248,7 @@ def _get_url(url):
     """
     Load a URL and decode it to unicode.
     """
-    content = urllib2.urlopen(url).read().decode('utf-8')
+    content = urllib2.urlopen(url).read().decode('utf-8', 'replace')
     return content.replace("\r", "")
 
 
