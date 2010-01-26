@@ -273,7 +273,9 @@ def _tiddler_written_handler(self, tiddler):
             SEARCH_DEFAULTS['wsearch.schema'])
     writer = get_writer(self.environ['tiddlyweb.config'])
     try:
-        temp_tiddler = self.environ['tiddlyweb.store'].get(Tiddler(tiddler.title, tiddler.bag))
+        store = self.environ.get('tiddlyweb.store',
+                get_store(self.environ['tiddlyweb.config']))
+        temp_tiddler = store.get(Tiddler(tiddler.title, tiddler.bag))
         index_tiddler(tiddler, schema, writer)
     except NoTiddlerError:
         delete_tiddler(tiddler, writer)
