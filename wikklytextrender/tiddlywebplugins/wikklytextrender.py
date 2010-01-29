@@ -51,13 +51,16 @@ def wikitext_to_wikklyhtml(base_url, path_url, wikitext, environ):
     link_context = {
             '$BASE_URL': '%s%s' % (base_url, path_url),
             '$REFLOW': 0}
-    html, context = wikklytext.WikklyText_to_InnerHTML(
-            text=wikitext,
-            setvars=link_context,
-            encoding='utf-8',
-            safe_mode=safe_mode_setting,
-            url_resolver=our_resolver,
-            tree_posthook=posthook.treehook)
+    try:
+        html, context = wikklytext.WikklyText_to_InnerHTML(
+                text=wikitext,
+                setvars=link_context,
+                encoding='utf-8',
+                safe_mode=safe_mode_setting,
+                url_resolver=our_resolver,
+                tree_posthook=posthook.treehook)
+    except wikklytext.WikError, exc:
+        html = '<pre>Unable to render wikitext: %s</pre>' % exc
     return html
 
 
