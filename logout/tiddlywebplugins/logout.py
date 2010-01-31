@@ -4,7 +4,6 @@ extractor.
 """
 
 import Cookie
-import logging
 import time
 
 
@@ -13,7 +12,8 @@ def logout(environ, start_response):
     Break the web by allowing a logout on a GET request.
     And then break it further by sending a bad redirect.
     """
-    uri = environ.get('HTTP_REFERER', '/')
+    uri = environ.get('HTTP_REFERER',
+            environ['tiddlyweb.config'].get('logout_uri', '/'))
     path = environ.get('tiddlyweb.config', {}).get('server_prefix', '')
     cookie = Cookie.SimpleCookie()
     cookie['tiddlyweb_user'] = ''

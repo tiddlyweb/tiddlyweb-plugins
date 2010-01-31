@@ -1,0 +1,10 @@
+
+Simple /logout URL for TiddlyWeb.
+
+This is a pragmatic but breaks-the-web solution to the need to
+invalidate a tiddlyweb_user cookie. Do a GET to /logout and the
+cookie will be expired.
+
+Licensed under the same terms as TiddlyWeb itself.
+
+Copyright 2010 Chris Dent, <cdent@peermore.com>
