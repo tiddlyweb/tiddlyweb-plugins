@@ -24,7 +24,7 @@ from tiddlyweb.store import Store
 
 
 def setup_module(module):
-    config['system_plugins'] = ['methodhack']
+    config['system_plugins'] = ['tiddlywebplugins.methodhack']
     from tiddlyweb.web import serve
     def app_fn():
         return serve.load_app()
