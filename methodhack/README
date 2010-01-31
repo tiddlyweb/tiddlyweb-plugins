@@ -1,11 +1,38 @@
-methodhack provides a way to hand PUT and DELETE
-requests that have been tunneled over POST for those
-browsers that do not support PUT and DELETE. It handles
-clients that support a protocol defined in the docs.
 
-See the docstring in the plugin for more informatin.
+From the pydoc:
 
-N.B.: When using this with TiddlyWebWiki, a client-side
-component is required as well. To this end, the following
-jQuery plugin can be used as a TiddlyWiki plugin:
+A TiddlyWeb plugin for working around limitations in some server setups
+wherein perfectly legit HTTP methods like PUT and DELETE are not allowed
+to pass through to TiddlyWeb.
+
+This can also happen when using some legacy browsers which will not
+allow PUT and DELETE in XmlHttpRequest calls.
+
+We do this by looking at, in order:
+
+    X-HTTP-Method header
+    http_method URL parameter
+
+If the real method is POST, REQUEST_METHOD will be reset to whatever is
+given in the above.
+
+If the real method is GET, REQUEST_METHOD will only be reset to whatever
+is given in the above if it is GET or HEAD.
+
+Effectively this means that if you want to override, you must POST. This
+is consistent with idempotency conventions associated with HTTP methods.
+
+ONLY USE THIS MIDDLEWARE IF YOU CANNOT FIX YOUR SERVER OR YOUR BROWSER.
+YOUR SERVER AND BROWSER ARE BROKEN IF YOU NEED TO USE THIS.
+
+NOTE: This code will not magically handle tunneling of methods. Client
+code must choose to do the tunneling. At this time TiddlyWeb client code
+such as TiddlyWebAdaptor does NOT tunnel. methodhack provides a way to
+hand PUT and DELETE requests that have been tunneled over POST for those
+browsers that do not support PUT and DELETE. It handles clients that
+support a protocol defined in the docs.
+
+N.B.: When using this with TiddlyWebWiki, a client-side component is
+required as well. To this end, the following jQuery plugin can be used
+as a TiddlyWiki plugin:
     http://github.com/FND/jquery/blob/master/jquery.methodhack.js
