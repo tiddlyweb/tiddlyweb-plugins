@@ -1,5 +1,39 @@
 """
 Fiddle about with mapping an existing sql table to tiddlers.
+
+There are a large number of configurations settings that may
+be used with this module. Most important is server_store. It
+is most likely that you will want to use the store with the
+distore, so that you can also have other bags, recipes besides
+the one bag provided by mappingsql:
+
+    'server_store': ['tiddlywebplugins.diststore', {
+        'main': ['text', {'store_root': 'store'}],
+        'extras': [
+            (r'^mapped$', ['tiddlywebplugins.mappingsql',
+                {'db_config': 'mysql://user@localhost/db?charset=utf8'}]),
+        ],
+    }],
+
+This establishes that the Database 'db' will be mapped onto
+the bag mapped. Other configuration items control other settings:
+
+mappingsql.table: The name of the table being mapped.
+mappingsql.bag: The name of the bag is is mapped into.
+mappingsql.id_column: The name of primary key column. Defaults to 'id'.
+mappingsql.full_text: True or False. Is full text indexing available.
+mappingsql.default_search_fields: List of fields that are automaticall
+    searched.
+mappingsql.limit: The max number of results returned by a search.
+mapingsql.open_fields: Those fields which are visible to an unauthenticated
+    user.
+
+Please read the code to get a grip on how things work. See
+also tiddlywebplugins.wikidata for an example of how this is
+used.
+
+This is not a mature plugin. It should be used with care and 
+understanding. See the README for additional information.
 """
 from sqlalchemy import Table, Column, Integer, create_engine, MetaData
 from sqlalchemy.sql import or_

@@ -1,6 +1,6 @@
 mappingsql is TiddlyWeb StorageInterface implementation
-that stubs out some ideas for mapping any arbitrary 
-RDBMS table to a tiddler.
+that maps an RDBMS table as a bag, with each row representing
+a tiddler.
 
 It has many limitations (on purpose):
 
@@ -8,14 +8,23 @@ It has many limitations (on purpose):
 * It only supports one bag.
 * It has no support for recipes.
 * It has no support revisions.
-* It has no support for search.
+* It has limited support for search.
 
 You tell tiddlywebconfig.py what database you want to look
 at, what table you want to map, and what bag name you want
-that table to think of itself as. The column name 'id'[1]
-is mapped to tiddler.title. Any column names that map to 
-Tiddler attributes are applied. Otherwise, columns are
-mapped into tiddler.fields.
+that table to think of itself as. The column name 'id'
+is mapped to tiddler.title unless overridden by the
+configuration setting of 'mappingsql.id_column'. Any column
+names that map to Tiddler attributes are applied. Otherwise,
+columns are mapped into tiddler.fields.
+
+Search support is used primarily with MySQL and its full text
+indexing system. You may turn on this support with 
+'mappingsql.full_text' set to True.
+
+This is experimental alpha software, reading and understanding
+the code is recommending before using. There is additional information
+in the module docstring.
 
 TODO:
 
@@ -28,6 +37,3 @@ the auspices of the wiki-data project of Avox.
 
 It is license under the BSD license.
 See COPYRIGHT for more information.
-
-[1] In the future it will be possible to map a specific 
-column to tiddler.title. 
