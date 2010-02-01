@@ -19,7 +19,7 @@ from tiddlyweb.stores import StorageInterface
 class GDRecipe(db.Model):
     name = db.StringProperty(required=True)
     recipe = db.ListProperty(unicode)
-    desc = db.StringProperty()
+    desc = db.StringProperty(default='')
     owner = db.StringProperty()
     read = db.ListProperty(unicode)
     write = db.ListProperty(unicode)
@@ -30,7 +30,7 @@ class GDRecipe(db.Model):
 
 class GDBag(db.Model):
     name = db.StringProperty(required=True)
-    desc = db.StringProperty()
+    desc = db.StringProperty(default='')
     tiddlers = db.ListProperty(unicode)
     owner = db.StringProperty()
     read = db.ListProperty(unicode)
