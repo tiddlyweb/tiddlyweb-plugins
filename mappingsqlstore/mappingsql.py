@@ -1,14 +1,13 @@
 """
 Fiddle about with mapping an existing sql table to tiddlers.
 """
-from sqlalchemy import Table, Column, Unicode, Integer, create_engine, MetaData
+from sqlalchemy import Table, Column, Integer, create_engine, MetaData
 from sqlalchemy.sql import or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 from tiddlyweb.model.tiddler import Tiddler
-from tiddlyweb.model.bag import Bag
 from tiddlyweb.stores import StorageInterface
 from tiddlyweb.store import NoBagError, NoTiddlerError
 
@@ -31,7 +30,8 @@ class Store(StorageInterface):
         self._init_store()
 
     def _init_store(self):
-        db_config = self.store_config['db_config']
+        db_config = self.environ[
+                'tiddlyweb.config']['server_store'][1]['db_config']
         engine = create_engine(db_config)
         meta = MetaData()
         meta.bind = engine
@@ -92,7 +92,7 @@ class Store(StorageInterface):
                 setattr(tiddler, column, unicode(getattr(stiddler, column)))
             else:
                 tiddler.fields[column] = unicode(getattr(stiddler, column))
-	if not tiddler.text:
+        if not tiddler.text:
             tiddler.text = ''
         return tiddler
 
@@ -115,6 +115,7 @@ class Store(StorageInterface):
 
     def search(self, search_query=''):
         full_access = self._determine_user_access()
+        logging.debug('full_access: '+str(full_access))
         open_fields = self.environ[
                 'tiddlyweb.config'].get(
                         'mappingsql.open_fields', [])
@@ -134,6 +135,8 @@ class Store(StorageInterface):
                                     ['mappingsql.default_search_fields'])
                                 ).params(query=query_string)
             else:
+                # XXX: id and modifier fields are not guaranteed to be
+                # present. i.e. this code is wrong!
                 query = query.filter(or_(
                             sTiddler.id.like('%%%s%%' % query_string),
                             sTiddler.modifier.like('%%%s%%' % query_string)))
@@ -144,23 +147,20 @@ class Store(StorageInterface):
                 continue
             terms = fields[field]
             # TODO: For now we only accept the first term provided
-            try:
-                query = query.filter(getattr(sTiddler, field)==terms[0])
-            except AttributeError:
-                # someone has provided a bogus field
-                pass
+            query = query.filter(getattr(sTiddler, field)==terms[0])
             have_query = True
 
         if have_query:
-            logging.debug('query is: %s' % query)
+            logging.debug('query is: %s', query)
             limit = self.environ['tiddlyweb.config'].get('mappingsql.limit', 50)
             stiddlers = query.limit(limit).all()
         else:
             stiddlers = []
 
         bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']
-        tiddlers =  (Tiddler(unicode(getattr(stiddler, self.id_column)), bag_name)
-                for stiddler in stiddlers)
+        tiddlers =  (Tiddler(
+            unicode(getattr(stiddler, self.id_column)), bag_name)
+            for stiddler in stiddlers)
 
         return tiddlers
 
