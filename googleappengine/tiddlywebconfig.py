@@ -18,7 +18,7 @@ else:
 
 config = {
         # plugins
-        'system_plugins': ['tiddlywebwiki', 'tiddlywebplugins.status', 'differ'],
+        'system_plugins': ['tiddlywebwiki'],
         # how are we storing data
         'server_store': ['googledata', {}],
         # how do we extract user information from requests
