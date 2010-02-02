@@ -1,0 +1,2 @@
+recursive-include test *
+include README Makefile table.sql tiddlywebconfig.py mangler.py COPYRIGHT
