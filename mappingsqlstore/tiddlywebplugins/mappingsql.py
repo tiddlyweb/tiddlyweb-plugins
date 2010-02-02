@@ -41,6 +41,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
+from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.stores import StorageInterface
 from tiddlyweb.store import NoBagError, NoTiddlerError
@@ -84,6 +85,13 @@ class Store(StorageInterface):
                         )
             mapper(sTiddler, _tiddlers)
             Store.mapped = True
+
+    def list_bags(self):
+        """Return a list which is our main bag."""
+        bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']
+        bags = [bag_name]
+        # This is a so we are a generator.
+        return (Bag(bag) for bag in bags)
 
     def bag_get(self, bag):
         """Bag will be read only."""
