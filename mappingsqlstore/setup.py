@@ -3,7 +3,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.mappingsql'
 DESCRIPTION = 'Map a single RDBMS table to a bag.'
-VERSION = '0.1'
+VERSION = '0.2'
 
 
 import os
