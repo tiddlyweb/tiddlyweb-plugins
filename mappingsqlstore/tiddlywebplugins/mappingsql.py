@@ -220,7 +220,7 @@ class Store(StorageInterface):
                         'mappingsql.tasters', False)
             limit_to_tasters = not full_access and tasters
             if limit_to_tasters:
-                query = query.filter(sTiddler.taster==True)
+                query = query.filter(sTiddler.taster=='Y')
             stiddlers = query.slice(slice_index, slice_index + limit).all()
         else:
             stiddlers = []
