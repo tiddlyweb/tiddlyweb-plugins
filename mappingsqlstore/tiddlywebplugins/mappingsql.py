@@ -164,7 +164,7 @@ class Store(StorageInterface):
 
         query = self.environ.get('tiddlyweb.query', {})
         try:
-            slice_index = query['index'][0]
+            slice_index = int(query['index'][0])
             del query['index']
         except KeyError:
             slice_index = 0
@@ -206,7 +206,7 @@ class Store(StorageInterface):
             count = query.count()
             logging.debug('count is: %s', count)
             self.environ['tiddlyweb.mappingsql.count'] = count
-            stiddlers = query.slice(slice_index, limit).all()
+            stiddlers = query.slice(slice_index, slice_index + limit).all()
         else:
             stiddlers = []
 
