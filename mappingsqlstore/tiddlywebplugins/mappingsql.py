@@ -114,11 +114,20 @@ class Store(StorageInterface):
         open_fields = self.environ[
                 'tiddlyweb.config'].get(
                         'mappingsql.open_fields', [])
+        tasters = self.environ[
+                'tiddlyweb.config'].get(
+                        'mappingsql.tasters', False)
+        limit_to_tasters = not full_access and tasters
 
         self._validate_bag_name(tiddler.bag)
         try:
-            stiddler = self.session.query(sTiddler).filter(
-                    getattr(sTiddler, self.id_column)==tiddler.title).one()
+            if limit_to_tasters:
+                stiddler = self.session.query(sTiddler).filter(
+                        getattr(sTiddler, self.id_column)==tiddler.title).filter(
+                                sTiddler.taster==True).one()
+            else:
+                stiddler = self.session.query(sTiddler).filter(
+                        getattr(sTiddler, self.id_column)==tiddler.title).one()
         except NoResultFound, exc:
             raise NoTiddlerError('tiddler %s not found, %s' %
                     (tiddler.title, exc))
@@ -206,6 +215,12 @@ class Store(StorageInterface):
             count = query.count()
             logging.debug('count is: %s', count)
             self.environ['tiddlyweb.mappingsql.count'] = count
+            tasters = self.environ[
+                'tiddlyweb.config'].get(
+                        'mappingsql.tasters', False)
+            limit_to_tasters = not full_access and tasters
+            if limit_to_tasters:
+                query = query.filter(sTiddler.taster==True)
             stiddlers = query.slice(slice_index, slice_index + limit).all()
         else:
             stiddlers = []
