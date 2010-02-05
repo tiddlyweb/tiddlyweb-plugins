@@ -117,14 +117,12 @@ class Store(StorageInterface):
         tasters = self.environ[
                 'tiddlyweb.config'].get(
                         'mappingsql.tasters', False)
-        limit_to_tasters = not full_access and tasters
-
         self._validate_bag_name(tiddler.bag)
         try:
-            if limit_to_tasters:
+            if tasters and not full_access:
                 stiddler = self.session.query(sTiddler).filter(
                         getattr(sTiddler, self.id_column)==tiddler.title).filter(
-                                sTiddler.taster==True).one()
+                                sTiddler.taster=='Y').one()
             else:
                 stiddler = self.session.query(sTiddler).filter(
                         getattr(sTiddler, self.id_column)==tiddler.title).one()
@@ -210,7 +208,6 @@ class Store(StorageInterface):
 
         count = 0
         if have_query:
-            logging.debug('query is: %s', query)
             limit = self.environ['tiddlyweb.config'].get('mappingsql.limit', 50)
             count = query.count()
             logging.debug('count is: %s', count)
@@ -218,9 +215,9 @@ class Store(StorageInterface):
             tasters = self.environ[
                 'tiddlyweb.config'].get(
                         'mappingsql.tasters', False)
-            limit_to_tasters = not full_access and tasters
-            if limit_to_tasters:
+            if tasters and not full_access:
                 query = query.filter(sTiddler.taster=='Y')
+            logging.debug('query is: %s', query)
             stiddlers = query.slice(slice_index, slice_index + limit).all()
         else:
             stiddlers = []
