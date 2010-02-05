@@ -18,7 +18,7 @@ or tuple of two items:
 import copy
 import re
 
-from tiddlyweb.store import Store as Storer
+from tiddlyweb.store import Store as Storer, StoreMethodNotImplemented
 from tiddlyweb.stores import StorageInterface
 
 class Store(StorageInterface):
@@ -106,9 +106,20 @@ class Store(StorageInterface):
 
     def search(self, search_query):
         tiddlers = []
+        searched = False
         for rule, store in self.stores:
-            tiddlers.extend(store.search(search_query))
-        tiddlers.extend(self.main_store.search(search_query))
+            try:
+                tiddlers.extend(store.search(search_query))
+                searched = True
+            except StoreMethodNotImplemented:
+                pass # just ride right over those stores that don't search
+        try:
+            tiddlers.extend(self.main_store.search(search_query))
+            searched = True
+        except StoreMethodNotImplemented:
+            pass
+        if not searched:
+            raise StoreMethodNotImplemented
         return tiddlers
 
     def _determine_store(self, name):

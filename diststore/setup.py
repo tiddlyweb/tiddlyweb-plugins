@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.diststore'
 DESCRIPTION = 'Use multiple stores in the same TiddlyWeb instance.'
-VERSION = '0.4'
+VERSION = '0.5'
 
 import os
 from setuptools import setup, find_packages
