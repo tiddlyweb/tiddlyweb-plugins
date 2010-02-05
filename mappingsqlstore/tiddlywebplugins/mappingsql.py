@@ -162,6 +162,13 @@ class Store(StorageInterface):
                 'tiddlyweb.config'].get(
                         'mappingsql.open_fields', [])
 
+        query = self.environ.get('tiddlyweb.query', {})
+        try:
+            slice_index = query['index'][0]
+            del query['index']
+        except KeyError:
+            slice_index = 0
+
         query_string, fields = query_dict_to_search_tuple(
                 self.environ.get('tiddlyweb.query', {}))
 
@@ -192,10 +199,14 @@ class Store(StorageInterface):
             query = query.filter(getattr(sTiddler, field)==terms[0])
             have_query = True
 
+        count = 0
         if have_query:
             logging.debug('query is: %s', query)
             limit = self.environ['tiddlyweb.config'].get('mappingsql.limit', 50)
-            stiddlers = query.limit(limit).all()
+            count = query.count()
+            logging.debug('count is: %s', count)
+            self.environ['tiddlyweb.mappingsql.count'] = count
+            stiddlers = query.slice(slice_index, limit).all()
         else:
             stiddlers = []
 
