@@ -173,6 +173,7 @@ class Store(StorageInterface):
         try:
             slice_index = int(query['index'][0])
             del query['index']
+            self.environ['tiddlyweb.mappingsql.index'] = slice_index
         except KeyError:
             slice_index = 0
 
