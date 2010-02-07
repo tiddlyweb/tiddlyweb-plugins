@@ -135,7 +135,7 @@ class Store(StorageInterface):
         for column in columns:
             if column.startswith('_'):
                 continue
-            if not full_access and column not in open_fields:
+            if open_fields and not full_access and column not in open_fields:
                 continue
             if hasattr(tiddler, column):
                 setattr(tiddler, column, unicode(getattr(stiddler, column)))
@@ -200,7 +200,7 @@ class Store(StorageInterface):
             have_query = True
 
         for field in fields:
-            if not full_access and field not in open_fields:
+            if open_fields and not full_access and field not in open_fields:
                 continue
             terms = fields[field]
             # TODO: For now we only accept the first term provided
