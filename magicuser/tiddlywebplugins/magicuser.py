@@ -24,7 +24,7 @@ doing its own augmentation.
 from tiddlyweb.web.extractors import ExtractorInterface
 from tiddlyweb.web.extractor import _try_extractors
 
-from tiddlyweb.store import NoTiddlerError
+from tiddlyweb.store import NoTiddlerError, NoBagError
 from tiddlyweb.model.tiddler import Tiddler, string_to_tags_list
 
 class Extractor(ExtractorInterface):
@@ -53,7 +53,7 @@ class Extractor(ExtractorInterface):
         tiddler = Tiddler(username, bag_name)
         try:
             tiddler = store.get(tiddler)
-        except NoTiddlerError:
+        except (NoTiddlerError, NoBagError):
             pass # tiddler is empty
         if 'roles' in tiddler.fields:
             userinfo['roles'].extend(string_to_tags_list(tiddler.fields['roles']))
