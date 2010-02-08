@@ -30,20 +30,23 @@ from tiddlyweb.model.tiddler import Tiddler, string_to_tags_list
 class Extractor(ExtractorInterface):
 
     def extract(self, environ, start_response):
-        sub_extractors = config['sub_extractors']
-        config['extractors'] = sub_extractors
+        actual_extractors = environ['tiddlyweb.config']['extractors']
+        sub_extractors = environ['tiddlyweb.config']['sub_extractors']
+        environ['tiddlyweb.config']['extractors'] = sub_extractors
 
         # XXX this duplicates from tiddlyweb.web.extractor
         userinfo = {"name": u'GUEST', "roles": []}
 
         candidate_userinfo = _try_extractors(environ, start_response)
 
+        environ['tiddlyweb.config']['extractors'] = actual_extractors
+
         if candidate_userinfo:
-            return self._extract_more_info(environ, candiate_userinfo)
+            return self._extract_more_info(environ, candidate_userinfo)
         else:
             return userinfo
 
-    def extract_more_info(self, environ, userinfo):
+    def _extract_more_info(self, environ, userinfo):
         store = environ['tiddlyweb.store'] 
         bag_name = environ['tiddlyweb.config'].get('magicuser.bag', 'MAGICUSER')
         username = userinfo['name']
