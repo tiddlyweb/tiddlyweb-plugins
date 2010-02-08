@@ -218,6 +218,9 @@ class Store(StorageInterface):
                         'mappingsql.tasters', False)
             if tasters and not full_access:
                 query = query.filter(sTiddler.taster=='Y')
+            access_count = query.count()
+            logging.debug('access_count is: %s', access_count)
+            self.environ['tiddlyweb.mappingsql.access_count'] = access_count
             logging.debug('query is: %s', query)
             stiddlers = query.slice(slice_index, slice_index + limit).all()
         else:
