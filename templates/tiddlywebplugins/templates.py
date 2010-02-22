@@ -32,7 +32,7 @@ def get_template(environ, template_name):
     if not template_env:
         template_path = environ['tiddlyweb.config'].get('plugin_local_templates', 'templates')
         if not os.path.isabs(template_path):
-            template_path = os.path.join(self.environ['tiddlyweb.config'].get(
+            template_path = os.path.join(environ['tiddlyweb.config'].get(
                 'root_dir', ''), template_path)
         template_env = Environment(loader=ChoiceLoader([
             FileSystemLoader(template_path),
