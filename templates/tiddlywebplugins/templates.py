@@ -17,6 +17,8 @@ If template is not found in either location, the jinja
 TemplateNotFound exception is raised, replicating the standard
 jinja behavior.
 """
+import os
+
 from jinja2 import Environment, ChoiceLoader, FileSystemLoader, PackageLoader, TemplateNotFound
 template_env = None
 
@@ -29,6 +31,9 @@ def get_template(environ, template_name):
     global template_env
     if not template_env:
         template_path = environ['tiddlyweb.config'].get('plugin_local_templates', 'templates')
+        if not os.path.isabs(template_path):
+            template_path = os.path.join(self.environ['tiddlyweb.config'].get(
+                'root_dir', ''), template_path)
         template_env = Environment(loader=ChoiceLoader([
             FileSystemLoader(template_path),
             PackageLoader('tiddlywebplugins.templates', 'templates')
