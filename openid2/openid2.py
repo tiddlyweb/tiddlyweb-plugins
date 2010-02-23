@@ -94,7 +94,7 @@ class Challenger(ChallengerInterface):
             usersign = usersign.split('://', 1)[1]
         usersign = usersign.rstrip('/')
         uri = urlparse.urljoin(server_host_url(environ),
-                environ['tiddlyweb.query'].get('redirect', ['/'])[0])
+                environ['tiddlyweb.query'].get('tiddlyweb_redirect', ['/'])[0])
         secret = environ['tiddlyweb.config']['secret']
         cookie_age = environ['tiddlyweb.config'].get('cookie_age', None)
         cookie_header_string = make_cookie('tiddlyweb_user', usersign,
