@@ -1,0 +1,16 @@
+This is an OpenID challenger for TiddlyWeb that replaces
+the one included in the core TiddlyWeb package. It improves
+on that one by using the python-openid package, thus supporting
+OpenID 2 and improved discovery mechanisms.
+
+To use, add 'tiddlywebplugins.openid2' to auth_systems via 
+tiddlywebconfig.py. The following example replaces all existing
+auth_systems with just openid.
+
+config = {
+    'auth_systems': ['tiddlywebplugins.openid2'],
+}
+
+This package is licensed under the same terms at TiddlyWeb itself.
+
+Copyright 2010, Chris Dent <cdent@peermore.com>.
