@@ -7,6 +7,7 @@ from tiddlyweb.web.challengers import ChallengerInterface
 from tiddlyweb.web.util import server_base_url, server_host_url, make_cookie
 from tiddlyweb.web.http import HTTP302
 
+CHALLENGER_NAME = __name__
 
 class Challenger(ChallengerInterface):
 
@@ -39,7 +40,9 @@ class Challenger(ChallengerInterface):
                     message='No open id services for %s' % openid_url)
         else:
             trust_root = server_base_url(environ)
-            return_to = urlparse.urljoin(trust_root, '/challenge/openid2')
+            return_to = urlparse.urljoin(trust_root, '%s/challenge/%s' % (
+                environ['tiddlyweb.config']['server_prefix'],
+                CHALLENGER_NAME))
             request.return_to_args['tiddlyweb_redirect'] = redirect
 
             if request.shouldSendRedirect():
@@ -56,7 +59,9 @@ class Challenger(ChallengerInterface):
     def _handle_response(self, environ, start_response):
         oidconsumer = consumer.Consumer({}, None)
         host = server_base_url(environ)
-        url = urlparse.urljoin(host, '/challenge/openid2')
+        url = urlparse.urljoin(host, '%s/challenge/%s' % (
+                environ['tiddlyweb.config']['server_prefix'],
+                CHALLENGER_NAME))
         query = {}
         for key in environ['tiddlyweb.query']:
             query[key] = environ['tiddlyweb.query'][key][0]

@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.openid2'
 DESCRIPTION = 'An improved openid challenger for TiddlyWeb'
-VERSION = '0.1'
+VERSION = '0.2'
 
 
 import os
