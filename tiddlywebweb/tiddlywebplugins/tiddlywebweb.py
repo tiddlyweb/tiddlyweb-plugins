@@ -108,15 +108,17 @@ class Store(StorageInterface):
 
     def _any_get(self, url, target_object):
         response, content = self._request('GET', url)
-        if self._is_success(response):
+        # Presence of response.previous indicates a redirect to
+        # challenger
+        if not response.previous and self._is_success(response):
             if response['content-type'].startswith('application/json'):
                 self.serializer.object = target_object
                 self.serializer.from_string(content)
             else:
                 # XXX got a binary tiddler
                 pass
-        elif response['status'] == '401':
-            raise UserRequiredError('you do not have permission')
+        elif response['status'] == '401' or response.previous:
+            raise UserRequiredError('you do not have permission on %s' % target_object)
         else:
             raise TiddlyWebWebError('%s: %s' % (response['status'], content))
 
