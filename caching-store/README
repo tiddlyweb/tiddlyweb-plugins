@@ -1,19 +1,21 @@
 
-A memcached based cache for (eventually) any store
-used with tiddlyweb. Decorates an existing store.
+A memcached based cache for any store used with tiddlyweb.
+Decorates an existing store, wrapping a defined store, caching
+retrieved objects.
 
-This has not been fully tested yet.
+To make use of this store, there are several software and 
+administrative requirements. This is fairly complex stuff
+so don't expect to be able to just turn it on and make it go.
 
-To use you need several things. This is fairly complex stuff
-so don't expect to be able to turn it on and make it go (yet).
+You must have:
 
 * a memcached server
 * the python-memcached module
 * the following changes to your tiddlywebconfig.py:
 
-config = {
+    config = {
         # set the server_store to be the caching.py module
-        'server_store': ['caching', {}],
+        'server_store': ['tiddlywebplugins.caching', {}],
         # the host and port of one or more memcached servers.
         # this is separate from server_store in case there are
         # other things that want to use a memcached server
@@ -22,7 +24,7 @@ config = {
         # being cached by the caching store. It's structure
         # is the same as server_store.
         'cached_store': ['text', {'store_root': 'store'}],
-        }
+    }
 
 If you run this code against the TiddlyWeb core tests you should
 be aware that some of them will fail because the cache is not
@@ -35,6 +37,6 @@ cache upon each fresh start of the server. You must also keep in
 mind that if you edit data in your on disk store by hand, you need
 to remember to invalidate the in RAM cache through some mechanism.
 
-See above about this being fairly complex stuff.
+Licensed under the same terms as TiddlyWeb itself.
 
-TODO:
+Copyright 2010, Chris Dent <cdent@peermore.com>.

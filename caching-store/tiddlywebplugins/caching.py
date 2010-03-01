@@ -4,6 +4,7 @@ import logging
 from tiddlyweb.store import Store as StoreBoss
 from tiddlyweb.stores import StorageInterface
 from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.tiddler import Tiddler
 
 from urllib import quote
 
@@ -64,7 +65,13 @@ class Store(StorageInterface):
     def bag_delete(self, bag):
         key = self._bag_key(bag)
         if self._mc.delete(key):
-            self._mc.delete_multi([self._tiddler_key(tiddler) for tiddler in bag.list_tiddlers()])
+            tiddlers_in_bag = bag.list_tiddlers()
+            for tiddler in tiddlers_in_bag:
+                self._mc.delete_multi([self._tiddler_revision_key(
+                    self._create_tiddler_revision(tiddler, revision_id)) for
+                    revision_id in self.list_tiddler_revisions(tiddler)])
+            self._mc.delete_multi([self._tiddler_key(tiddler) for
+                tiddler in tiddlers_in_bag])
         self.cached_store.delete(bag)
 
     def bag_get(self, bag):
@@ -89,8 +96,12 @@ class Store(StorageInterface):
 
     def tiddler_delete(self, tiddler):
         key = self._tiddler_key(tiddler)
+
         if self._mc.delete(key):
             self._mc.delete(self._bag_key(Bag(tiddler.bag)))
+            self._mc.delete_multi([self._tiddler_revision_key(self._create_tiddler_revision(
+                tiddler, revision_id)) for revision_id in
+                self.list_tiddler_revisions(tiddler)])
         self.cached_store.delete(tiddler)
 
     def tiddler_get(self, tiddler):
@@ -149,6 +160,11 @@ class Store(StorageInterface):
 
     def search(self, search_query):
         return self.cached_store.search(search_query)
+
+    def _create_tiddler_revision(self, tiddler, revision_id):
+        revision = Tiddler(tiddler.title, tiddler.bag)
+        revision.revision = revision_id
+        return revision
 
     def _tiddler_key(self, tiddler):
         key = 'tiddler:%s/%s' % (tiddler.bag, tiddler.title)
