@@ -57,7 +57,7 @@ def migrate_recipes(source, target):
     print "migrate recipes"
     for recipe in source.list_recipes():
         recipe = source.get(recipe)
-        print "putting recipe %s" % recipe.name
+        print "putting recipe %s" % recipe.name.encode('utf-8')
         target.put(recipe)
 
 
@@ -65,7 +65,7 @@ def migrate_users(source, target):
     print "migrate users"
     for user in source.list_users():
         user = source.get(user)
-        print "putting user %s" % user.usersign
+        print "putting user %s" % user.usersign.encode('utf-8')
         target.put(user)
 
 
@@ -80,7 +80,7 @@ def migrate_bags(source, target):
                 tiddler_revision = Tiddler(tiddler.title, tiddler.bag)
                 tiddler_revision.revision = revision_id
                 tiddler_revision = source.get(tiddler_revision)
-                print "putting tiddler %s:%s in bag %s" % (tiddler_revision.title, tiddler_revision.revision, tiddler_revision.bag)
+                print "putting tiddler %s:%s in bag %s" % (tiddler_revision.title.encode('utf-8'), tiddler_revision.revision, tiddler_revision.bag.encode('utf-8'))
                 tiddler_revision.revision = None
                 target.put(tiddler_revision)
 
