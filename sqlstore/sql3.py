@@ -2,7 +2,7 @@
 Yet another attempt to get a good sql store.
 """
 from base64 import b64encode, b64decode
-#from sqlalchemy import *
+from sqlalchemy import select, desc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import relation, mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -140,7 +140,7 @@ class sTiddler(object):
         """
         Calculate the current revision of this tiddler.
         """
-        if self.rev:
+        if hasattr(self, 'rev') and self.rev:
             return self.revisions[self.rev - 1]
         return self.revisions[-1]
 
@@ -393,6 +393,28 @@ class Store(StorageInterface):
         self.session.commit()
         self.tiddler_written(tiddler)
 
+    def user_delete(self, user):
+        try:
+            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
+            self.session.delete(suser)
+            self.session.commit()
+        except NoResultFound, exc:
+            raise NoUserError('user %s not found, %s' % (user.usersign, exc))
+
+    def user_get(self, user):
+        try:
+            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
+            user = self._load_user(user, suser)
+            return user
+        except NoResultFound, exc:
+            raise NoUserError('user %s not found, %s' % (user.usersign, exc))
+
+    def user_put(self, user):
+        suser = self._store_user(user)
+        self.session.merge(suser)
+        self._store_roles(user)
+        self.session.commit()
+
     def _load_bag(self, bag, sbag):
         bag.desc = sbag.desc
         bag.policy = self._load_policy(sbag.policy)
@@ -518,6 +540,14 @@ class Store(StorageInterface):
             unicode(filter_string)) for bag, filter_string in recipe_list])
         return string
 
+    def _store_roles(self, user):
+        usersign = user.usersign
+        for role in user.roles:
+            srole = sRole()
+            srole.user = usersign
+            srole.name = role
+            self.session.merge(srole)
+
     def _store_tags(self, tags):
         return self.serializer.serialization.tags_as(tags)
 
@@ -563,6 +593,13 @@ class Store(StorageInterface):
         # so the correct ETag is set.
         tiddler.revision = srevision.number
         return stiddler
+
+    def _store_user(self, user):
+        suser = sUser()
+        suser.usersign = user.usersign
+        suser.password = user._password
+        suser.note = user.note
+        return suser
 
     def _tiddler_exists(self, tiddler_title, bag_name):
         rows = tiddler_table.select(
