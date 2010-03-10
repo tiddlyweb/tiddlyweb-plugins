@@ -241,11 +241,12 @@ mapper(sTiddler, tiddler_table,
                                           cascade='delete',
                                           lazy=False,
                                           ),
-                       current_revision=relation(sRevision,
-                                                 order_by=sRevision.number.desc(),
-                                                 cascade='delete',
-                                                 lazy=False,
-                                                 uselist=False)))
+#                        current_revision=relation(sRevision,
+#                                                  order_by=sRevision.number.desc(),
+#                                                  cascade='delete',
+#                                                  lazy=False,
+#                                                  uselist=False)
+                                          ))
 mapper(sBag, bag_table,
        properties=dict(tiddlers=relation(sTiddler, 
                                          backref='bag', 
