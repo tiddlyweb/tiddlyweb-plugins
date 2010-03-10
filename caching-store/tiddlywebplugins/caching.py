@@ -75,7 +75,7 @@ class Store(StorageInterface):
         self.cached_store.delete(bag)
 
     def bag_get(self, bag):
-        if not (hasattr(bag, 'skinny') and bag.skinny):
+        if (hasattr(bag, 'skinny') and bag.skinny):
             key = self._bag_key(bag)
             cached_bag = self._get(key)
             if cached_bag:
