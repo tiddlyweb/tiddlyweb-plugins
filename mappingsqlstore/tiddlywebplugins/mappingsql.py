@@ -35,7 +35,7 @@ used.
 This is not a mature plugin. It should be used with care and 
 understanding. See the README for additional information.
 """
-from sqlalchemy import Table, Column, Integer, create_engine, MetaData
+from sqlalchemy import Table, Column, Integer, create_engine, MetaData, exc as sa_exc
 from sqlalchemy.sql import or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper, sessionmaker
@@ -83,8 +83,11 @@ class Store(StorageInterface):
                         Column(self.id_column, Integer, primary_key=True),
                         autoload=True,
                         )
-            mapper(sTiddler, _tiddlers)
-            Store.mapped = True
+            try:
+                mapper(sTiddler, _tiddlers)
+                Store.mapped = True
+            except sa_exc.ArgumentError, exc:
+                logging.warn('mapper handling in __init__ still weird; %s', exc)
 
     def list_bags(self):
         """Return a list which is our main bag."""
