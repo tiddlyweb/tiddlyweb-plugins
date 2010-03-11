@@ -1,11 +1,10 @@
 
-// play with jquery
+// play with jquery and chrjs
 
 function manage_list_resource(element) {
     var resource = $(element).prev().attr("class").split(' ')[1];
-    var base_url = window.location.href;
-    base_url = base_url.substring(0, base_url.lastIndexOf("/")) + '/' + resource;
-    $.getJSON(base_url + '.json', '', function(data){
+    var collection = new TiddlyWeb.Collection(resource, "");
+    collection.get(function(data){
         var list = $(element).children('ul');
         list.empty(); // why not chain this?
         $.each(data, function(i, item){
@@ -22,16 +21,18 @@ function manage_list_resource(element) {
 }
 
 function manage_resource(element, parent_resource) {
-    var resource = $(element).prev().text();
-    var base_url = window.location.href;
-    base_url = base_url.substring(0, base_url.lastIndexOf("/")) + '/' + parent_resource + '/' + resource;
-    $.getJSON(base_url + '.json', '', function(data){
+    var resource = parent_resource.charAt(0).toUpperCase() +
+        parent_resource.substr(1);
+    resource = resource.replace(/s$/, '');
+    var name = $(element).prev().text();
+    var thing = new TiddlyWeb[resource](name, "");
+    thing.get(function(data){
         $(element).empty().
             html('desc: ' + data.desc + '<br/><a href="">Tiddlers</a>' + '<ul></ul>').
             find('a').click(function(event){
                 $(element).find('ul').toggle("fast", function(){
                     if($(this).is(":visible")) {
-                        get_tiddlers(this, element, base_url);
+                        get_tiddlers(this, element, thing);
                     }
             });
             event.preventDefault();
@@ -40,16 +41,16 @@ function manage_resource(element, parent_resource) {
     });
 }
 
-function get_tiddlers(link, where, url) {
-    var tiddlers_url = url + '/tiddlers';
-    $.getJSON(tiddlers_url + '.json', '', function(data){
+function get_tiddlers(link, where, thing) {
+    thing.tiddlers().get(function(data){
         var list = $(where).find('ul');
         list.empty();
         $.each(data, function(i, item){
             // do more here
             list.append('<li>' + item.title + '</li>');
         });
-    });
+    }
+    );
 }
 
 function elmo_init() {
