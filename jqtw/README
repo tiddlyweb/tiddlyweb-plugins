@@ -1,3 +1,9 @@
 
 Experimenting with a jQuery library for interfacing with TidldyWeb
 in an OO kind of way.
+
+NOTE: chrjs, a proper javascript library for accessing TiddlyWeb
+content is the better choice of something both to use and learn 
+from. Find it at: 
+
+    http://github.com/tiddlyweb/chrjs
