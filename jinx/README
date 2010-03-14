@@ -1,3 +1,7 @@
 
 A bit of code to demonstrate some aspects of 
 TiddlyWeb plugins. See the comments in the code.
+
+This code was the kernel on which http://ilga.org/ was
+developed. It is not longer being actively maintained
+from this directory.
