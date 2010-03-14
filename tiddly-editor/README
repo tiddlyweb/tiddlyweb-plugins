@@ -11,3 +11,7 @@ that does the editing. These go into tiddlywebconfig.py
 in the 'tiddlyeditor_tiddlers' slot. See the tiddlywebconfig.py
 in this directory.
 
+This plugin requires the tiddlywebwiki.serialization that is
+a part of the tiddlywebwiki package, available from PyPI:
+
+    http://pypi.python.org/pypi/tiddlywebwiki
