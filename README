@@ -1,7 +1,17 @@
 This directory contains a collection of TiddlyWeb plugins. Some are quite
 mature, others less so. Most have a README explaining their state.
 
-These plugins may be of use to, either to use directly or as examples
+These plugins may be of use, either to use directly or as examples
 of techniques to use when creating your own plugins.
 
-Look to http://tiddlyweb.peermore.com/ for more information.
+Plugins that have reached a reasonable level of stability have
+been packaged and are distributed from PyPI:
+
+    http://pypi.python.org/pypi?%3Aaction=search&term=tiddlywebplugins
+
+Some plugins now have their own repositories on GitHub, have
+a browse of
+
+    http://github.com/tiddlyweb
+
+Look to http://tiddlyweb.com/ for more information.
