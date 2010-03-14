@@ -14,7 +14,7 @@ Add 'users' to system_plugins. To view any of these urls
 a user with the ADMIN will need to exist in the store.
 """
 
-from tiddlywebplugins import require_role
+from tiddlywebplugins.utils import require_role
 from tiddlyweb.web.http import HTTP404
 from tiddlyweb.model.user import User
 from tiddlyweb.store import NoUserError
