@@ -2,3 +2,10 @@
 Practice wikitext_renderer for TiddlyWeb.
 
 More docs to come.
+
+NOTE: This module is incomplete. With some work it could become
+a full featured renderer for a TiddlyWeb server that hosts 
+tiddlers with Creole syntax. If you are interested in such a 
+thing please post about it to the tiddlyweb goolge group:
+
+    http://groups.google.com/group/tiddlyweb
