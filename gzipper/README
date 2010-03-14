@@ -3,5 +3,8 @@ A version of paste's <http://pythonpaste.org/> gzipper middleware
 which takes an output stream and gzip's before sending it on to
 the browser.
 
-See the end of the code for necessary tiddlywebconfig.py changes
-to use this.
+To use add 'gzipper' to system_plugins in tiddlywebconfig.py.
+
+NOTE: This plugin has seen very little testing. It is unknown if
+it will interact properly with the various caching strategies 
+presented by some plugins.
