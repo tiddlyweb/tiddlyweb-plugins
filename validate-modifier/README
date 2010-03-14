@@ -1,0 +1,7 @@
+
+modifier.py demonstrates how a validator can be used to
+adjust tiddler content being PUT to the server.
+
+In this particular case, if the the current user is 'GUEST'
+than the tiddler.modifier field is set to GUEST, not whatever
+was provided in the body of the PUT.

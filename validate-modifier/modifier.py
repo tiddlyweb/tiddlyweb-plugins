@@ -2,9 +2,6 @@
 A TiddlyWeb plugin which attempts to validate
 and or adjust the modifier when a tiddler is PUT.
 
-This is a stub. An experiment. It requires unreleased
-tiddlyweb code.
-
 Don't forget to set the accept policy on the bag that
 will use this validator!
 """
@@ -28,12 +25,7 @@ def validate_modifier(tiddler, environ):
         tiddler.modifier = 'GUEST'
 
 
-def validate_homepage(tiddler, environ):
-    pass
-# your stuff goes here
-
-
-tiddlyweb.web.validator.TIDDLER_VALIDATORS.extend([validate_modifier, validate_homepage])
+tiddlyweb.web.validator.TIDDLER_VALIDATORS.apped(validate_modifier)
 
 
 def init(config):
