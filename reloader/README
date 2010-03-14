@@ -3,9 +3,17 @@ reloader and wserver provide two different ways to
 automatically reload code into the CherryPY WSGI server
 when TiddlyWeb (and related) code has changed.
 
-Both are for use with the builtin CherryPy server
-(usually started with twanager server) and should _not_
-be used with other servers, such Apache, CGI, spwaning, etc.
+-=-=-
+NOTE: If you find that automatic reloading is something
+you are concerned with you may wish to investigate
+
+    http://pypi.python.org/pypi/tiddlywebplugins.spawner
+-=-=-
+
+Both reloader and wserver are for use with the builtin
+CherryPy server (usually started with twanager server)
+and should _not_ be used with other servers, such Apache,
+CGI, spwaning, etc.
 
 reloader was developed first, based on similar tools in
 the CherryPy package and Paste, especially Paste. It is a
