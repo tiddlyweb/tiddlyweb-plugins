@@ -1,4 +1,8 @@
+"""
+Demonstrate a way to create URIs for tags in TiddlyWeb.
 
+At the moment this only allows for GET.
+"""
 
 import urllib
 

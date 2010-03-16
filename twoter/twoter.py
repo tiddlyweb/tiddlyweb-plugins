@@ -7,10 +7,6 @@ really a requirement.
 To run this we must put user.html and bookmarklet.html
 in the apps working dir and add 'twoter' to
 config['system_plugins'] in tiddlywebconfig.py.
-
-There's a version of this running at
-
-   http://tiddlyweb.appspot.com/twoter
 """
 
 import urllib

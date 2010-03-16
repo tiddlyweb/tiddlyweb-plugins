@@ -2,7 +2,7 @@
 from jinja2 import Environment, FileSystemLoader
 template_env = Environment(loader=FileSystemLoader('templates'))
 
-from tiddlywebplugins import do_html, entitle
+from tiddlywebplugins.utils import do_html, entitle
 
 @do_html()
 @entitle('elmo!')

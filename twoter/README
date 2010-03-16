@@ -1,9 +1,15 @@
 
 Twoter is a application of TiddlyWeb that makes it possible
 to go around the internet, select some text in a page, click
-a bookmarklet, and have the select text, url and title of the
+a bookmarklet, and have the selected text, url and title of the
 page saved to a secured location on a TiddlyWeb server.
 
 You can then review the created Twotes in a TiddlyWiki and do
 things with them (import them other places, add tags, add notes,
 all the usual Tiddly things).
+
+Unfortunately this doesn't work all that well. A combination of
+browser security policies and techniques used on websites makes it
+hard to reliably capture text. For this tool to work, someone
+with a better understanding of such things needs to give it the
+once over.
