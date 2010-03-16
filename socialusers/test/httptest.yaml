@@ -1,0 +1,36 @@
+# Create a users
+- name: Create one user
+  desc: POST to create a user
+  url: /users
+  method: POST
+  data: '{"username": "cdent", "password": "cowpig"}'
+  request_headers:
+    content-type: application/json
+  status: 201
+
+# The list of users
+- name: List of Users
+  desc: Get the list of all the users
+  expected: 
+  - cdent
+  url: /users
+  response_headers:
+    content-type: text/plain
+
+# Specific user
+- name: Individual User
+  desc: Get one user
+  expected:
+  - cdent
+  user: /users/cdent
+
+# Put a user's new password
+- name: Put a user
+  desc: Put a single user, but fail no auth
+  url: /users/cdent
+  method: PUT
+  data: '{"password": "newpass"}'
+  request_headers:
+    content-type: application/json
+  status: 403
+
