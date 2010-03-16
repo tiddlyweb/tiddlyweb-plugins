@@ -14,20 +14,26 @@
   expected: 
   - cdent
   url: /users
+  request_headers:
+    authorization: Basic Y2RlbnQ6Y293cGln
   response_headers:
     content-type: text/plain
 
 # Specific user
 - name: Individual User
   desc: Get one user
+  request_headers:
+    authorization: Basic Y2RlbnQ6Y293cGln
   expected:
   - cdent
-  user: /users/cdent
+  url: /users/cdent
 
 # Put a user's new password
 - name: Put a user
   desc: Put a single user, but fail no auth
   url: /users/cdent
+  request_headers:
+    authorization: Basic Y2RlbnQ6Y293cGln
   method: PUT
   data: '{"password": "newpass"}'
   request_headers:
