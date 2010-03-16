@@ -1,0 +1,22 @@
+This is a stub README for a new TiddlyWeb plugin.
+
+The entire maker package provides a sort of fill in the blank
+opportunity for creating TiddlyWeb plugins in the tiddylwebplugins
+namespace.
+
+Rename tiddlywebplugins/example.py to the name you want to use for
+your plugin. Edit setup.py to set the variables at the top of the 
+file. Edit your plugin file to add the necessary code. Edit this
+README so it provides a description of the plugin.
+
+Put some tests, if you wish, in the tests dir. TiddlyWeb uses py.test
+as its testing harness. http://pytest.org/
+
+See http://www.python.org/~jeremy/weblog/030924.html for some
+info on how to register for PyPI.
+
+If you have suggestions for things to add to maker post at the
+TiddlyWeb Google Group: http://groups.google.com/group/tiddlyweb
+
+To start with maker itself clone this repo, and then remove .git
+directory.
