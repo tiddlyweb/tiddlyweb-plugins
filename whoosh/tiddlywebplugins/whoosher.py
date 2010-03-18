@@ -55,6 +55,8 @@ from tiddlyweb.model.tiddler import Tiddler
 
 from tiddlyweb.filters import FilterIndexRefused
 
+from tiddlyweb.stores import TIDDLER_WRITTEN_HANDLERS
+
 IGNORE_PARAMS = []
 
 SEARCH_DEFAULTS = {
@@ -82,6 +84,7 @@ def init(config_in):
         # twanager
         global config
         config = config_in
+    TIDDLER_WRITTEN_HANDLERS.append(_tiddler_written_handler)
 
 
 def whoosh_search(environ):
@@ -268,21 +271,18 @@ def _tiddler_id(tiddler):
     return '%s:%s' % (tiddler.bag, tiddler.title)
 
 
-def _tiddler_written_handler(self, tiddler):
-    schema = self.environ['tiddlyweb.config'].get('wsearch.schema',
+def _tiddler_written_handler(storage, tiddler):
+    schema = storage.environ['tiddlyweb.config'].get('wsearch.schema',
             SEARCH_DEFAULTS['wsearch.schema'])
-    writer = get_writer(self.environ['tiddlyweb.config'])
+    writer = get_writer(storage.environ['tiddlyweb.config'])
     try:
-        store = self.environ.get('tiddlyweb.store',
-                get_store(self.environ['tiddlyweb.config']))
+        store = storage.environ.get('tiddlyweb.store',
+                get_store(storage.environ['tiddlyweb.config']))
         temp_tiddler = store.get(Tiddler(tiddler.title, tiddler.bag))
         index_tiddler(tiddler, schema, writer)
     except NoTiddlerError:
         delete_tiddler(tiddler, writer)
     writer.commit()
-
-
-StorageInterface.tiddler_written = _tiddler_written_handler
 
 
 def query_dict_to_search_string(query_dict):
