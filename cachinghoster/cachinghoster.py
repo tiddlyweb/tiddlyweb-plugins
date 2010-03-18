@@ -31,6 +31,11 @@ from tiddlywebplugins.utils import replace_handler
 from tiddlyweb.web.handler.recipe import get_tiddlers
 from tiddlyweb.web.http import HTTP304
 
+try:
+    from tiddlyweb.stores import TIDDLER_WRITTEN_HANDLERS
+except ImportError:
+    TIDDLER_WRITTEN_HANDLERS = []
+
 
 DEFAULT_RECIPE = 'docs'
 EDITOR_RECIPE = 'editor'
@@ -38,9 +43,9 @@ EDITOR_ROLE = 'ADMIN'
 WIKI_CACHE_DIR = '.wiki_cache'
 
 
-def tiddler_written_handler(self, tiddler):
+def tiddler_written_handler(store, tiddler):
     try:
-        cachedir = os.path.join(self.environ['tiddlyweb.config']['root_dir'], WIKI_CACHE_DIR)
+        cachedir = os.path.join(store.environ['tiddlyweb.config']['root_dir'], WIKI_CACHE_DIR)
         logging.debug('attempting to unlink cache')
         [os.unlink(os.path.join(cachedir, file)) for file in
                 os.listdir(cachedir) if not file.startswith('.')]
@@ -133,11 +138,7 @@ def init(config):
     except (IOError, OSError), exc:
         logging.warn('unable to create %s: %s' % (cachedir, exc))
     replace_handler(config['selector'], '/', dict(GET=home))
-    # XXX this next line must be customized for whatever store
-    # is currently being used. This could be done via inspecting
-    # tiddlyweb.config['server_store']
-    from sql import Store
-    Store.tiddler_written = tiddler_written_handler
+    TIDDLER_WRITTEN_HANDLERS.append(tiddler_written_handler)
 
 
 def _header_value(headers, name):
