@@ -97,7 +97,7 @@ principal_table = Table('principal', metadata,
 role_table = Table('role', metadata,
     Column('user', Unicode(128), nullable=False),
     Column('name', Unicode(50), nullable=False),
-    PrimaryKeyConstraint('name'),
+    PrimaryKeyConstraint('user','name'),
     ForeignKeyConstraint(['user'], ['user.usersign'],
         onupdate='CASCADE', ondelete='CASCADE'),
     )
@@ -270,7 +270,7 @@ class Store(StorageInterface):
         """
         store_type = self._db_config().split(':', 1)[0]
         if store_type == 'sqlite' or not Store.session:
-            engine = create_engine(self._db_config(), pool_recycle=3600)
+            engine = create_engine(self._db_config(), pool_recycle=True)
             metadata.create_all(engine)
             Session.configure(bind=engine)
             Store.session = Session()
