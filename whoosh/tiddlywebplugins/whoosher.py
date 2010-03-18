@@ -110,8 +110,10 @@ def index_query(environ, **kwargs):
     Return a generator of tiddlers that match
     the provided arguments.
     """
+    logging.debug('entering with %s', environ)
+    print 'getting called on index_query'
     config = environ['tiddlyweb.config']
-    store = environ['tiddlyweb.store']
+    #store = environ['tiddlyweb.store']
     query_parts = []
     for field, value in kwargs.items():
         if field == 'tag':
@@ -119,6 +121,7 @@ def index_query(environ, **kwargs):
         query_parts.append('%s:%s' % (field, value))
     query_string = ' '.join(query_parts)
 
+    print 'getting inside on index_query'
     schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
     searcher = get_searcher(config)
     parser = QueryParser('text', schema=Schema(**schema))
@@ -127,11 +130,16 @@ def index_query(environ, **kwargs):
     results = searcher.search(query)
 
     def tiddler_from_result(result):
+        print 'r', result
         bag, title = result['id'].split(':', 1)
         tiddler = Tiddler(title, bag)
-        return store.get(tiddler)
+        return tiddler
+        #return store.get(tiddler)
 
-    return (tiddler_from_result(result) for result in results)
+    for result in results:
+        yield tiddler_from_result(result)
+    return
+    #return (tiddler_from_result(result) for result in results)
 
 
 @make_command()
