@@ -15,10 +15,12 @@ additional user data stored in tiddlers.
 import simplejson
 import urllib
 
-from tiddlywebplugins.utils import require_any_user, require_role
 from tiddlyweb.web.http import HTTP404, HTTP415, HTTP400, HTTP409, HTTP403
 from tiddlyweb.model.user import User
 from tiddlyweb.store import NoUserError
+
+from tiddlywebplugins.utils import require_any_user
+
 
 def init(config):
     if 'selector' in config:
@@ -121,12 +123,12 @@ def post_user(environ, start_response):
     to be used with the tiddlywebplugins.magicuser
     extractor.
     """
-    store = environ['tiddlyweb.store']
     content_type = environ['tiddlyweb.type']
-    length = environ['CONTENT_LENGTH']
     if content_type != 'application/json':
         raise HTTP415('application/json required')
+    length = environ['CONTENT_LENGTH']
     content = environ['wsgi.input'].read(int(length))
+    store = environ['tiddlyweb.store']
 
     try:
         user_info = simplejson.loads(content)
@@ -140,13 +142,13 @@ def post_user(environ, start_response):
             raise HTTP409('User exists')
         except NoUserError:
             pass # we're carrying on below
-
         user.set_password(user_info['password'])
     except KeyError, exc:
         raise HTTP400('Missing required data: %s', exc)
 
     store.put(user)
-    start_response('201 Create', [
+
+    start_response('201 Created', [
         ('Content-Type', 'text/html; charset=UTF-8')
         ])
     return ["Created %s" % user_info['username']]
