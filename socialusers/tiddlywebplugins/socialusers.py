@@ -6,7 +6,7 @@ any existing user can list all the users. This is
 extremely insecure for some settings, and perfectly
 okay for others. You need to be the judge.
 
-This module provides very functionality which 
+This module provides very functionality which
 will expand to optionally interoperate with the
 tiddlywebplugins.magicuser extractor, which uses
 additional user data stored in tiddlers.
@@ -109,7 +109,7 @@ def put_user(environ, start_response):
     start_response('204 No Content', [
         ('Content-Type', 'text/html; charset=UTF-8')
         ])
-    return ["Updated %s" % target_user]
+    return ['Updated %s' % target_user]
 
 
 def post_user(environ, start_response):
@@ -151,4 +151,4 @@ def post_user(environ, start_response):
     start_response('201 Created', [
         ('Content-Type', 'text/html; charset=UTF-8')
         ])
-    return ["Created %s" % user_info['username']]
+    return ['Created %s' % user_info['username']]
