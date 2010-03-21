@@ -1,0 +1,12 @@
+This is a debugging plugin for TiddlyWeb.
+
+When {server_prefix}/env is accessed the current WSGI environment
+is returned as text/plain, formatted with pprint.
+
+You should not run this on your public TiddlyWeb server unless you 
+are comfortable with sharing you entire configuration with the 
+outside world.
+
+Licensed under the same terms as TiddlyWeb.
+
+Copyright 2010, Chris Dent <cdent@peermore.com>.
