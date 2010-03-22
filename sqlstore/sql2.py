@@ -388,7 +388,6 @@ class Store(StorageInterface):
         self.session.commit()
         self.tiddler_written(tiddler)
 
-
     def user_delete(self, user):
         try:
             suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()

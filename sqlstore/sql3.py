@@ -308,7 +308,6 @@ class Store(StorageInterface):
     def recipe_delete(self, recipe):
         try:
             try:
-                self.session.begin()
                 srecipe = self.session.query(sRecipe).filter(sRecipe.name==recipe.name).one()
                 self.session.delete(srecipe)
                 self.session.commit()
@@ -328,7 +327,6 @@ class Store(StorageInterface):
 
     def recipe_put(self, recipe):
         try:
-            self.session.begin()
             srecipe = self._store_recipe(recipe)
             self.session.merge(srecipe)
             self.session.commit()
@@ -339,7 +337,6 @@ class Store(StorageInterface):
     def bag_delete(self, bag):
         try:
             try:
-                self.session.begin()
                 sbag = self.session.query(sBag).filter(sBag.name==bag.name).one()
                 self.session.delete(sbag)
                 self.session.commit()
@@ -376,7 +373,6 @@ class Store(StorageInterface):
 
     def bag_put(self, bag):
         try:
-            self.session.begin()
             sbag = self._store_bag(bag)
             self.session.merge(sbag)
             self.session.commit()
@@ -387,7 +383,6 @@ class Store(StorageInterface):
     def tiddler_delete(self, tiddler):
         try:
             try:
-                self.session.begin()
                 stiddler = (self.session.query(sTiddler).
                         filter(sTiddler.title==tiddler.title).
                         filter(sTiddler.bag_name==tiddler.bag).one())
@@ -412,7 +407,6 @@ class Store(StorageInterface):
 
     def tiddler_put(self, tiddler):
         try:
-            self.session.begin()
             if not tiddler.bag:
                 raise NoBagError('bag required to save')
             stiddler = self._store_tiddler(tiddler)
@@ -426,7 +420,6 @@ class Store(StorageInterface):
     def user_delete(self, user):
         try:
             try:
-                self.session.begin()
                 suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
                 self.session.delete(suser)
                 self.session.commit()
@@ -445,7 +438,6 @@ class Store(StorageInterface):
 
     def user_put(self, user):
         try:
-            self.session.begin()
             suser = self._store_user(user)
             self.session.merge(suser)
             self._store_roles(user)
