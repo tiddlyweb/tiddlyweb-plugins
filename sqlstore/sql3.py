@@ -307,11 +307,16 @@ class Store(StorageInterface):
 
     def recipe_delete(self, recipe):
         try:
-            srecipe = self.session.query(sRecipe).filter(sRecipe.name==recipe.name).one()
-            self.session.delete(srecipe)
-            self.session.commit()
-        except NoResultFound, exc:
-            raise NoRecipeError('no results for recipe %s, %s' % (recipe.name, exc))
+            try:
+                self.session.begin()
+                srecipe = self.session.query(sRecipe).filter(sRecipe.name==recipe.name).one()
+                self.session.delete(srecipe)
+                self.session.commit()
+            except NoResultFound, exc:
+                raise NoRecipeError('no results for recipe %s, %s' % (recipe.name, exc))
+        except:
+            self.session.rollback()
+            raise
 
     def recipe_get(self, recipe):
         try:
@@ -322,17 +327,27 @@ class Store(StorageInterface):
             raise NoRecipeError('no results for recipe %s, %s' % (recipe.name, exc))
 
     def recipe_put(self, recipe):
-        srecipe = self._store_recipe(recipe)
-        self.session.merge(srecipe)
-        self.session.commit()
+        try:
+            self.session.begin()
+            srecipe = self._store_recipe(recipe)
+            self.session.merge(srecipe)
+            self.session.commit()
+        except:
+            self.session.rollback()
+            raise
 
     def bag_delete(self, bag):
         try:
-            sbag = self.session.query(sBag).filter(sBag.name==bag.name).one()
-            self.session.delete(sbag)
-            self.session.commit()
-        except NoResultFound, exc:
-            raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
+            try:
+                self.session.begin()
+                sbag = self.session.query(sBag).filter(sBag.name==bag.name).one()
+                self.session.delete(sbag)
+                self.session.commit()
+            except NoResultFound, exc:
+                raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
+        except:
+            self.session.rollback()
+            raise
 
     def bag_get(self, bag):
         try:
@@ -360,20 +375,30 @@ class Store(StorageInterface):
             raise NoBagError('Bag %s not found: %s' % (bag.name, exc))
 
     def bag_put(self, bag):
-        sbag = self._store_bag(bag)
-        self.session.merge(sbag)
-        self.session.commit()
+        try:
+            self.session.begin()
+            sbag = self._store_bag(bag)
+            self.session.merge(sbag)
+            self.session.commit()
+        except:
+            self.session.rollback()
+            raise
 
     def tiddler_delete(self, tiddler):
         try:
-            stiddler = (self.session.query(sTiddler).
-                    filter(sTiddler.title==tiddler.title).
-                    filter(sTiddler.bag_name==tiddler.bag).one())
-            self.session.delete(stiddler)
-            self.session.commit()
-            self.tiddler_written(tiddler)
-        except NoResultFound, exc:
-            raise NoTiddlerError('no tiddler %s to delete, %s' % (tiddler.title, exc))
+            try:
+                self.session.begin()
+                stiddler = (self.session.query(sTiddler).
+                        filter(sTiddler.title==tiddler.title).
+                        filter(sTiddler.bag_name==tiddler.bag).one())
+                self.session.delete(stiddler)
+                self.session.commit()
+                self.tiddler_written(tiddler)
+            except NoResultFound, exc:
+                raise NoTiddlerError('no tiddler %s to delete, %s' % (tiddler.title, exc))
+        except:
+            self.session.rollback()
+            raise
 
     def tiddler_get(self, tiddler):
         try:
@@ -386,20 +411,29 @@ class Store(StorageInterface):
             raise NoTiddlerError('Tiddler %s not found: %s' % (tiddler.title, exc))
 
     def tiddler_put(self, tiddler):
-        if not tiddler.bag:
-            raise NoBagError('bag required to save')
-        stiddler = self._store_tiddler(tiddler)
-        self.session.merge(stiddler)
-        self.session.commit()
-        self.tiddler_written(tiddler)
+        try:
+            self.session.begin()
+            if not tiddler.bag:
+                raise NoBagError('bag required to save')
+            stiddler = self._store_tiddler(tiddler)
+            self.session.merge(stiddler)
+            self.session.commit()
+            self.tiddler_written(tiddler)
+        except:
+            self.session.rollback()
+            raise
 
     def user_delete(self, user):
         try:
-            suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
-            self.session.delete(suser)
-            self.session.commit()
-        except NoResultFound, exc:
-            raise NoUserError('user %s not found, %s' % (user.usersign, exc))
+            try:
+                self.session.begin()
+                suser = self.session.query(sUser).filter(sUser.usersign==user.usersign).one()
+                self.session.delete(suser)
+                self.session.commit()
+            except NoResultFound, exc:
+                raise NoUserError('user %s not found, %s' % (user.usersign, exc))
+        except:
+            self.session.rollback()
 
     def user_get(self, user):
         try:
@@ -410,10 +444,15 @@ class Store(StorageInterface):
             raise NoUserError('user %s not found, %s' % (user.usersign, exc))
 
     def user_put(self, user):
-        suser = self._store_user(user)
-        self.session.merge(suser)
-        self._store_roles(user)
-        self.session.commit()
+        try:
+            self.session.begin()
+            suser = self._store_user(user)
+            self.session.merge(suser)
+            self._store_roles(user)
+            self.session.commit()
+        except:
+            self.session.rollback()
+            raise
 
     def _load_bag(self, bag, sbag):
         bag.desc = sbag.desc
