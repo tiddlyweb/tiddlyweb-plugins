@@ -37,6 +37,7 @@ import copy
 
 from tiddlyweb.manage import make_command
 from tiddlyweb.model.tiddler import Tiddler
+from tiddlyweb.model.bag import Bag
 from tiddlyweb.store import Store
 
 @make_command()
@@ -48,9 +49,12 @@ def migrate(args):
     source_store = Store(config['server_store'][0], config['server_store'][1], source_environ)
     target_store = Store(config['target_store'][0], config['target_store'][1], target_environ)
 
-    migrate_users(source_store, target_store)
-    migrate_recipes(source_store, target_store)
-    migrate_bags(source_store, target_store)
+    if args:
+        migrate_bags(source_store, target_store, bags=args)
+    else:
+        migrate_users(source_store, target_store)
+        migrate_recipes(source_store, target_store)
+        migrate_bags(source_store, target_store)
 
 
 def migrate_recipes(source, target):
@@ -69,9 +73,14 @@ def migrate_users(source, target):
         target.put(user)
 
 
-def migrate_bags(source, target):
+def migrate_bags(source, target, bags=None):
     print "migrate bags"
-    for bag in source.list_bags():
+    if bags:
+        bags = [Bag(bag) for bag in bags]
+    else:
+        bags = source.list_bags()
+
+    for bag in bags:
         bag = source.get(bag)
         tiddlers = bag.list_tiddlers()
         target.put(bag)
