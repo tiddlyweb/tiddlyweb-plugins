@@ -40,7 +40,7 @@ class PathInfoHack(object):
         return self.application(environ, start_response)
 
     def _undecode_path_info(self, environ):
-        request_uri = environ.get('REQUEST_URI', None)
+        request_uri = environ.get('REQUEST_URI', environ.get('RAW_URI', None))
         script_name = environ.get('SCRIPT_NAME', None)
         path_info = environ.get('PATH_INFO', None)
 	query_string = environ.get('QUERY_STRING', None)
