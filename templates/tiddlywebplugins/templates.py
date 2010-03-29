@@ -18,9 +18,13 @@ TemplateNotFound exception is raised, replicating the standard
 jinja behavior.
 """
 import os
+import urllib
 
 from jinja2 import Environment, ChoiceLoader, FileSystemLoader, PackageLoader, TemplateNotFound
 template_env = None
+
+def uri(name):
+    return urllib.quote(name.encode('utf-8'), safe='')
 
 def get_template(environ, template_name):
     """
@@ -38,4 +42,5 @@ def get_template(environ, template_name):
             FileSystemLoader(template_path),
             PackageLoader('tiddlywebplugins.templates', 'templates')
             ]))
+        template_env.filters['uri'] = uri
     return template_env.get_template(template_name)
