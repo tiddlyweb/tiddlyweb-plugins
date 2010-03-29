@@ -18,8 +18,12 @@ from tiddlyweb.filters.select import select_parse
 MSELECT_SEPARATOR = ','
 
 
-def mselect(command, tiddlers):
-    commands = command.split(MSELECT_SEPARATOR)
+def mselect(command, tiddlers, environ=None):
+    if environ == None:
+        environ = {}
+    config = environ.get('tiddlyweb.config', {})
+    separator = config.get('mselect.separator', MSELECT_SEPARATOR)
+    commands = command.split(separator)
     # un_generate the tiddlers so we can use the list multiple times
     tiddlers = list(tiddlers)
     for command in commands:
@@ -31,7 +35,7 @@ def mselect(command, tiddlers):
 
 def mselect_parse(command):
     def selector(tiddlers, indexable=False, environ={}):
-        return mselect(command, tiddlers)
+        return mselect(command, tiddlers, environ)
     return selector
 
 
