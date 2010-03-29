@@ -13,11 +13,13 @@ in tiddlywebconfig.py.
 
 from tiddlyweb.filters import FILTER_PARSERS
 from tiddlyweb.filters.select import select_parse
-from tiddlyweb.util import merge_config
-DEFAULT_ENVIRON = {"tiddlyweb.config":{"mselect.separator":","}}
 
-def mselect(command, tiddlers,environ=DEFAULT_ENVIRON):
-    commands = command.split(environ['tiddlyweb.config']['mselect.separator'])
+
+MSELECT_SEPARATOR = ','
+
+
+def mselect(command, tiddlers):
+    commands = command.split(MSELECT_SEPARATOR)
     # un_generate the tiddlers so we can use the list multiple times
     tiddlers = list(tiddlers)
     for command in commands:
@@ -26,11 +28,15 @@ def mselect(command, tiddlers,environ=DEFAULT_ENVIRON):
             yield tiddler
     return
 
+
 def mselect_parse(command):
-    def selector(tiddlers, indexable=False, environ=DEFAULT_ENVIRON):
-        return mselect(command, tiddlers,environ)
+    def selector(tiddlers, indexable=False, environ={}):
+        return mselect(command, tiddlers)
     return selector
-    
+
+
+FILTER_PARSERS['mselect'] = mselect_parse
+
+
 def init(config):
-    merge_config(config,{"mselect.separator":"|"})
-    FILTER_PARSERS['mselect'] = mselect_parse
+    pass
