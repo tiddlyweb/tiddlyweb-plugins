@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.socialusers'
 DESCRIPTION = 'An HTTP way of accessing and creating TiddlyWeb users.'
-VERSION = '0.9'
+VERSION = '0.2'
 
 
 import os
@@ -22,7 +22,8 @@ setup(
     packages = find_packages(exclude=['test']),
     platforms = 'Posix; MacOS X; Windows',
     install_requires = ['setuptools',
-        'tiddlyweb',
-        'tiddlywebplugins.users'],
+        'tiddlywebplugins.utils',
+        'simplejson',
+        'tiddlyweb'],
     zip_safe = False
     )
