@@ -39,10 +39,13 @@ def init(config):
         commands = command.split(separator)
         # un_generate the tiddlers so we can use the list multiple times
         tiddlers = list(tiddlers)
+        seen_tiddlers = []
         for command in commands:
             func = select_parse(command)
             for tiddler in func(tiddlers):
-                yield tiddler
+                if tiddler not in seen_tiddlers:
+                    yield tiddler
+                seen_tiddlers.append(tiddler)
         return
 
     def mselect_parse(command):
