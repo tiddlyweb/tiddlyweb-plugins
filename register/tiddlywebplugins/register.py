@@ -37,7 +37,8 @@ def init(config):
     """
     Add the /register route.
     """
-    config['selector'].add('/register', GET=request, POST=handle)
+    if 'selector' in config:
+        config['selector'].add('/register', GET=request, POST=handle)
 
 
 @do_html()
