@@ -37,10 +37,9 @@ display of each slide. This is not currently used but we
 can probably figure out a fun way to use it.
 """
 
-from jinja2 import Environment, FileSystemLoader
-
 import logging
 
+from tiddlywebplugins.templates import get_template
 from tiddlyweb.wikitext import render_wikitext
 from tiddlyweb.serializations import SerializationInterface
 from tiddlyweb.model.bag import Bag
@@ -67,8 +66,7 @@ class Serialization(SerializationInterface):
         self._init()
 
     def _init(self):
-        template_env = Environment(loader=FileSystemLoader('templates'))
-        self.template = template_env.get_template('s5.html')
+        self.template = get_template(self.environ, 's5.html')
 
     def tiddler_as(self, tiddler):
         bag = Bag('tmpbag', tmpbag=True)
@@ -113,6 +111,7 @@ class Serialization(SerializationInterface):
 
         return self.template.render(slides=slides,
                 slide_order=slide_order,
+                server_prefix=self.environ['tiddlyweb.config']['server_prefix'],
                 title=title,
                 subtitle=subtitle,
                 presenter=presenter,
