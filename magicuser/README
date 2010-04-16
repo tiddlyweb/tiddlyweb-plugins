@@ -1,0 +1,35 @@
+tiddlywebplugins.magicuser is a tool to extend the capabilities
+of a user in TiddlyWeb.
+
+When an authentic user is extracted from the credentials extractor
+system, the username and their roles are places into the WSGI
+environment as the value of a tiddlyweb.usersign key.
+
+magicuser extends these capabilities by providing a model
+for adding additional keys and values to the tiddlyweb.usersign
+dictionary.
+
+It does this by looking in a bag, by default called MAGICUSER,
+for a tiddler with the same title as the value of the name key
+in the usersign dict. If that tiddler is present, it is loaded
+and it's attributes and fields are used (as shown in the code)
+to add to the usersign.
+
+BEFORE the magicuser bag is inspected, a username translation
+layer is engaged. This allow N different authenticated usersigns
+to be treated as one core usersign within TiddlyWeb. It works as 
+follows:
+
+A tiddler with a title that is the same the extracted usersign
+name is retrieved from a bag by default called MAPUSER. If the
+tiddler exists and has the field mapped_user the value of the 
+field replaces the name in the usersign. It is that name that
+is then used during the magicuser stage.
+
+This plugin provides no facility for putting tiddlers in either
+the MAGICUSER or MAPUSER bags. Other code (either client side
+or server side) is expected to do that.
+
+Licensed under the same terms as TiddlyWeb.
+
+Copyright 2010, Chris Dent <cdent@peermore.com>
