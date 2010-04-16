@@ -24,7 +24,7 @@ def clean_store():
         pass # !
 
 
-def test_simple():
+def test_simple_magic():
     bag = Bag('MAGICUSER')
     store.put(bag)
     extractor = Extractor()
@@ -56,3 +56,15 @@ def test_simple():
     for role in ['HELLO', 'GOODBYE', 'CHRISTMAS', 'EASTER', 'ADMIN']:
         assert role in more_info['roles']
     assert more_info['fields']['spaces'] == 'one two three'
+
+
+def test_simple_translate():
+    bag = Bag('MAPUSER')
+    store.put(bag)
+    tiddler = Tiddler('xfoo.example.com', 'MAPUSER')
+    tiddler.fields['mapped_user'] = 'xfoo'
+    store.put(tiddler)
+
+    extractor = Extractor()
+
+    assert extractor.translate_user(environ, 'xfoo.example.com') == 'xfoo'

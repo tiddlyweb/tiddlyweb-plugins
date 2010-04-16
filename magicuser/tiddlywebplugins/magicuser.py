@@ -6,7 +6,7 @@ has succeeded the user names is looked up as a tiddler
 in the bag defined by 'magicuser.bag' in tiddlywebconfig.
 The default is 'MAGICUSER'.
 
-That tiddler is then expected for attributes and fields to
+That tiddler is then inspected for attributes and fields to
 add to the tiddlyweb.usersign dictionary which is passed to
 the rest of the TiddlyWeb system (so thus is available to
 plugins and the like).
@@ -35,18 +35,40 @@ class Extractor(ExtractorInterface):
         environ['tiddlyweb.config']['extractors'] = sub_extractors
 
         # XXX this duplicates from tiddlyweb.web.extractor
-        userinfo = {"name": u'GUEST', "roles": []}
+        userinfo = {'name': u'GUEST', 'roles': []}
 
         candidate_userinfo = _try_extractors(environ, start_response)
 
         environ['tiddlyweb.config']['extractors'] = actual_extractors
 
         if candidate_userinfo:
-            return self._extract_more_info(environ, candidate_userinfo)
+            candiate_userinfo['name'] = self.translate_user(environ,
+                    candidate_userinfo['name'])
+            return self.extract_more_info(environ, candidate_userinfo)
         else:
             return userinfo
 
-    def _extract_more_info(self, environ, userinfo):
+    def translate_user(self, environ, username):
+        """
+        Translate the currently extracted usersign to a centralized
+        name.
+        """
+        store = environ['tiddlyweb.store']
+        bag_name = environ['tiddlyweb.config'].get('magicuser.map', 'MAPUSER')
+        tiddler = Tiddler(username, bag_name)
+        try:
+            tiddler = store.get(tiddler)
+        except (NoTiddlerError, NoBagError):
+            pass # tiddler is empty
+        if 'mapped_user' in tiddler.fields:
+            username = tiddler.fields['mapped_user']
+        return username
+
+    def extract_more_info(self, environ, userinfo):
+        """
+        Get more information and attributes about the current
+        user from a tiddler named after the user in the bag MAGICUSER.
+        """
         store = environ['tiddlyweb.store'] 
         bag_name = environ['tiddlyweb.config'].get('magicuser.bag', 'MAGICUSER')
         username = userinfo['name']
