@@ -48,15 +48,15 @@ class Extractor(ExtractorInterface):
         Extract user information and return a
         dictionary of the information.
         """
-        actual_extractors = environ['tiddlyweb.config']['extractors']
-        sub_extractors = environ['tiddlyweb.config']['sub_extractors']
+        sub_extractors = environ['tiddlyweb.config']['sub_extractors'][:]
         environ['tiddlyweb.config']['extractors'] = sub_extractors
 
         userinfo = {'name': u'GUEST', 'roles': []}
 
         candidate_userinfo = _try_extractors(environ, start_response)
 
-        environ['tiddlyweb.config']['extractors'] = actual_extractors
+        environ['tiddlyweb.config']['extractors'] = ['tiddlywebplugins.magicuser']
+        environ['tiddlyweb.config']['sub_extractors'] = sub_extractors
 
         if candidate_userinfo:
             candidate_userinfo['name'] = self.translate_user(environ,
@@ -111,5 +111,6 @@ def init(config):
     """
     Initialize the plugin by changing configuration.
     """
-    config['sub_extractors'] = config['extractors']
-    config['extractors'] = ['tiddlywebplugins.magicuser']
+    if 'tiddlywebplugins.magicuser' not in config['extractors']:
+        config['sub_extractors'] = config['extractors']
+        config['extractors'] = ['tiddlywebplugins.magicuser']

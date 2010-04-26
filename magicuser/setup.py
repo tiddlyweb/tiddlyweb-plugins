@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.magicuser'
 DESCRIPTION = '"magically" extend tiddlyweb user capabilities'
-VERSION = '0.1'
+VERSION = '0.2'
 
 
 import os
@@ -10,7 +10,6 @@ import os
 from setuptools import setup, find_packages
 
 
-# You should carefully review the below (install_requires especially).
 setup(
     namespace_packages = ['tiddlywebplugins'],
     name = NAME,
