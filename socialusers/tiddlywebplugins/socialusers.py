@@ -70,7 +70,7 @@ def put_user(environ, start_response):
     'password' with a value of whatever the password
     should be.
 
-    Users of this method should take not that that password
+    Users of this method should take note that the password
     is being sent in the clear over what is likely an
     unencrypted network.
     """
@@ -119,7 +119,7 @@ def post_user(environ, start_response):
 
     The JSON should be a dict with two keys: 'username'
     and 'password'. Future iterations of this code
-    will take additional keys and save them as fields
+    may take additional keys and save them as fields
     to be used with the tiddlywebplugins.magicuser
     extractor.
     """
@@ -135,6 +135,7 @@ def post_user(environ, start_response):
     except ValueError, exc:
         raise HTTP400('Invalid JSON, %s' % exc)
 
+    _validate_user(environ, user_info)
     try:
         user = User(user_info['username'])
         try:
@@ -144,7 +145,7 @@ def post_user(environ, start_response):
             pass # we're carrying on below
         user.set_password(user_info['password'])
     except KeyError, exc:
-        raise HTTP400('Missing required data: %s', exc)
+        raise HTTP400('Missing required data: %s' % exc)
 
     store.put(user)
 
@@ -152,3 +153,10 @@ def post_user(environ, start_response):
         ('Content-Type', 'text/html; charset=UTF-8')
         ])
     return ['Created %s' % user_info['username']]
+
+
+def _validate_user(environ, user_info):
+    reserved_user_names = environ['tiddlyweb.config'].get(
+            'socialusers.reserved_names', [])
+    if user_info['username'] in reserved_user_names:
+        raise HTTP409('Invalid username: %s' % user_info['username'])

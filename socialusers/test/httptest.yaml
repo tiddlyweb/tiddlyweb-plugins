@@ -1,4 +1,4 @@
-# Create a users
+# Create a user
 - name: Create one user
   desc: POST to create a user
   url: /users
@@ -7,6 +7,15 @@
   request_headers:
     content-type: application/json
   status: 201
+
+- name: Attempt invalide user
+  desc: POST to create a user with a bad name
+  url: /users
+  method: POST
+  data: '{"username": "badname", "password": "cowpig"}'
+  request_headers:
+    content-type: application/json
+  status: 409
 
 # The list of users
 - name: List of Users
