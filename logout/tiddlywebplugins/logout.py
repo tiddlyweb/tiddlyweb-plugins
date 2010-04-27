@@ -18,7 +18,7 @@ def logout(environ, start_response):
     cookie = Cookie.SimpleCookie()
     cookie['tiddlyweb_user'] = ''
     cookie['tiddlyweb_user']['path'] = '%s/' % path
-    cookie['tiddlyweb_user']['expires'] = '%s' % (time.ctime(time.time()-6000))
+    cookie['tiddlyweb_user']['max-age'] = '0'
     start_response('303 See Other', [
         ('Set-Cookie', cookie.output(header='')),
         ('Location', uri)
