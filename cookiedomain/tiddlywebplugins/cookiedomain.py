@@ -23,12 +23,15 @@ class CookieDomain(object):
                 if name.lower() == 'set-cookie':
                     cookie = Cookie.SimpleCookie()
                     cookie.load(value)
-                    if (cookie[COOKIE_NAME] and not
-                            cookie[COOKIE_NAME]['domain']):
-                        cookie[COOKIE_NAME]['domain'] = self._get_domain(
-                                environ)
-                        value = cookie.output(header='')
-                        headers[index] = (name, value)
+                    try:
+                        if (cookie[COOKIE_NAME] and not
+                                cookie[COOKIE_NAME]['domain']):
+                            cookie[COOKIE_NAME]['domain'] = self._get_domain(
+                                    environ)
+                            value = cookie.output(header='')
+                            headers[index] = (name, value)
+                    except KeyError:
+                        pass
             return start_response(status, headers, exc_info)
         return self.application(environ, replacement_start_response)
 
