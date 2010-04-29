@@ -7,9 +7,12 @@ from tiddlyweb.web.challengers import ChallengerInterface
 from tiddlyweb.web.util import server_base_url, server_host_url, make_cookie
 from tiddlyweb.web.http import HTTP302
 
-CHALLENGER_NAME = __name__
 
 class Challenger(ChallengerInterface):
+
+    def __init__(self):
+        self.name = __name__
+        print self.name
 
     def challenge_get(self, environ, start_response):
         openid_mode = environ['tiddlyweb.query'].get('openid.mode', [None])[0]
@@ -42,7 +45,7 @@ class Challenger(ChallengerInterface):
             trust_root = server_base_url(environ)
             return_to = urlparse.urljoin(trust_root, '%s/challenge/%s' % (
                 environ['tiddlyweb.config']['server_prefix'],
-                CHALLENGER_NAME))
+                self.name))
             request.return_to_args['tiddlyweb_redirect'] = redirect
 
             if request.shouldSendRedirect():
@@ -61,7 +64,7 @@ class Challenger(ChallengerInterface):
         host = server_base_url(environ)
         url = urlparse.urljoin(host, '%s/challenge/%s' % (
                 environ['tiddlyweb.config']['server_prefix'],
-                CHALLENGER_NAME))
+                self.name))
         query = {}
         for key in environ['tiddlyweb.query']:
             query[key] = environ['tiddlyweb.query'][key][0]
