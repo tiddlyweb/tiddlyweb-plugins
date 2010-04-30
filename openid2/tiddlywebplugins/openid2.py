@@ -12,7 +12,6 @@ class Challenger(ChallengerInterface):
 
     def __init__(self):
         self.name = __name__
-        print self.name
 
     def challenge_get(self, environ, start_response):
         openid_mode = environ['tiddlyweb.query'].get('openid.mode', [None])[0]
