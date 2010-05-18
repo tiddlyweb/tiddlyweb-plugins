@@ -14,4 +14,10 @@ If 'wikklytext.safe_mode' is set to False, HTML within tiddler.text
 that is wrapped in <html> tags will be preserved. If True, the HTML 
 is removed. True is the default.
 
+See the pydoc for configuration details.
+
 See also: http://tiddlyweb.com/ and http://wikklytext.com/
+
+Copyright 2009-2010, Chris Dent
+
+Licensed Under the same Terms as TiddlyWeb: BSD License.
