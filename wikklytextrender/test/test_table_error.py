@@ -13,5 +13,5 @@ def test_simple_render():
     tiddler.bag = 'zoo'
 
     html = render(tiddler, {})
-    assert 'WikEror' in html
+    assert 'WikError' in html
 
