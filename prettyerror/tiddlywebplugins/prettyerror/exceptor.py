@@ -49,8 +49,11 @@ class PrettyHTTPExceptor(HTTPExceptor):
                     sys.exc_info(), exc)
 
     def _send_response(self, environ, start_response, exc_info, exc):
-        headers = [
-                ('Content-type', 'text/html; charset=UTF-8')]
+        headers = []
+        for header, value in exc.headers():
+            if header.lower() == 'content-type':
+                value = 'text/html; charset=UTF-8'
+            headers.append((header, value))
         status = exc.status.split(' ', 1)[0]
         status_tiddler = self._get_status_tiddler(environ, status)
         start_response(exc.status, headers, exc_info)

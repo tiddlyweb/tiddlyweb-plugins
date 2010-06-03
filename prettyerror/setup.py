@@ -26,5 +26,6 @@ setup(
         'tiddlyweb>=1.1.0',
         'tiddlywebplugins.instancer',
         ],
-    zip_safe = False
+    include_package_data = True,
+    zip_safe = False,
     )
