@@ -50,3 +50,7 @@ store_structure['bags']['_errors'] = {
             'owner': 'administrator',
             },
         }
+
+instance_config = {
+        'system_plugins': ['tiddlywebplugins.prettyerror']
+        }

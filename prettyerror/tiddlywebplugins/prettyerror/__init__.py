@@ -5,6 +5,7 @@ Pretty Errors for TiddlyWeb
 import sys
 import string
 
+from tiddlyweb.control import determine_bag_from_recipe
 from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler
@@ -56,7 +57,8 @@ class PrettyHTTPExceptor(HTTPExceptor):
 
     def _format_tiddler(self, environ, status_tiddler, exc):
         template = string.Template(status_tiddler.text)
-        info = {'status': exc.status, 'message': exc.output()}
+        info = {'status': exc.status, 'message': ''.join(exc.output())}
+        info.update(environ)
         return template.substitute(**info)
 
     def _get_status_tiddler(self, environ, status):
@@ -65,12 +67,16 @@ class PrettyHTTPExceptor(HTTPExceptor):
                 '_errors')
         tiddler = Tiddler(status)
         try:
-            recipe = store.get(Recipe(recipe_name))
+            recipe = Recipe(recipe_name)
+            recipe = store.get(recipe)
             bag = determine_bag_from_recipe(recipe, tiddler, environ)
             tiddler.bag = bag.name
             tiddler = store.get(tiddler)
         except (NoRecipeError, NoBagError), exc:
-            tiddler.text = DEFAULT_TEXT
+            if status == 'default':
+                tiddler.text = DEFAULT_TEXT
+            else:
+                tiddler = self._get_status_tiddler(environ, 'default')
         except (NoTiddlerError), exc:
             # If there is no default tiddler we get recursion error.
             tiddler = self._get_status_tiddler(environ, 'default')
@@ -84,5 +90,3 @@ def init(config):
             config['server_response_filters'].index(HTTPExceptor) + 1,
             PrettyHTTPExceptor)
     config['server_response_filters'].remove(HTTPExceptor)
-
-

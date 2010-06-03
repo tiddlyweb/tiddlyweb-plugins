@@ -1,17 +1,31 @@
 
 import httplib2
 import wsgi_intercept
+import shutil
+import os
+import sys
 
 from wsgi_intercept import httplib2_intercept
 
 from tiddlyweb.store import Store
 
-from tiddlywebplugins.prettyerror import init
+def make_test_env():
+    try:
+        shutil.rmtree('test_instance')
+    except OSError:
+        pass
+    exit = os.system('twinstance_dev tiddlywebplugins.prettyerror test_instance')
+    if exit == 0:
+        os.chdir('test_instance')
+        sys.path.insert(0, os.getcwd())
+    else:
+        assert False is True, 'unable to create test env'
+
 
 def setup_module(module):
-    from tiddlyweb.config import config
+    make_test_env()
     from tiddlyweb.web import serve
-    init(config)
+    from tiddlyweb.config import config
     def app_fn():
         return serve.load_app()
     httplib2_intercept.install()
@@ -20,19 +34,13 @@ def setup_module(module):
             config['server_store'][1], {'tiddlyweb.config': config})
     module.http = httplib2.Http()
 
+
+def teardown_module(module):
+    os.chdir('..')
+
 def test_tiddlyweb_404():
     response, content = http.request('http://0.0.0.0:8080/bags/fake',
             method='GET')
-    print response
-    print content
     assert response['status'] == '404'
     assert response['content-type'] == 'text/html; charset=UTF-8'
-    assert 'Path not found for "/fake"' in content
-
-def test_selector_404():
-    response, content = http.request('http://0.0.0.0:8080/fake',
-            method='GET')
-    assert response['status'] == '404'
-    assert response['content-type'] == 'text/html; charset=UTF-8'
-    assert 'Path not found for "/fake"' in content
-
+    assert 'Path not found for "/bags/fake"' in content

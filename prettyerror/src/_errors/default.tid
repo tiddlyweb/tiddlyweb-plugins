@@ -1,0 +1,10 @@
+type: text/html
+
+<html>
+<head><title>Error: $status</title></head>
+<body>
+<p>There was a $status error with the following message:
+    <blockquote>$message</blockquote>
+</p>
+</body>
+</html>

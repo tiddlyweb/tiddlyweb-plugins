@@ -3,10 +3,10 @@
 # and tester types.
 .PHONY: test dist release pypi clean
 
-test:
+test: remotes
 	py.test -x test
 
-testv:
+testv: remotes
 	py.test -svx test
 
 dist: test
@@ -22,3 +22,6 @@ clean:
 	rm -r dist || true
 	rm -r build || true
 	rm -r *.egg-info || true
+
+remotes:
+	./cacher
