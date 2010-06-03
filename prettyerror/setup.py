@@ -25,7 +25,7 @@ setup(
     packages = find_packages(exclude=['test']),
     install_requires = [
         'setuptools',
-        'tiddlyweb',
+        'tiddlyweb>=1.1.0',
         'tiddlywebplugins.instancer',
         ],
     zip_safe = False

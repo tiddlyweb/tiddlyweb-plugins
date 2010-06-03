@@ -14,7 +14,7 @@ def make_test_env():
         shutil.rmtree('test_instance')
     except OSError:
         pass
-    exit = os.system('twinstance_dev tiddlywebplugins.prettyerror test_instance')
+    exit = os.system('PYTHONPATH="." twinstance_dev tiddlywebplugins.prettyerror test_instance')
     if exit == 0:
         os.chdir('test_instance')
         sys.path.insert(0, os.getcwd())
@@ -35,8 +35,13 @@ def setup_module(module):
     module.http = httplib2.Http()
 
 
-def teardown_module(module):
-    os.chdir('..')
+def test_selector_404():
+    response, content = http.request('http://0.0.0.0:8080/fake',
+            method='GET')
+    assert response['status'] == '404'
+    assert response['content-type'] == 'text/html; charset=UTF-8'
+    assert 'Path not found for "/fake"' in content
+
 
 def test_tiddlyweb_404():
     response, content = http.request('http://0.0.0.0:8080/bags/fake',
