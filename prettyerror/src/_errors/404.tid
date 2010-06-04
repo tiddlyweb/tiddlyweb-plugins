@@ -1,8 +1,10 @@
 type: text/html
 
 <html>
-<head><title>Error: $status</title></head>
+<head>
+<title>Error: $status</title>
 $css_link
+</head>
 <body>
 <p>Path not found for "$SCRIPT_NAME" with the following message:</p>
 <blockquote>$message</blockquote>
