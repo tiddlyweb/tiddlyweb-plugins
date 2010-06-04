@@ -65,6 +65,13 @@ class PrettyHTTPExceptor(HTTPExceptor):
         info = {'status': exc.status, 'message': ''.join(exc.output())}
         if not environ['SCRIPT_NAME'] and environ['PATH_INFO']:
             environ['SCRIPT_NAME'] = environ['PATH_INFO']
+        css_uri = environ['tiddlyweb.config'].get('css_uri', None)
+        info['css_link'] = ''
+        if css_uri:
+            info['css_link'] = """<link
+rel="stylesheet"
+href="%s"
+type="text/css" />""" % css_uri
         info.update(environ)
         return template.substitute(**info)
 

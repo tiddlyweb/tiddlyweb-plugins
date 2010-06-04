@@ -2,6 +2,7 @@ type: text/html
 
 <html>
 <head><title>Error: $status</title></head>
+$css_link
 <body>
 <p>There was a $status error with the following message:</p>
 <blockquote>$message</blockquote>
