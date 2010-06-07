@@ -24,7 +24,6 @@ from re import match
 
 from tiddlyweb.model.user import User
 
-authorization = b64encode('cdent:cowpig')
 base_url = 'http://our_test_domain:8001'
 
 def setup_module(module):
@@ -86,7 +85,7 @@ def _run_test(test):
         response, content = http.request(full_url, method=test['method'], headers=test['request_headers'])
     else:
         response, content = http.request(full_url, method=test['method'], headers=test['request_headers'],
-                body=test['data'])
+                body=test['data'].encode('UTF-8'))
     assert_response(response, content, test['status'], headers=test['response_headers'], expected=test['expected'])
 
 def assert_response(response, content, status, headers=None, expected=None):
