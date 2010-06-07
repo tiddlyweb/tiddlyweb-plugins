@@ -57,7 +57,10 @@ class PrettyHTTPExceptor(HTTPExceptor):
         status = exc.status.split(' ', 1)[0]
         status_tiddler = self._get_status_tiddler(environ, status)
         start_response(exc.status, headers, exc_info)
-        text = self._format_tiddler(environ, status_tiddler, exc)
+        if exc.output():
+            text = self._format_tiddler(environ, status_tiddler, exc)
+        else:
+            text = ''
         return [text]
 
     def _format_tiddler(self, environ, status_tiddler, exc):

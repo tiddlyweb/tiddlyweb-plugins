@@ -2,6 +2,8 @@
 Pretty Errors for TiddlyWeb
 """
 
+__version__ = '0.5'
+
 from tiddlyweb.web.http import HTTPExceptor, HTTP404
 from tiddlywebplugins.prettyerror.exceptor import PrettyHTTPExceptor
 import selector
@@ -18,4 +20,3 @@ def init(config):
                 config['server_response_filters'].index(HTTPExceptor) + 1,
                 PrettyHTTPExceptor)
         config['server_response_filters'].remove(HTTPExceptor)
-
