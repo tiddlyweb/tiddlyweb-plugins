@@ -64,7 +64,7 @@ class PrettyHTTPExceptor(HTTPExceptor):
         return [text]
 
     def _format_tiddler(self, environ, status_tiddler, exc):
-        template = string.Template(status_tiddler.text)
+        template = string.Template(status_tiddler.text.encode('UTF-8'))
         info = {'status': exc.status, 'message': ''.join(exc.output())}
         if not environ['SCRIPT_NAME'] and environ['PATH_INFO']:
             environ['SCRIPT_NAME'] = environ['PATH_INFO']
