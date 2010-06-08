@@ -98,7 +98,7 @@ def assert_response(response, content, status, headers=None, expected=None):
 
     if expected:
         for expect in expected:
-            assert expect in content
+            assert expect.encode('UTF-8') in content
 
 if __name__ == '__main__':
     for test_data in TESTS:

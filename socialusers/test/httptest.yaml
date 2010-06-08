@@ -53,6 +53,8 @@
   desc: Get the list of all the users
   expected: 
   - cdent
+  - cdënt
+  - ㅀㅂㅃㅆㅇ
   url: /users
   request_headers:
     authorization: Basic Y2RlbnQ6Y293cGln
