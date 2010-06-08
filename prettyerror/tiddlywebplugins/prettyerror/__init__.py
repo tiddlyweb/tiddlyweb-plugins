@@ -2,7 +2,7 @@
 Pretty Errors for TiddlyWeb
 """
 
-__version__ = '0.5'
+__version__ = '0.6'
 
 from tiddlyweb.web.http import HTTPExceptor, HTTP404
 from tiddlywebplugins.prettyerror.exceptor import PrettyHTTPExceptor
