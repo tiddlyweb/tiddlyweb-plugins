@@ -52,5 +52,5 @@ store_structure['bags']['_errors'] = {
         }
 
 instance_config = {
-        'system_plugins': ['tiddlywebplugins.prettyerror']
+        'system_plugins': ['tiddlywebplugins.prettyerror'],
         }

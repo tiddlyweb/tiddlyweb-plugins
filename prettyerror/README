@@ -13,6 +13,8 @@ This is alpha-level software being developed for use with
 TiddlySpace. It requires TiddlyWeb 1.1.x which has not been
 packaged for release.
 
+See tiddlywebplugins.pretterror.exceptor for details.
+
 Copyright 2010, Chris Dent <cdent@peermore.com>
 
 BSD Licensed, like TiddlyWeb.
