@@ -19,6 +19,8 @@ def logout(environ, start_response):
     cookie['tiddlyweb_user'] = ''
     cookie['tiddlyweb_user']['path'] = '%s/' % path
     cookie['tiddlyweb_user']['max-age'] = '0'
+    cookie['tiddlyweb_user']['expires'] = time.strftime(
+            '%a, %d-%m-%y %H:%M:%S GMT', time.gmtime(time.time()-6000))
     start_response('303 See Other', [
         ('Set-Cookie', cookie.output(header='')),
         ('Location', uri)
@@ -27,4 +29,5 @@ def logout(environ, start_response):
 
 
 def init(config):
-    config['selector'].add('/logout', GET=logout)
+    if config['selector']:
+        config['selector'].add('/logout', GET=logout)
