@@ -54,7 +54,7 @@ class PathInfoHack(object):
 
 
 def init(config):
-    if PathInfoHack not in config['server_response_filters']:
+    if PathInfoHack not in config['server_request_filters']:
         config['server_request_filters'].insert(
                 config['server_request_filters'].index(Query) + 1,
                 PathInfoHack)
