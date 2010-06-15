@@ -27,7 +27,6 @@ def logout(environ, start_response):
     else:
         cookie['tiddlyweb_user']['max-age'] = '0'
     cookie_output = cookie.output(header='')
-    print cookie_output
     start_response('303 See Other', [
         ('Set-Cookie', cookie_output),
         ('Expires', time.strftime(
