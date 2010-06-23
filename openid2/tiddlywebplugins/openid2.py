@@ -1,11 +1,24 @@
 
+import logging
 import urlparse
 
+from openid import oidutil
 from openid.consumer import consumer
 
 from tiddlyweb.web.challengers import ChallengerInterface
 from tiddlyweb.web.util import server_base_url, server_host_url, make_cookie
 from tiddlyweb.web.http import HTTP302
+
+
+def log_message(message, level=0):
+    """
+    Redefine the Python OpenID log function,
+    which just writes to stderr, spewing all
+    over the place.
+    """
+    logging.debug(message)
+
+oidutil.log = log_message
 
 
 class Challenger(ChallengerInterface):
