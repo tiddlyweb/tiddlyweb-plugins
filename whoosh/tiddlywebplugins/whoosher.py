@@ -84,7 +84,8 @@ def init(config_in):
         # twanager
         global config
         config = config_in
-    TIDDLER_WRITTEN_HANDLERS.append(_tiddler_written_handler)
+    if __name__ not in config_in.get('beanstalk.listeners', []):
+        TIDDLER_WRITTEN_HANDLERS.append(_tiddler_written_handler)
 
 
 def whoosh_search(environ):
@@ -337,3 +338,30 @@ def query_dict_to_search_string(query_dict):
                 else:
                     terms.append('%s:%s' % (key.lower(), value.lower()))
     return ' '.join(terms)
+
+
+try:
+    from tiddlywebplugins.dispatcher.listener import Listener as BaseListener
+
+    class Listener(BaseListener):
+
+        TUBE = 'index'
+
+        def _act(self, job):
+            info = self._unpack(job)
+            print 'indexing %s' % info
+            config = self.config
+            schema = config.get('wsearch.schema',
+                    SEARCH_DEFAULTS['wsearch.schema'])
+            writer = get_writer(config)
+            try:
+                store = get_store(config)
+                tiddler = Tiddler(info['tiddler'], info['bag'])
+                tiddler = store.get(tiddler)
+                index_tiddler(tiddler, schema, writer)
+            except NoTiddlerError:
+                delete_tiddler(tiddler, writer)
+            writer.commit()
+
+except ImportError:
+    pass
