@@ -8,7 +8,7 @@ import cgi
 from tiddlyweb.web.http import HTTP400
 
 def init(config):
-    if config['selector']:
+    if 'selector' in config:
         config['selector'].add('/reflector', POST=reflect)
 
 
