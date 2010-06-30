@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.logout'
 DESCRIPTION = '/logout for TiddlyWeb'
-VERSION = '0.5'
+VERSION = '0.6'
 
 
 import os

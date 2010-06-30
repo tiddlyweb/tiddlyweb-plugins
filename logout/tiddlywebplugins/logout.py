@@ -38,5 +38,5 @@ def logout(environ, start_response):
 
 
 def init(config):
-    if config['selector']:
+    if 'selector' in config:
         config['selector'].add('/logout', GET=logout)
