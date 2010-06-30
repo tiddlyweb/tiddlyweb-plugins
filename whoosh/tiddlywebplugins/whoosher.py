@@ -112,7 +112,6 @@ def index_query(environ, **kwargs):
     the provided arguments.
     """
     logging.debug('entering with %s', environ)
-    print 'getting called on index_query'
     config = environ['tiddlyweb.config']
     #store = environ['tiddlyweb.store']
     query_parts = []
@@ -122,7 +121,6 @@ def index_query(environ, **kwargs):
         query_parts.append('%s:%s' % (field, value))
     query_string = ' '.join(query_parts)
 
-    print 'getting inside on index_query'
     schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
     searcher = get_searcher(config)
     parser = QueryParser('text', schema=Schema(**schema))
@@ -131,7 +129,6 @@ def index_query(environ, **kwargs):
     results = searcher.search(query)
 
     def tiddler_from_result(result):
-        print 'r', result
         bag, title = result['id'].split(':', 1)
         tiddler = Tiddler(title, bag)
         return tiddler
@@ -349,7 +346,6 @@ try:
 
         def _act(self, job):
             info = self._unpack(job)
-            print 'indexing %s' % info
             config = self.config
             schema = config.get('wsearch.schema',
                     SEARCH_DEFAULTS['wsearch.schema'])
