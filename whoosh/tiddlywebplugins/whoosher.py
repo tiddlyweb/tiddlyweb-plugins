@@ -89,7 +89,7 @@ def init(config):
         query = ' '.join(args)
         ids = search(config, query)
         for result in ids:
-            bag, title = result['id'].split(':')
+            bag, title = result['id'].split(':', 1)
             print "%s:%s" % (bag, title)
 
 
