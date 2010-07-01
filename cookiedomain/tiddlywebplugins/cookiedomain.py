@@ -44,6 +44,7 @@ class CookieDomain(object):
 
 
 def init(config):
-    config['server_response_filters'].insert(
-            config['server_response_filters'].index(
-                EncodeUTF8) + 1, CookieDomain)
+    if CookieDomain not in config['server_response_filters']:
+        config['server_response_filters'].insert(
+                config['server_response_filters'].index(
+                    EncodeUTF8) + 1, CookieDomain)
