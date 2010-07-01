@@ -270,8 +270,8 @@ def index_tiddler(tiddler, schema, writer):
         except UnicodeDecodeError, exc:
             pass
     data['id'] = _tiddler_id(tiddler)
-    data['ftitle'] = tiddler.title.lower()
-    data['fbag'] = tiddler.bag.lower()
+    data['ftitle'] = tiddler.title
+    data['fbag'] = tiddler.bag
     writer.update_document(**data)
 
 
@@ -304,14 +304,7 @@ def query_dict_to_search_string(query_dict):
             continue
 
         if key == 'q':
-            query_terms = []
-            for value in values:
-                for word in value.split(' '):
-                    if word == 'OR' or word == 'AND':
-                        query_terms.append(word)
-                    else:
-                        query_terms.append(word.lower())
-            terms.extend([' '.join(query_terms)])
+            terms.extend([value for value in values])
         else:
             if key.endswith('_field'):
                 prefix = key.rsplit('_', 1)[0]
