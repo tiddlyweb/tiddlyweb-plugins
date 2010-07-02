@@ -35,25 +35,23 @@ to be indexed for a particular installation or application, wsearch.schema
 and wsearch.default_fields can be set. _Read the code_ to understand how
 these can be used.
 """
-import os, sys
+import os
 
 import logging
+import time
 
 from whoosh.index import create_in, open_dir, EmptyIndexError
 from whoosh.fields import Schema, ID, KEYWORD, TEXT
 from whoosh.qparser import MultifieldParser, QueryParser
+from whoosh.store import LockError
 
-from tiddlywebplugins.utils import get_store, replace_handler
+from tiddlywebplugins.utils import get_store
 
 from tiddlyweb.manage import make_command
 from tiddlyweb.store import NoTiddlerError
-from tiddlyweb.stores import StorageInterface
 import tiddlyweb.web.handler.search
 
-from tiddlyweb.model.bag import Bag
 from tiddlyweb.model.tiddler import Tiddler
-
-from tiddlyweb.filters import FilterIndexRefused
 
 from tiddlyweb.stores import TIDDLER_WRITTEN_HANDLERS
 
@@ -79,6 +77,7 @@ SEARCH_DEFAULTS = {
 SEARCHER = None
 PARSER = None
 
+
 def init(config):
     if __name__ not in config.get('beanstalk.listeners', []):
         TIDDLER_WRITTEN_HANDLERS.append(_tiddler_written_handler)
@@ -92,7 +91,6 @@ def init(config):
             bag, title = result['id'].split(':', 1)
             print "%s:%s" % (bag, title)
 
-
     @make_command()
     def wreindex(args):
         """Rebuild the entire whoosh index."""
@@ -101,26 +99,31 @@ def init(config):
         except IndexError:
             prefix = None
         store = get_store(config)
-        writer = get_writer(config)
-        schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
+        schema = config.get('wsearch.schema',
+                SEARCH_DEFAULTS['wsearch.schema'])
         for bag in store.list_bags():
-            bag = store.get(bag)
-            try:
-                tiddlers = bag.get_tiddlers()
-            except AttributeError:
-                tiddlers = store.list_bag_tiddlers(bag)
-            for tiddler in tiddlers:
-                if prefix and not tiddler.title.startswith(prefix):
-                    continue
-                tiddler = store.get(tiddler)
-                index_tiddler(tiddler, schema, writer)
-        writer.commit()
+            writer = get_writer(config)
+            if writer:
+                bag = store.get(bag)
+                try:
+                    tiddlers = bag.get_tiddlers()
+                except AttributeError:
+                    tiddlers = store.list_bag_tiddlers(bag)
+                for tiddler in tiddlers:
+                    if prefix and not tiddler.title.startswith(prefix):
+                        continue
+                    tiddler = store.get(tiddler)
+                    index_tiddler(tiddler, schema, writer)
+                writer.commit()
+            else:
+                logging.debug('unable to get writer (locked) for %s', bag.name)
 
     @make_command()
     def woptimize(args):
         """Optimize the index by collapsing files."""
         index = get_index(config)
         index.optimize()
+
 
 def whoosh_search(environ):
     """
@@ -171,9 +174,6 @@ def index_query(environ, **kwargs):
     for result in results:
         yield tiddler_from_result(result)
     return
-    #return (tiddler_from_result(result) for result in results)
-
-
 
 
 def get_index(config):
@@ -183,7 +183,8 @@ def get_index(config):
     If there isn't one in the dir, create one. If there is
     not dir, create the dir.
     """
-    index_dir = config.get('wsearch.indexdir', SEARCH_DEFAULTS['wsearch.indexdir'])
+    index_dir = config.get('wsearch.indexdir',
+            SEARCH_DEFAULTS['wsearch.indexdir'])
     try:
         index = open_dir(index_dir)
     except (IOError, EmptyIndexError):
@@ -191,7 +192,8 @@ def get_index(config):
             os.mkdir(index_dir)
         except OSError:
             pass
-        schema = config.get('wsearch.schema', SEARCH_DEFAULTS['wsearch.schema'])
+        schema = config.get('wsearch.schema',
+                SEARCH_DEFAULTS['wsearch.schema'])
         index = create_in(index_dir, Schema(**schema))
     return index
 
@@ -200,7 +202,15 @@ def get_writer(config):
     """
     Return a writer based on config insructions.
     """
-    return get_index(config).writer()
+    writer = None
+    attempts = 0
+    while writer == None and attempts < 5:
+        attempts += 1
+        try:
+            writer = get_index(config).writer()
+        except LockError, exc:
+            time.sleep(.1)
+    return writer
 
 
 def get_searcher(config):
@@ -283,14 +293,18 @@ def _tiddler_written_handler(storage, tiddler):
     schema = storage.environ['tiddlyweb.config'].get('wsearch.schema',
             SEARCH_DEFAULTS['wsearch.schema'])
     writer = get_writer(storage.environ['tiddlyweb.config'])
-    try:
-        store = storage.environ.get('tiddlyweb.store',
-                get_store(storage.environ['tiddlyweb.config']))
-        temp_tiddler = store.get(Tiddler(tiddler.title, tiddler.bag))
-        index_tiddler(tiddler, schema, writer)
-    except NoTiddlerError:
-        delete_tiddler(tiddler, writer)
-    writer.commit()
+    if writer:
+        try:
+            store = storage.environ.get('tiddlyweb.store',
+                    get_store(storage.environ['tiddlyweb.config']))
+            temp_tiddler = store.get(Tiddler(tiddler.title, tiddler.bag))
+            index_tiddler(tiddler, schema, writer)
+        except NoTiddlerError:
+            delete_tiddler(tiddler, writer)
+        writer.commit()
+    else:
+        logging.debug('unable to get writer (locked) for %s:%s',
+                tiddler.bag, tiddler.title)
 
 
 def query_dict_to_search_string(query_dict):
@@ -351,15 +365,20 @@ try:
             config = self.config
             schema = config.get('wsearch.schema',
                     SEARCH_DEFAULTS['wsearch.schema'])
+            tiddler = Tiddler(info['tiddler'], info['bag'])
             writer = get_writer(config)
-            try:
-                store = get_store(config)
-                tiddler = Tiddler(info['tiddler'], info['bag'])
-                tiddler = store.get(tiddler)
-                index_tiddler(tiddler, schema, writer)
-            except NoTiddlerError:
-                delete_tiddler(tiddler, writer)
-            writer.commit()
+            if writer:
+                try:
+                    store = get_store(config)
+                    tiddler = store.get(tiddler)
+                    index_tiddler(tiddler, schema, writer)
+                except NoTiddlerError:
+                    delete_tiddler(tiddler, writer)
+                writer.commit()
+            else:
+                logging.debug('unable to get writer (locked) for %s:%s',
+                        tiddler.bag, tiddler.title)
+
 
 except ImportError:
     pass
