@@ -185,6 +185,8 @@ def get_index(config):
     """
     index_dir = config.get('wsearch.indexdir',
             SEARCH_DEFAULTS['wsearch.indexdir'])
+    if not os.path.isabs(index_dir):
+        index_dir = os.path.join(config.get('root_dir', ''), index_dir)
     try:
         index = open_dir(index_dir)
     except (IOError, EmptyIndexError):
