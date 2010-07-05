@@ -1,22 +1,3 @@
+The tiddlywebplugins.whoosher code has moved to its own repo:
 
-A TiddlyWeb[1] plugin which provides a Whoosh[2]-based indexing and
-search interface.
-
-The plugin:
-
-* Replaces the search interface of the store that is in use (if any).
-* Provides a system for structured queries of the index.
-* Automatically updates the index when a new tiddler is written to 
-  the store.
-* Provides twanager commands for reindexing the entire store, and
-  making command line searches of the index.
-
-See the module documentation for installation and configuration
-instructions: pydoc tiddlywebplugins.whoosher
-
-* Explore methods for dynamically managing the schema.
-  The Whoosh docs suggest that adding fields can be done
-  on the fly.
-
-[1] http://tiddlyweb.com/
-[2] http://whoosh.ca/
+   http://github.com/tiddlyweb/tiddlywebplugins.whoosher
