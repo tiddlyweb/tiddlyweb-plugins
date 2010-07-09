@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.magicuser'
 DESCRIPTION = '"magically" extend tiddlyweb user capabilities'
-VERSION = '0.2'
+VERSION = '0.3'
 
 
 import os
@@ -21,6 +21,8 @@ setup(
     url = 'http://pypi.python.org/pypi/%s' % NAME,
     packages = find_packages(exclude=['test']),
     platforms = 'Posix; MacOS X; Windows',
-    install_requires = ['setuptools', 'tiddlyweb'],
+    install_requires = ['setuptools',
+        'tiddlyweb>=1.1.dev5',
+        ],
     zip_safe = False
     )
