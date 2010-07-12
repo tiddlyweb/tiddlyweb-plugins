@@ -40,10 +40,13 @@ class CookieDomain(object):
             domain = environ['tiddlyweb.config']['cookie_domain']
         except KeyError:
             http_host = environ.get('HTTP_HOST')
+            server_host = environ['tiddlyweb.config']['server_host']['host']
             if http_host:
                 domain = http_host.split(':', 1)[0]
+                if server_host in domain:
+                    domain = server_host
             else:
-                domain = environ['tiddlyweb.config']['server_host']['host']
+                domain = server_host
         return domain
 
 
