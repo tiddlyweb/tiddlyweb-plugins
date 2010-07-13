@@ -28,7 +28,7 @@ class CookieDomain(object):
                                 cookie[COOKIE_NAME]['domain']):
                             cookie[COOKIE_NAME]['domain'] = self._get_domain(
                                     environ)
-                            value = cookie.output(header='')
+                            value = cookie.output(header='') + '; httponly'
                             headers[index] = (name, value)
                     except KeyError:
                         pass

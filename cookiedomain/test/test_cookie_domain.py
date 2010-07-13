@@ -1,7 +1,6 @@
 from wsgi_intercept import httplib2_intercept
 import wsgi_intercept
 import httplib2
-import Cookie
 
 from tiddlyweb.store import Store
 from tiddlyweb.model.user import User
@@ -33,8 +32,7 @@ def test_check_cookie():
     assert response.previous['status'] == '303'
 
     user_cookie = response.previous['set-cookie']
-    cookie = Cookie.SimpleCookie()
-    cookie.load(user_cookie)
     assert 'cdent:' in user_cookie
     assert 'tiddlyweb_user' in user_cookie
     assert 'Domain=0.0.0.0' in user_cookie
+    assert 'httponly' in user_cookie

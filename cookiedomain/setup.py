@@ -3,7 +3,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.cookiedomain'
 DESCRIPTION = 'TiddlyWeb plugin adjust the domain of a cookie'
-VERSION = '0.5'
+VERSION = '0.6'
 
 
 import os
