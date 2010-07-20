@@ -1,7 +1,0 @@
-This is a basic package for allowing for the creation of TiddlyWeb
-users over a simple HTTP API.
-
-It is experimental and insecure. Do not use this on a public site
-with data that needs to be secure.
-
-This package is licensed under the same terms as TiddlyWeb.
