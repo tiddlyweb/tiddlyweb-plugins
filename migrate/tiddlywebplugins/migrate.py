@@ -82,7 +82,10 @@ def migrate_bags(source, target, bags=None):
 
     for bag in bags:
         bag = source.get(bag)
-        tiddlers = bag.list_tiddlers()
+        try:
+            tiddlers = bag.list_tiddlers()
+        except AttributeError:
+            tiddlers = source.list_bag_tiddlers(bag)
         target.put(bag)
         for tiddler in tiddlers:
             for revision_id in reversed(source.list_tiddler_revisions(tiddler)):
