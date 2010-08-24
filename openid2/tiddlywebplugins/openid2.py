@@ -23,6 +23,8 @@ oidutil.log = log_message
 
 class Challenger(ChallengerInterface):
 
+    desc = "OpenID"
+
     def __init__(self):
         self.name = __name__
 
