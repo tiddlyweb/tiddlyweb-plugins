@@ -1,0 +1,7 @@
+desc: 
+policy: {"read": [], "create": [], "manage": [], "accept": [], "write": [], "owner": null, "delete": []}
+
+/bags/system/tiddlers
+/bags/thanks/tiddlers?sort=modified
+/bags/collapse/tiddlers
+/bags/things/tiddlers

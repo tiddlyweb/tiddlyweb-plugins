@@ -1,0 +1,8 @@
+
+Update all the recipes that match a particular bag descriptor
+with one or more bags that replace it. For example:
+
+twanager recipeupdate '/bags/foobar/tiddlers?select=bang' \
+    '/bags/foobar/tiddlers' '/bags/anotherbag/tiddlers?select=bag'
+
+
