@@ -8,6 +8,8 @@ twanager recipeupdate '/bags/foobar/tiddlers?select=bang' \
 To use, add 'tiddlywebplugins.recipeupdater' to twanager_plugins
 in tiddlywebconfig.py
 
+This is a limited functionality early release.
+
 Licensed under the same terms as TiddlyWeb: BSD License.
 
 Copyright 2010 Chris Dent <cdent@peermore.com>
