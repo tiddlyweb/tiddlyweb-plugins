@@ -1,3 +1,15 @@
+"""
+A twanager command that updates all the recipes in the store
+that match a bag filter combo with one or more replacement
+bag filter combos:
+
+twanager recipeupdate '/bags/foobar/tiddlers?select=bang' \
+    '/bags/foobar/tiddlers' '/bags/anotherbag/tiddlers?select=bag'
+
+To use, add 'tiddlywebplugins.recipeupdater' to twanager_plugins
+in tiddlywebconfig.py
+"""
+
 
 from tiddlyweb.manage import make_command
 from tiddlywebplugins.utils import get_store

@@ -5,4 +5,9 @@ with one or more bags that replace it. For example:
 twanager recipeupdate '/bags/foobar/tiddlers?select=bang' \
     '/bags/foobar/tiddlers' '/bags/anotherbag/tiddlers?select=bag'
 
+To use, add 'tiddlywebplugins.recipeupdater' to twanager_plugins
+in tiddlywebconfig.py
 
+Licensed under the same terms as TiddlyWeb: BSD License.
+
+Copyright 2010 Chris Dent <cdent@peermore.com>
