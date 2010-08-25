@@ -18,7 +18,7 @@ def init(config):
 
     @make_command()
     def recipeupdate(args):
-        """Update all recipes entry with a different entry."""
+        """Update all recipes entry with a different entry. <match bag info> <replacement bag info> [<replacement bag info>]"""
         store = get_store(config)
         match_bag = args.pop(0)
         bag, filter = _text_to_tuple(match_bag)
