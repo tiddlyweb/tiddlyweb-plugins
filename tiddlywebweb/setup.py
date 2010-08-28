@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.tiddlywebweb'
 DESCRIPTION = 'A TiddlyWeb store that proxies to another TiddlyWeb server.'
-VERSION = '0.6'
+VERSION = '0.7' # duplicated in the plugin too
 
 
 import os
@@ -22,6 +22,6 @@ setup(
     packages = find_packages(exclude='test'),
     author_email = AUTHOR_EMAIL,
     platforms = 'Posix; MacOS X; Windows',
-    install_requires = ['setuptools', 'tiddlyweb>=0.9.95', 'httplib2', 'simplejson'],
+    install_requires = ['setuptools', 'tiddlyweb>=1.1.0', 'httplib2', 'simplejson'],
     zip_safe = False
     )

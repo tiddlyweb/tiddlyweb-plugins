@@ -23,6 +23,8 @@ the http requests) should use a local cache.
 Auth credentials on every request to the remote server.
 """
 
+__version__ = '0.7'
+
 import httplib2
 import logging
 import simplejson
@@ -155,13 +157,6 @@ class Store(StorageInterface):
     def bag_get(self, bag):
         url = self.bag_url % encode_name(bag.name)
         self.doit(url, bag, self._any_get, NoBagError)
-        if not (hasattr(bag, 'skinny') and bag.skinny):
-            url = self.bag_tiddlers_url % bag.name
-            response, content = self._request('GET', url)
-            if self._is_success(response):
-                tiddlers = simplejson.loads(content)
-                for tiddler in tiddlers:
-                    bag.add_tiddler(Tiddler(tiddler['title']))
         return bag
 
     def bag_put(self, bag):
@@ -230,6 +225,17 @@ class Store(StorageInterface):
 # XXX um, so, like, some error handling would be good here
             return []
 
+    def list_bag_tiddlers(self, bag):
+        url = self.bag_tiddlers_url % encode_name(bag.name)
+        response, content = self._request('GET', url)
+        if self._is_success(response):
+            tiddlers = simplejson.loads(content)
+            for tiddler in tiddlers:
+                yield Tiddler(tiddler['title'], tiddler['bag'])
+        else:
+            pass
+        return
+
     def list_tiddler_revisions(self, tiddler):
         url = self.revisions_url % (encode_name(tiddler.bag), encode_name(tiddler.title))
         response, content = self._request('GET', url)
@@ -285,11 +291,11 @@ def test_me():
             pass
         print 'Bag name: ', bag.name.encode('UTF-8')
         print 'Bag Tiddlers:'
-        for tiddler in bag.list_tiddlers():
+        for tiddler in store.list_bag_tiddlers(bag):
             print 'tiddler: %s' % tiddler.title.encode('UTF-8')
 
     for bag in bags:
-        for tiddler in bag.list_tiddlers():
+        for tiddler in store.list_bag_tiddlers(bag):
             try:
                 store.tiddler_get(tiddler)
             except NoTiddlerError:
