@@ -15,6 +15,9 @@ or tuple of two items:
     * The name of the module providing the store.
     * A dictionary with the configuration information the store needs.
 """
+
+__version__ = '0.7' 
+
 import copy
 import re
 
@@ -96,6 +99,10 @@ class Store(StorageInterface):
             bags.extend(store.list_bags())
         bags.extend(self.main_store.list_bags())
         return bags
+
+    def list_bag_tiddlers(self, bag):
+        store = self._determine_store(bag.name)
+        return store.list_bag_tiddlers(bag)
 
     def list_users(self):
         return self.main_store.list_users()
