@@ -26,10 +26,7 @@ from tiddlywebplugins.utils import replace_handler
 from tiddlyweb.web.handler.recipe import get_tiddlers
 from tiddlyweb.web.http import HTTP304
 
-try:
-    from tiddlyweb.stores import TIDDLER_WRITTEN_HANDLERS
-except ImportError:
-    TIDDLER_WRITTEN_HANDLERS = []
+from tiddlyweb.store import HOOKS
 
 
 DEFAULT_RECIPE = 'docs'
@@ -141,7 +138,8 @@ def init(config):
         except (IOError, OSError), exc:
             logging.warn('unable to create %s: %s', cachedir, exc)
         replace_handler(config['selector'], '/', dict(GET=home))
-        TIDDLER_WRITTEN_HANDLERS.append(tiddler_written_handler)
+        HOOKS['tiddler']['put'].append(tiddler_written_handler)
+        HOOKS['tiddler']['delete'].append(tiddler_written_handler)
 
 
 def _header_value(headers, name):
