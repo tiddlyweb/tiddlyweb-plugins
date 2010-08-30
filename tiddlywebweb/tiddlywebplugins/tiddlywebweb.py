@@ -179,7 +179,6 @@ class Store(StorageInterface):
         url = self.tiddler_url % (encode_name(tiddler.bag), encode_name(tiddler.title))
         tiddler.revision = self._tiddler_revision(tiddler) + 1
         self.doit(url, tiddler, self._any_put, NoTiddlerError)
-        self.tiddler_written(tiddler)
 
     def _tiddler_revision(self, tiddler, index=0):
         """
