@@ -19,8 +19,6 @@ OOM_SEPARATOR = ','
 
 test_oom = None
 
-from time import time
-
 
 def init(config):
 
@@ -51,7 +49,6 @@ def init(config):
                 except (AttributeError, KeyError):
                     return None
 
-        print 'looping', time()
         return (entity for entity in entities if
                 get_value(_get_entity(entity, store), attribute) in values)
         
