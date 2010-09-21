@@ -19,7 +19,7 @@ MSELECT_SEPARATOR = ','
 
 # XXX: make the function available for testing.
 # This enclosure mess works around some bugs in
-# control.filter_tiddlers_from_bag which are fixed in 
+# control.filter_tiddlers_from_bag which are fixed in
 # TiddlyWeb 1.1
 test_mselect = None
 
@@ -53,7 +53,7 @@ def init(config):
         return
 
     def mselect_parse(command):
-        def selector(entities, indexable=False, environ={}):
+        def selector(entities, indexable=False, environ=None):
             return mselect(command, entities, environ)
         return selector
 
