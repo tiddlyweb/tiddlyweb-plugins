@@ -23,11 +23,12 @@ MSELECT_SEPARATOR = ','
 # TiddlyWeb 1.1
 test_mselect = None
 
+
 def init(config):
 
     global test_mselect
 
-    def mselect(command, tiddlers, environ=None):
+    def mselect(command, entities, environ=None):
         global separator
         if environ:
             try:
@@ -36,21 +37,24 @@ def init(config):
                 separator = MSELECT_SEPARATOR
         else:
             separator = config.get('mselect.separator', MSELECT_SEPARATOR)
+
         commands = command.split(separator)
-        # un_generate the tiddlers so we can use the list multiple times
-        tiddlers = list(tiddlers)
-        seen_tiddlers = []
-        for command in commands:
-            func = select_parse(command)
-            for tiddler in func(tiddlers):
-                if tiddler not in seen_tiddlers:
-                    yield tiddler
-                seen_tiddlers.append(tiddler)
+        parsed_commands = [select_parse(command) for command in commands]
+
+        # unwind the (probably) generator so we can use it multiple times
+        entities = list(entities)
+        seen_results = []
+
+        for func in parsed_commands:
+            for result in func(entities):
+                if result not in seen_results:
+                    yield result
+
         return
 
     def mselect_parse(command):
-        def selector(tiddlers, indexable=False, environ={}):
-            return mselect(command, tiddlers, environ)
+        def selector(entities, indexable=False, environ={}):
+            return mselect(command, entities, environ)
         return selector
 
     FILTER_PARSERS['mselect'] = mselect_parse
