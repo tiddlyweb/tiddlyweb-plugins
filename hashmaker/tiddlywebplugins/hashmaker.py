@@ -36,12 +36,12 @@ def hash_tiddler_hook(storage, tiddler):
     hash_tiddler(storage.environ, tiddler)
 
 
-def hash_tiddler(environ, tiddler):
+def hash_tiddler(environ, tiddler, overwrite=False):
     """
     Given tiddler, add a _hash field which is a digest of the
     attributes named in config['hashmaker.attributes'].
     """
-    if '_hash' not in tiddler.fields:
+    if overwrite or '_hash' not in tiddler.fields:
         config = environ['tiddlyweb.config']
         attributes= config.get('hashmaker.attributes', ['text'])
         hash = sha()
