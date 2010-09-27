@@ -27,13 +27,6 @@ __version__ = '0.1'
 
 from tiddlyweb.store import HOOKS
 from tiddlyweb.util import sha
-from tiddlyweb.web.validator import TIDDLER_VALIDATORS
-
-def hash_tiddler_validator(tiddler, environ):
-    """
-    Wrap hash_tiddler in the validator signature.
-    """
-    hash_tiddler(environ, tiddler)
 
 
 def hash_tiddler_hook(storage, tiddler):
@@ -48,16 +41,17 @@ def hash_tiddler(environ, tiddler):
     Given tiddler, add a _hash field which is a digest of the
     attributes named in config['hashmaker.attributes'].
     """
-    config = environ['tiddlyweb.config']
-    attributes= config.get('hashmaker.attributes', ['text'])
-    hash = sha()
-    for attribute in attributes:
-        try:
-            data = getattr(tiddler, attribute)
-        except AttributeError:
-            data = tiddler.fields.get(attribute, '')
-        hash.update(data)
-    tiddler.fields['_hash'] = hash.hexdigest()
+    if '_hash' not in tiddler.fields:
+        config = environ['tiddlyweb.config']
+        attributes= config.get('hashmaker.attributes', ['text'])
+        hash = sha()
+        for attribute in attributes:
+            try:
+                data = getattr(tiddler, attribute)
+            except AttributeError:
+                data = tiddler.fields.get(attribute, '')
+            hash.update(data)
+        tiddler.fields['_hash'] = hash.hexdigest()
 
 
 def init(config):
@@ -65,4 +59,3 @@ def init(config):
     Establish the hook and validator.
     """
     HOOKS['tiddler']['get'].append(hash_tiddler_hook)
-    TIDDLER_VALIDATORS.append(hash_tiddler_validator)

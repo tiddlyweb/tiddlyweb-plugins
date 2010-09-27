@@ -23,6 +23,7 @@ def test_default_hash_generation():
     assert tiddler1.fields['_hash'] == tiddler2.fields['_hash']
 
     tiddler2.text = 'goodbye'
+    del tiddler2.fields['_hash']
     hash_tiddler_hook(store.storage, tiddler2)
     assert tiddler1.fields['_hash'] != tiddler2.fields['_hash']
 
@@ -42,11 +43,14 @@ def test_complex_hash_generation():
     assert tiddler1.fields['_hash'] == tiddler2.fields['_hash']
 
     tiddler2.fields['karma'] = 'good'
+    del tiddler2.fields['_hash']
     hash_tiddler_hook(store.storage, tiddler2)
 
     assert tiddler1.fields['_hash'] != tiddler2.fields['_hash']
 
     config['hashmaker.attributes'] = ['text']
+    del tiddler1.fields['_hash']
+    del tiddler2.fields['_hash']
     hash_tiddler_hook(store.storage, tiddler1)
     hash_tiddler_hook(store.storage, tiddler2)
     assert tiddler1.fields['_hash'] == tiddler2.fields['_hash']
