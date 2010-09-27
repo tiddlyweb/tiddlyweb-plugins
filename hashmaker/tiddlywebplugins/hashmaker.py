@@ -22,7 +22,7 @@ or fields of a tiddler which are to be hashed. The default is:
 
     ['text']
 """
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 from tiddlyweb.store import HOOKS
@@ -50,7 +50,10 @@ def hash_tiddler(environ, tiddler):
                 data = getattr(tiddler, attribute)
             except AttributeError:
                 data = tiddler.fields.get(attribute, '')
-            hash.update(data)
+            try:
+                hash.update(data.encode('utf-8'))
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                hash.update(data)
         tiddler.fields['_hash'] = hash.hexdigest()
 
 
