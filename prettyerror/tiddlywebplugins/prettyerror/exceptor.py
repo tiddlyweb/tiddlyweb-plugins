@@ -8,6 +8,8 @@ import string
 import traceback
 import logging
 
+from itertools import chain
+
 from tiddlyweb.web.http import HTTPExceptor, HTTPException
 from tiddlyweb.control import determine_bag_from_recipe
 from tiddlyweb.model.recipe import Recipe
@@ -35,7 +37,11 @@ class PrettyHTTPExceptor(HTTPExceptor):
     the same as the HTTP status involved. The tiddler.text
     is a template with $name style variable interpolation.
     The names come from the exception status, the exception
-    message, and any key in the environment.
+    message, and any key in the environment. For keys in 
+    the environment that have dict values, composite keys are
+    created making a flat dict:
+    environ['tiddlyweb.config']['server_host']['host'] becomes
+    tiddlyweb_config_server_host_host
 
     Tiddlers are retrieved from a recipe defined in configuration
     as 'prettyerror.recipe', defaulting to '_errors'.
@@ -120,6 +126,24 @@ class PrettyHTTPExceptor(HTTPExceptor):
         return tiddler
 
 
+def flattendict(d, pfx='', sep='_'):
+    """
+    Flatten a dictionary making descendent keys parts of the keys
+    with a _ separator.
+    """
+    def tidy_key(key):
+        key = key.replace('.', '_')
+        key = key.replace('/', '_')
+        return key
+    if isinstance(d, dict):
+        if pfx:
+            pfx += sep
+        return chain(*(flattendict(v, pfx+tidy_key(k), sep)
+            for k, v in d.iteritems()))
+    else:
+        return (pfx, d),
+
+
 def format_error_tiddler(environ, status_tiddler, exc):
     """
     Use the text from the provided tiddler as a Template, passing
@@ -139,6 +163,6 @@ def format_error_tiddler(environ, status_tiddler, exc):
 rel="stylesheet"
 href="%s"
 type="text/css" />""" % css_uri
-    info.update(environ)
+    info.update(flattendict(environ))
 
     return template.substitute(**info)
