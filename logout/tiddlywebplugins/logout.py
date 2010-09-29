@@ -39,4 +39,4 @@ def logout(environ, start_response):
 
 def init(config):
     if 'selector' in config:
-        config['selector'].add('/logout', GET=logout, POST=logout)
+        config['selector'].add('/logout', POST=logout)
