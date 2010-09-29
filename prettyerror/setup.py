@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.prettyerror'
 DESCRIPTION = 'TiddlyWeb plugin for customizable HTTP error messages'
-VERSION = '0.9.1' # don't forget to update __init__.py too
+VERSION = '0.9.2' # don't forget to update __init__.py too
 
 
 import os

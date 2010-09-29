@@ -134,7 +134,10 @@ def flattendict(d, pfx='', sep='_'):
     def tidy_key(key):
         key = key.replace('.', '_')
         key = key.replace('/', '_')
-        return key
+        try:
+            return key.encode('utf8')
+        except UnicodeEncodeError:
+            return key
     if isinstance(d, dict):
         if pfx:
             pfx += sep
