@@ -58,6 +58,10 @@ def wikitext_to_wikklyhtml(base_url, path_url, tiddler, environ):
         """
         if '://' in url_fragment or url_fragment.startswith('/'):
             return url_fragment, True
+        try:
+            url_fragment = url_fragment.encode('utf8')
+        except UnicodeEncodeError:
+            pass
         return '%s%s' % (base_url, urllib.quote(url_fragment, safe='')), False
 
 
