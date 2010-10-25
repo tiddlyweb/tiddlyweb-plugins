@@ -14,16 +14,26 @@ def init(config):
 
 
 def reflect(environ, start_response):
-    form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+    if environ['tiddlyweb.type'] == 'multipart/form-data':
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+    else:
+        # This hack to ensure that we have a uniform interface
+        # On the cgi form field values whether we are multipart or
+        # url encoded.
+        form = cgi.FieldStorage()
+        form.list = []
+        for key, value in environ['tiddlyweb.query'].items():
+            for single_value in value:
+                form.list.append(cgi.MiniFieldStorage(key, single_value))
     # Ordering is important here. File will often appear true when
     # it is not.
     if 'uri' in form and form['uri'].value:
         try:
-            uri = form['uri'].value
+            uri = form.getfirst('uri')
             filehandle = urllib2.urlopen(uri)
             type = filehandle.info()['content-type']
         except (AttributeError, urllib2.URLError), exc:
-            raise HTTP400('URI Input error: %s', exc)
+            raise HTTP400('URI Input error: %s' % exc)
     elif 'file' in form and form['file'].file:
         try:
             filehandle = form['file'].file
@@ -31,7 +41,7 @@ def reflect(environ, start_response):
             # XXX: this might have charset in it
             #options = form['file'].type_options
         except (AttributeError, ValueError), exc:
-            raise HTTP400('File Input error: %s', exc)
+            raise HTTP400('File Input error: %s' % exc)
     else:
         raise HTTP400('Incomplete form')
 
