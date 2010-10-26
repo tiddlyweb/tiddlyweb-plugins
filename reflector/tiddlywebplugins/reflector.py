@@ -32,7 +32,7 @@ def reflect(environ, start_response):
             uri = form.getfirst('uri')
             filehandle = urllib2.urlopen(uri)
             type = filehandle.info()['content-type']
-        except (AttributeError, urllib2.URLError), exc:
+        except (ValueError, AttributeError, urllib2.URLError), exc:
             raise HTTP400('URI Input error: %s' % exc)
     elif 'file' in form and form['file'].file:
         try:
