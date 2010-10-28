@@ -54,7 +54,7 @@ def hash_tiddler(environ, tiddler, overwrite=False):
                 hash.update(data.encode('utf-8'))
             except (UnicodeEncodeError, UnicodeDecodeError):
                 hash.update(data)
-        tiddler.fields['_hash'] = hash.hexdigest()
+        tiddler.fields[u'_hash'] = unicode(hash.hexdigest())
 
 
 def init(config):
