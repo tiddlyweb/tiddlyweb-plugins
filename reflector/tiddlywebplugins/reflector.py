@@ -30,8 +30,12 @@ def reflect(environ, start_response):
     if 'uri' in form and form['uri'].value:
         try:
             uri = form.getfirst('uri')
-            filehandle = urllib2.urlopen(uri)
-            type = filehandle.info()['content-type']
+            request = urllib2.Request(uri)
+            if (request.get_type() != 'file'):
+                filehandle = urllib2.urlopen(uri)
+                type = filehandle.info()['content-type']
+            else:
+                raise ValueError('file: not allowed')
         except (ValueError, AttributeError, urllib2.URLError), exc:
             raise HTTP400('URI Input error: %s' % exc)
     elif 'file' in form and form['file'].file:
