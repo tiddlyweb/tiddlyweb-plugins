@@ -20,7 +20,7 @@ def init(config):
 class Serialization(JSON):
 
     def _get_jsonp(self):
-        jsonp = self.environ['tiddlyweb.query'].get('jsonp_callback', [None])[0]
+        jsonp = self.environ['tiddlyweb.query'].get('callback', [None])[0]
         if jsonp:
             return '%s(' % jsonp, ')'
         else:
