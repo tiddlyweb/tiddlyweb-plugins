@@ -20,11 +20,20 @@ jinja behavior.
 import os
 import urllib
 
-from jinja2 import Environment, ChoiceLoader, FileSystemLoader, PackageLoader, TemplateNotFound
+from jinja2 import (Environment, ChoiceLoader, FileSystemLoader,
+        PackageLoader, TemplateNotFound)
+from tiddlyweb.web.util import http_date_from_timestamp
+
 template_env = None
+
 
 def uri(name):
     return urllib.quote(name.encode('utf-8'), safe='')
+
+
+def format_modified(modified_string):
+    return http_date_from_timestamp(modified_string)
+
 
 def get_template(environ, template_name):
     """
@@ -43,4 +52,5 @@ def get_template(environ, template_name):
             PackageLoader('tiddlywebplugins.templates', 'templates')
             ]))
         template_env.filters['uri'] = uri
+        template_env.filters['format_modified'] = uri
     return template_env.get_template(template_name)
