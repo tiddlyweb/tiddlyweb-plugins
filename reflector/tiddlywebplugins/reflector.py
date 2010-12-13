@@ -14,7 +14,7 @@ def init(config):
 
 
 def reflect(environ, start_response):
-    if environ['tiddlyweb.type'] == 'multipart/form-data':
+    if environ.get('tiddlyweb.type', '') == 'multipart/form-data':
         form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
     else:
         # This hack to ensure that we have a uniform interface

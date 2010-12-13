@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.reflector'
 DESCRIPTION = 'Send the file posted to the tiddlyweb server back to the browser.'
-VERSION = '0.6'
+VERSION = '0.7'
 
 
 import os
