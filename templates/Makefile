@@ -16,7 +16,7 @@ test: clean
 dist: test
 	python setup.py sdist
 
-upload: pypi
+release: pypi
 
 pypi: test
 	python setup.py sdist upload
