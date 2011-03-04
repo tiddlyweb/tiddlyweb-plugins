@@ -141,7 +141,6 @@ class Store(StorageInterface):
         if not gdtiddler:
             raise NoTiddlerError, 'tiddler %s not found' % (tiddler.title)
 
-        logging.info('deleting tiddler %s so trashing bag cache at %s' % (tiddler.title, tiddler.bag))
         gdtiddler.delete()
 
     def tiddler_get(self, tiddler):
@@ -178,7 +177,6 @@ class Store(StorageInterface):
         gdtiddler.type = tiddler.type
         for key in tiddler.fields:
             if not key.startswith('server.') and key != 'title':
-                logging.warning('attempting to set key %s' % key)
                 gdtiddler.__setattr__(key, db.Text(tiddler.fields[key]))
         gdtiddler.put()
         tiddler.revision = 1
