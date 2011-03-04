@@ -20,6 +20,7 @@ fill:
 	( cd go ; \
 	for file in $(BASEFILES); do ln -s ../$$file . ; done ; \
 	for file in ../go.tmp/lib/python*/site-packages/* ; do ln -s $$file . ; done ;\
+	ln -s tiddlywebplugins/templates templates ;\
 	touch tiddlywebplugins/__init__.py )
 
 .DEFAULT:
