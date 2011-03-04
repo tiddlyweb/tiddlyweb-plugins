@@ -11,7 +11,7 @@ cleangotmp:
 
 installenv:
 	virtualenv --no-site-packages go.tmp
-	pip -E ./go.tmp install -U tiddlywebwiki
+	pip -E ./go.tmp install -U tiddlywebwiki tiddlywebplugins.wimporter
 
 go: installenv fill
 

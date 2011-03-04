@@ -4,6 +4,11 @@ import os
 # setting. This allows us to work local and on
 # GAE without changing config by hand.
 if os.environ['SERVER_SOFTWARE'].startswith('Dev'):
+    # XXX work around a mismatch between GAE python 2.5 and osx python
+    # 2.6
+    import urllib
+    urllib.getproxies_macosx_sysconf = lambda: {}
+
     server_host = {
             'scheme': 'http',
             'host': 'localhost',
@@ -18,7 +23,7 @@ else:
 
 config = {
         # plugins
-        'system_plugins': ['tiddlywebwiki'],
+        'system_plugins': ['tiddlywebwiki','tiddlywebplugins.wimporter'],
         # how are we storing data
         'server_store': ['googledata', {}],
         # how do we extract user information from requests
