@@ -21,17 +21,19 @@ import os
 import urllib
 
 from jinja2 import (Environment, ChoiceLoader, FileSystemLoader,
-        PackageLoader, TemplateNotFound)
+        PackageLoader)
 from tiddlyweb.web.util import http_date_from_timestamp
 
-template_env = None
+TEMPLATE_ENV = None
 
 
 def uri(name):
+    """URI escape a name."""
     return urllib.quote(name.encode('utf-8'), safe='')
 
 
 def format_modified(modified_string):
+    """Translate a tiddlywiki modified_string into a http date."""
     return http_date_from_timestamp(modified_string)
 
 
@@ -41,19 +43,20 @@ def get_template(environ, template_name):
     to get the template local to the instance running the code. If it isn't
     there, then try from the tiddlywebplugins package.
     """
-    global template_env
-    if not template_env:
-        template_path = environ['tiddlyweb.config'].get('plugin_local_templates', 'templates')
+    global TEMPLATE_ENV
+    if not TEMPLATE_ENV:
+        template_path = environ['tiddlyweb.config'].get(
+                'plugin_local_templates', 'templates')
         if not os.path.isabs(template_path):
             template_path = os.path.join(environ['tiddlyweb.config'].get(
                 'root_dir', ''), template_path)
         try:
-            template_env = Environment(loader=ChoiceLoader([
+            TEMPLATE_ENV = Environment(loader=ChoiceLoader([
                 FileSystemLoader(template_path),
                 PackageLoader('tiddlywebplugins.templates', 'templates')
                 ]))
         except ImportError:  # deal with GAE
-            template_env= Environment(loader=FileSystemLoader(template_path))
-        template_env.filters['uri'] = uri
-        template_env.filters['format_modified'] = uri
-    return template_env.get_template(template_name)
+            TEMPLATE_ENV = Environment(loader=FileSystemLoader(template_path))
+        TEMPLATE_ENV.filters['uri'] = uri
+        TEMPLATE_ENV.filters['format_modified'] = uri
+    return TEMPLATE_ENV.get_template(template_name)
