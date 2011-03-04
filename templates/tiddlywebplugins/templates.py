@@ -47,10 +47,13 @@ def get_template(environ, template_name):
         if not os.path.isabs(template_path):
             template_path = os.path.join(environ['tiddlyweb.config'].get(
                 'root_dir', ''), template_path)
-        template_env = Environment(loader=ChoiceLoader([
-            FileSystemLoader(template_path),
-            PackageLoader('tiddlywebplugins.templates', 'templates')
-            ]))
+        try:
+            template_env = Environment(loader=ChoiceLoader([
+                FileSystemLoader(template_path),
+                PackageLoader('tiddlywebplugins.templates', 'templates')
+                ]))
+        except ImportError:  # deal with GAE
+            template_env= Environment(loader=FileSystemLoader(template_path))
         template_env.filters['uri'] = uri
         template_env.filters['format_modified'] = uri
     return template_env.get_template(template_name)
