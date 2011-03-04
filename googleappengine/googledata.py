@@ -31,7 +31,6 @@ class GDRecipe(db.Model):
 class GDBag(db.Model):
     name = db.StringProperty(required=True)
     desc = db.StringProperty(default='')
-    tiddlers = db.ListProperty(unicode)
     owner = db.StringProperty()
     read = db.ListProperty(unicode)
     write = db.ListProperty(unicode)
@@ -60,6 +59,14 @@ class Store(StorageInterface):
 
     def _tiddler_key(self, tiddler):
         return 'key:tiddler:%s:%s' % (tiddler.bag, tiddler.title)
+
+    def recipe_delete(self, recipe):
+        gdrecipe = GDRecipe.get_by_key_name(self._recipe_key(recipe.name))
+
+        if not gdrecipe:
+            raise NoRecipeError
+
+        gdrecipe.delete()
 
     def recipe_get(self, recipe):
         gdrecipe = GDRecipe.get_by_key_name(self._recipe_key(recipe.name))
@@ -95,30 +102,30 @@ class Store(StorageInterface):
         gdrecipe.owner = recipe.policy.owner
         gdrecipe.put()
 
+    def bag_delete(self, bag):
+        gdbag = GDBag.get_by_key_name(self._bag_key(bag.name))
+
+        if not gdbag:
+            raise NoBagError
+
+        gdbag.delete()
+
     def bag_get(self, bag):
         gdbag = GDBag.get_by_key_name(self._bag_key(bag.name))
 
         if not gdbag:
             raise NoBagError
 
-        bag_tiddler_query = GDTiddler.gql('WHERE bag = :1')
-        bag_tiddler_query.bind(bag.name)
-
         bag.desc = gdbag.desc
         policy = Policy(owner=gdbag.owner, read=gdbag.read,
                 write=gdbag.write, create=gdbag.create, delete=gdbag.delete_,
                 manage=gdbag.manage, accept=gdbag.accept)
         bag.policy = policy
-        if not (hasattr(bag, 'skinny') and bag.skinny):
-            for gdtiddler in bag_tiddler_query:
-                tiddler = Tiddler(gdtiddler.title)
-                bag.add_tiddler(tiddler)
 
         return bag
 
     def bag_put(self, bag):
         gdbag = GDBag(key_name=self._bag_key(bag.name), name=bag.name)
-        gdbag.tiddlers = [tiddler.title for tiddler in bag.list_tiddlers()]
         gdbag.read = bag.policy.read
         gdbag.write = bag.policy.write
         gdbag.create = bag.policy.create
@@ -185,25 +192,25 @@ class Store(StorageInterface):
     def list_recipes(self):
         q = GDRecipe.all()
 
-        recipes = []
         try:
             for gdrecipe in q:
-                recipe = Recipe(gdrecipe.name)
-                recipe_list = []
-                for line in gdrecipe.recipe:
-                    bag, filter = line.split('?')
-                    recipe_list.append([bag, filter])
-                recipe.set_recipe(recipe_list)
-                recipes.append(recipe)
+                yield Recipe(gdrecipe.name)
         except TypeError:
             pass
-
-        return recipes
 
     def list_bags(self):
         q = GDBag.all()
 
         try:
-            return [Bag(bag.name) for bag in q]
+            for  bag in q:
+                yield Bag(bag.name)
         except TypeError:
-            return []
+            pass
+
+    def list_bag_tiddlers(self, bag):
+        bag_tiddler_query = GDTiddler.gql('WHERE bag = :1')
+        bag_tiddler_query.bind(bag.name)
+
+        for gdtiddler in bag_tiddler_query:
+            tiddler = Tiddler(gdtiddler.title, bag.name)
+            yield tiddler
