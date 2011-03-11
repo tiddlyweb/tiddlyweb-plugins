@@ -41,16 +41,17 @@ class PathInfoHack(object):
 
     def _undecode_path_info(self, environ):
         request_uri = environ.get('REQUEST_URI', environ.get('RAW_URI', None))
-        script_name = environ.get('SCRIPT_NAME', None)
-        path_info = environ.get('PATH_INFO', None)
-	query_string = environ.get('QUERY_STRING', None)
+        if '%2F' in request_uri or '%2f' in request_uri:
+            path_info = environ.get('PATH_INFO', None)
+            script_name = environ.get('SCRIPT_NAME', None)
+            query_string = environ.get('QUERY_STRING', None)
 
-	try:
-	   path_info = request_uri.replace(script_name, "", 1)
-	   path_info = path_info.replace('?' + query_string, "", 1)
-	   environ['PATH_INFO'] = path_info
-	except AttributeError:
-	   pass # server didn't set request_uri
+            try:
+               path_info = request_uri.replace(script_name, "", 1)
+               path_info = path_info.replace('?' + query_string, "", 1)
+               environ['PATH_INFO'] = path_info
+            except AttributeError:
+               pass # server didn't set request_uri
 
 
 def init(config):
