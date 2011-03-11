@@ -13,7 +13,7 @@ clean:
 dist:
 	python setup.py sdist
 
-upload: clean pypi
+release: clean pypi
 
 pypi:
 	python setup.py sdist upload
