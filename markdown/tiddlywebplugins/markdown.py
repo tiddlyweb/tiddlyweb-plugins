@@ -25,15 +25,27 @@ import markdown2
 
 
 PATTERNS = {
+    'freelink': re.compile(r'\[\[(.+?)\]\]'), # XXX: should be surrounded by \b
     'wikilink': re.compile(r'(\b[A-Z][a-z]+[A-Z]\w+\b)')
 }
 
 
-class WikiLinker(object):
-
+class Linker(object):
     def __init__(self, base):
         self.base = base
 
+
+class FreeLinker(Linker):
+    def __call__(self, match):
+        link = match.groups()[0]
+        try:
+            label, page = link.split("|", 1)
+            return page # TODO: custom link label
+        except ValueError: # no label
+            return self.base + link # TODO: custom link as link label (rather than entire match)
+
+
+class WikiLinker(Linker):
     def __call__(self, match):
         return self.base + match.group()
 
@@ -46,7 +58,7 @@ def render(tiddler, environ):
             'markdown.wiki_link_base', None)
     if wiki_link_base is not None:
         link_patterns = [
-            # Match a wiki page link LikeThis.
+            (PATTERNS['freelink'], FreeLinker(wiki_link_base)),
             (PATTERNS['wikilink'], WikiLinker(wiki_link_base))
         ]
     else:

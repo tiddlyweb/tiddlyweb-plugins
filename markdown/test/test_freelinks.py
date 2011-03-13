@@ -9,8 +9,9 @@ def test_simple_freelinks():
     environ = { 'tiddlyweb.config': { 'markdown.wiki_link_base': '' } }
     output = render(tiddler, environ)
 
+    assert '<a href="Foo">' in output
+    assert '>Foo</a>' in output
     assert '[[Foo]]' not in output
-    assert '<a href="Foo">Foo</a>' in output
     assert output == '<p>lorem <a href="Foo">Foo</a> ipsum</p>'
 
     tiddler = Tiddler('Foo')
@@ -31,8 +32,9 @@ def test_labeled_freelinks():
     environ = { 'tiddlyweb.config': { 'markdown.wiki_link_base': '' } }
     output = render(tiddler, environ)
 
+    assert '<a href="Foo">' in output
+    assert '>hello world</a>' in output
     assert '[[hello world|Foo]]' not in output
-    assert '<a href="Foo">hello world</a>' in output
     assert output == '<p>lorem <a href="Foo">hello world</a> ipsum</p>'
 
     tiddler = Tiddler('Foo')
