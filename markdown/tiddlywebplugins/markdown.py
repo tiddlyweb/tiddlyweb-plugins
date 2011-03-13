@@ -24,6 +24,11 @@ import re
 import markdown2
 
 
+PATTERNS = {
+    'wikilink': re.compile(r'(\b[A-Z][a-z]+[A-Z]\w+\b)')
+}
+
+
 class WikiLinker(object):
 
     def __init__(self, base):
@@ -42,11 +47,10 @@ def render(tiddler, environ):
     if wiki_link_base is not None:
         link_patterns = [
             # Match a wiki page link LikeThis.
-            (re.compile(r"(\b[A-Z][a-z]+[A-Z]\w+\b)"),
-                    WikiLinker(wiki_link_base))
+            (PATTERNS['wikilink'], WikiLinker(wiki_link_base))
         ]
     else:
         link_patterns = []
-    processor = markdown2.Markdown(extras=["link-patterns"],
+    processor = markdown2.Markdown(extras=['link-patterns'],
                                link_patterns=link_patterns)
     return processor.convert(tiddler.text)
