@@ -1,6 +1,6 @@
-
 from tiddlywebplugins.markdown import render
 from tiddlyweb.model.tiddler import Tiddler
+
 
 sample = """# Hello
     
@@ -15,6 +15,7 @@ sample_linked = """
 This is WikiLink and this is not: [NotLink](http://example.com).
 
 """
+
 
 def test_no_wiki():
     tiddler = Tiddler('hello')

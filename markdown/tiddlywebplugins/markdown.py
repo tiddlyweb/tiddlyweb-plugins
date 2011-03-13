@@ -14,7 +14,7 @@ adjust config to include:
      'text/x-markdown': 'tiddlywebplugins.markdown'
      }
 
-If you want all text tiddlers to be rendered as markdown, 
+If you want all text tiddlers to be rendered as markdown,
 then set
 
  'wikitext.default_renderer': 'tiddlywebplugins.markdown'
@@ -22,6 +22,7 @@ then set
 
 import re
 import markdown2
+
 
 class WikiLinker(object):
 
@@ -36,11 +37,13 @@ def render(tiddler, environ):
     """
     Render text in the provided tiddler to HTML.
     """
-    wiki_link_base = environ.get('tiddlyweb.config', {}).get('markdown.wiki_link_base', None)
+    wiki_link_base = environ.get('tiddlyweb.config', {}).get(
+            'markdown.wiki_link_base', None)
     if wiki_link_base is not None:
         link_patterns = [
             # Match a wiki page link LikeThis.
-            (re.compile(r"(\b[A-Z][a-z]+[A-Z]\w+\b)"), WikiLinker(wiki_link_base))
+            (re.compile(r"(\b[A-Z][a-z]+[A-Z]\w+\b)"),
+                    WikiLinker(wiki_link_base))
         ]
     else:
         link_patterns = []
