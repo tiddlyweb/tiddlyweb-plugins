@@ -30,12 +30,11 @@ PATTERNS = {
 }
 
 
-class Linker(object):
+class FreeLinker(object):
+
     def __init__(self, base):
         self.base = base
 
-
-class FreeLinker(Linker):
     def __call__(self, match):
         link = match.groups()[0]
         try:
@@ -43,11 +42,6 @@ class FreeLinker(Linker):
             return page # TODO: custom link label
         except ValueError: # no label
             return self.base + link # TODO: custom link as link label (rather than entire match)
-
-
-class WikiLinker(Linker):
-    def __call__(self, match):
-        return self.base + match.group()
 
 
 def render(tiddler, environ):
@@ -59,10 +53,10 @@ def render(tiddler, environ):
     if wiki_link_base is not None:
         link_patterns = [
             (PATTERNS['freelink'], FreeLinker(wiki_link_base)),
-            (PATTERNS['wikilink'], WikiLinker(wiki_link_base))
+            (PATTERNS['wikilink'], r"\1")
         ]
     else:
         link_patterns = []
     processor = markdown2.Markdown(extras=['link-patterns'],
-                               link_patterns=link_patterns)
+            link_patterns=link_patterns)
     return processor.convert(tiddler.text)

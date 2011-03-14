@@ -30,6 +30,8 @@ def test_no_wiki():
     environ = {'tiddlyweb.config': {'markdown.wiki_link_base': ''}}
     output = render(tiddler, environ)
     assert 'href' in output
+    assert '<a href="WikiLink">' in output
+    assert '>WikiLink</a>' in output
 
     # This is a TODO
     #tiddler.text = sample_linked
