@@ -12,7 +12,7 @@ def test_simple_freelinks():
     assert '<a href="Foo">' in output
     assert '>Foo</a>' in output
     assert '[[Foo]]' not in output
-    assert output == '<p>lorem <a href="Foo">Foo</a> ipsum</p>'
+    assert output == '<p>lorem <a href="Foo">Foo</a> ipsum</p>\n'
 
     tiddler = Tiddler('Foo')
     tiddler.text = 'lorem [[Foo [] Bar]] ipsum'
@@ -21,8 +21,8 @@ def test_simple_freelinks():
     output = render(tiddler, environ)
 
     assert '[[Foo [] Bar]]' not in output
-    assert '<a href="Foo%20%5B%5D%20Bar">Foo [] Bar</a>' in output
-    assert output == '<p>lorem <a href="Foo%20%5B%5D%20Bar">Foo [] Bar</a> ipsum</p>'
+    assert '<a href="Foo [] Bar">Foo [] Bar</a>' in output
+    assert output == '<p>lorem <a href="Foo [] Bar">Foo [] Bar</a> ipsum</p>\n'
 
 
 def test_labeled_freelinks():
@@ -35,7 +35,7 @@ def test_labeled_freelinks():
     assert '<a href="Foo">' in output
     assert '>hello world</a>' in output
     assert '[[hello world|Foo]]' not in output
-    assert output == '<p>lorem <a href="Foo">hello world</a> ipsum</p>'
+    assert output == '<p>lorem <a href="Foo">hello world</a> ipsum</p>\n'
 
     tiddler = Tiddler('Foo')
     tiddler.text = 'lorem [[hello [] world|Foo]] ipsum'
@@ -45,7 +45,7 @@ def test_labeled_freelinks():
 
     assert '[[hello [] world|Foo]]' not in output
     assert '<a href="Foo">hello [] world</a>' in output
-    assert output == '<p>lorem <a href="Foo">hello [] world</a> ipsum</p>'
+    assert output == '<p>lorem <a href="Foo">hello [] world</a> ipsum</p>\n'
 
 
 def test_precedence():
@@ -57,8 +57,8 @@ def test_precedence():
 
     assert '[[hello FooBar world]]' not in output
     assert '<a href="FooBar">FooBar</a>' not in output
-    assert '<a href="hello%20FooBar%20world">hello FooBar world</a>' in output
-    assert output == '<p>lorem <a href="hello%20FooBar%20world">hello FooBar world</a> ipsum</p>'
+    assert '<a href="hello FooBar world">hello FooBar world</a>' in output
+    assert output == '<p>lorem <a href="hello FooBar world">hello FooBar world</a> ipsum</p>\n'
 
     tiddler = Tiddler('Foo')
     tiddler.text = 'lorem [[...|hello FooBar world]] ipsum'
@@ -68,5 +68,5 @@ def test_precedence():
 
     assert '[[...|hello FooBar world]]' not in output
     assert '<a href="FooBar">FooBar</a>' not in output
-    assert '<a href="hello%20FooBar%20world">...</a>' in output
-    assert output == '<p>lorem <a href="hello%20FooBar%20world">...</a> ipsum</p>'
+    assert '<a href="hello FooBar world">...</a>' in output
+    assert output == '<p>lorem <a href="hello FooBar world">...</a> ipsum</p>\n'
