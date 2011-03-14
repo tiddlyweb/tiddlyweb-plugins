@@ -39,9 +39,9 @@ class FreeLinker(object):
         link = match.groups()[0]
         try:
             label, page = link.split("|", 1)
-            return page # TODO: custom link label
         except ValueError: # no label
-            return self.base + link # TODO: custom link as link label (rather than entire match)
+            label = page = link
+        return (page, label)
 
 
 def render(tiddler, environ):
