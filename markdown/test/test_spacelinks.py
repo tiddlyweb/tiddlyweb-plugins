@@ -10,8 +10,8 @@ def test_simple_spacelinks():
     output = render(tiddler, environ)
 
     assert '[[Foo]]@alpha' not in output
-    assert output.startswith('lorem <a href="')
-    assert output.endswith('/Foo">Foo</a> ipsum')
+    assert output.startswith('<p>lorem <a href="')
+    assert output.endswith('/Foo">Foo</a> ipsum</p>')
     # TODO: test space URI
 
 
@@ -23,6 +23,6 @@ def test_labeled_spacelinks():
     output = render(tiddler, environ)
 
     assert '[[hello world|Foo]]@alpha' not in output
-    assert output.startswith('lorem <a href="')
-    assert output.endswith('/Foo">hello world</a> ipsum')
+    assert output.startswith('<p>lorem <a href="')
+    assert output.endswith('/Foo">hello world</a> ipsum</p>')
     # TODO: test space URI
