@@ -105,10 +105,10 @@ class PrettyHTTPExceptor(HTTPExceptor):
         not present, use DEFAULT_TEXT.
         """
         try:
+            tiddler = Tiddler(status)
             store = environ['tiddlyweb.store']
             recipe_name = environ['tiddlyweb.config'].get('prettyerror.recipe',
                     '_errors')
-            tiddler = Tiddler(status)
             recipe = Recipe(recipe_name)
             recipe = store.get(recipe)
             bag = determine_bag_from_recipe(recipe, tiddler, environ)
