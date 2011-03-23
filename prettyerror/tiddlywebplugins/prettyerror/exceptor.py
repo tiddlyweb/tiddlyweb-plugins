@@ -114,8 +114,6 @@ class PrettyHTTPExceptor(HTTPExceptor):
             bag = determine_bag_from_recipe(recipe, tiddler, environ)
             tiddler.bag = bag.name
             tiddler = store.get(tiddler)
-        except AttributeError:  # Deal with failures early in the stack
-            tiddler.text = DEFAULT_TEXT
         except (NoRecipeError, NoBagError):
             if status == 'default':
                 tiddler.text = DEFAULT_TEXT
@@ -124,6 +122,8 @@ class PrettyHTTPExceptor(HTTPExceptor):
         except (NoTiddlerError):
             # If there is no default tiddler we get recursion error.
             tiddler = self._get_status_tiddler(environ, 'default')
+        except:  # Deal with failures early in the stack
+            tiddler.text = DEFAULT_TEXT
 
         return tiddler
 
