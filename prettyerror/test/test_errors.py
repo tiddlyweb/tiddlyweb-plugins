@@ -5,6 +5,13 @@ import shutil
 import os
 import sys
 
+from tiddlywebplugins.instancer.util import spawn
+import tiddlywebplugins.prettyerror.instance as instance_module
+from tiddlywebplugins.prettyerror.config import config as init_config
+
+from tiddlywebplugins.prettyerror import init
+
+
 from wsgi_intercept import httplib2_intercept
 
 from tiddlyweb.store import Store
@@ -14,18 +21,14 @@ def make_test_env():
         shutil.rmtree('test_instance')
     except OSError:
         pass
-    exit = os.system('PYTHONPATH="." twinstance_dev tiddlywebplugins.prettyerror test_instance')
-    if exit == 0:
-        os.chdir('test_instance')
-        sys.path.insert(0, os.getcwd())
-    else:
-        assert False is True, 'unable to create test env'
+    spawn('test_instance', init_config, instance_module)
 
 
 def setup_module(module):
     make_test_env()
     from tiddlyweb.web import serve
     from tiddlyweb.config import config
+    init(config)
     def app_fn():
         return serve.load_app()
     httplib2_intercept.install()

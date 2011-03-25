@@ -104,11 +104,11 @@ class PrettyHTTPExceptor(HTTPExceptor):
         the tiddler with title 'default'. If that tiddler is
         not present, use DEFAULT_TEXT.
         """
-        store = environ['tiddlyweb.store']
-        recipe_name = environ['tiddlyweb.config'].get('prettyerror.recipe',
-                '_errors')
-        tiddler = Tiddler(status)
         try:
+            tiddler = Tiddler(status)
+            store = environ['tiddlyweb.store']
+            recipe_name = environ['tiddlyweb.config'].get('prettyerror.recipe',
+                    '_errors')
             recipe = Recipe(recipe_name)
             recipe = store.get(recipe)
             bag = determine_bag_from_recipe(recipe, tiddler, environ)
@@ -122,6 +122,8 @@ class PrettyHTTPExceptor(HTTPExceptor):
         except (NoTiddlerError):
             # If there is no default tiddler we get recursion error.
             tiddler = self._get_status_tiddler(environ, 'default')
+        except:  # Deal with failures early in the stack
+            tiddler.text = DEFAULT_TEXT
 
         return tiddler
 
