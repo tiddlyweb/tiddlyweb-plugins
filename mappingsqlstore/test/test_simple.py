@@ -10,10 +10,10 @@ import py.test
 def test_bag_get():
     store = Store('tiddlywebplugins.mappingsql', {'db_config': 'sqlite:///test.db'}, {'tiddlyweb.config': config})
     bag = Bag('avox')
-    assert len(bag.list_tiddlers()) == 0
+    assert len(list(store.list_bag_tiddlers(bag))) == 1
 
     bag = store.get(bag)
-    assert len(bag.list_tiddlers()) == 1
+    assert len(list(store.list_bag_tiddlers(bag))) == 1
     assert "NONE" in bag.policy.write
 
 

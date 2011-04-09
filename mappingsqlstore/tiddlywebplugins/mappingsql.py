@@ -96,16 +96,19 @@ class Store(StorageInterface):
         # This is a so we are a generator.
         return (Bag(bag) for bag in bags)
 
+    def list_bag_tiddlers(self, bag):
+        """Return the list of tiddlers in the bag."""
+        bag_name = self.environ['tiddlyweb.config']['mappingsql.bag']
+        stiddlers = self.session.query(
+                getattr(sTiddler, self.id_column)).all()
+        for stiddler in stiddlers:
+            tiddler_title = unicode(getattr(stiddler, self.id_column))
+            yield Tiddler(tiddler_title, bag_name)
+
     def bag_get(self, bag):
         """Bag will be read only."""
         self._validate_bag_name(bag.name)
 
-        if not (hasattr(bag, 'skinny') and bag.skinny):
-            stiddlers = self.session.query(
-                    getattr(sTiddler, self.id_column)).all()
-            bag.add_tiddlers(Tiddler(
-                unicode(getattr(stiddler, self.id_column)))
-                for stiddler in stiddlers)
         bag.policy.create = ["NONE"]
         bag.policy.write = ["NONE"]
         bag.policy.delete = ["NONE"]
