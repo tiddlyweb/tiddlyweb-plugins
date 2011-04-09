@@ -1,9 +1,8 @@
-# YOU NEED TO EDIT THESE
 AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.mappingsql'
 DESCRIPTION = 'Map a single RDBMS table to a bag.'
-VERSION = '1.0'
+VERSION = '1.1'
 
 
 import os
@@ -11,7 +10,6 @@ import os
 from setuptools import setup, find_packages
 
 
-# You should carefully review the below (install_requires especially).
 setup(
     namespace_packages = ['tiddlywebplugins'],
     name = NAME,
