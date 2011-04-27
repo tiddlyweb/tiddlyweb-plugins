@@ -14,6 +14,9 @@ sample_linked = """
 
 This is WikiLink and this is not: [NotLink](http://example.com).
 
+This forthcoming in camel case but actually
+a link [label](http://example.org/CamelCase)
+
 """
 
 
@@ -33,7 +36,7 @@ def test_no_wiki():
     assert '<a href="WikiLink">' in output
     assert '>WikiLink</a>' in output
 
-    # This is a TODO
-    #tiddler.text = sample_linked
-    #output = render(tiddler, environ)
-    #assert '"NotLink"' not in output
+    tiddler.text = sample_linked
+    output = render(tiddler, environ)
+    assert '"NotLink"' not in output
+    assert '<a href="http://example.org/CamelCase">label</a>' in output
