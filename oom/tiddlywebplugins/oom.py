@@ -11,6 +11,8 @@ Install by adding 'tiddlywebplugins.mselect' to 'system_plugins'
 in tiddlywebconfig.py.
 """
 
+from itertools import ifilter
+
 from tiddlyweb.filters import FILTER_PARSERS
 from tiddlyweb.filters.select import _get_entity
 
@@ -40,19 +42,18 @@ def init(config):
 
         values = value.split(separator)
 
-        def get_value(entity, attribute):
+        def get_value_in_values(entity):
+            entity = _get_entity(entity, store)
             try:
-                return getattr(entity, attribute)
+                return getattr(entity, attribute) in values
             except AttributeError:
                 try:
-                    return entity.fields[attribute]
+                    return entity.fields[attribute] in values
                 except (AttributeError, KeyError):
-                    return None
+                    return False
 
-        return (entity for entity in entities if
-                get_value(_get_entity(entity, store), attribute) in values)
+        return ifilter(get_value_in_values, entities)
         
-
     def oom_parse(command):
         attribute, args = command.split(':', 1)
         def selector(entities, indexable=False, environ=None):
