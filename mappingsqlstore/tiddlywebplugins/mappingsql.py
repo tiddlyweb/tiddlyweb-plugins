@@ -49,12 +49,15 @@ from tiddlyweb.store import NoBagError, NoTiddlerError
 import logging
 
 IGNORE_PARAMS = []
+ENGINE = None
+
 
 Base = declarative_base()
 Session = sessionmaker()
 
 class sTiddler(object):
     pass
+
 
 class Store(StorageInterface):
 
@@ -65,12 +68,21 @@ class Store(StorageInterface):
         self._init_store()
 
     def _init_store(self):
+        global ENGINE
         db_config = self.environ[
                 'tiddlyweb.config']['server_store'][1]['db_config']
-        engine = create_engine(db_config)
-        meta = MetaData()
-        meta.bind = engine
-        Session.configure(bind=engine)
+        if ENGINE is None:
+            if 'mysql' in db_config:
+                ENGINE = create_engine(db_config,
+                        pool_recycle=3600,
+                        pool_size=20,  # XXX these three ought to come from config
+                        max_overflow=-1,
+                        pool_timeout=2)
+            else:
+                ENGINE = create_engine(db_config)
+            meta = MetaData()
+            meta.bind = ENGINE
+            Session.configure(bind=ENGINE)
         self.session = Session()
         self.id_column = self.environ['tiddlyweb.config'].get(
                 'mappingsql.id_column', 'id')
