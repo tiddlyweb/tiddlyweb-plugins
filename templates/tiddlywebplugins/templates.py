@@ -58,5 +58,5 @@ def get_template(environ, template_name):
         except ImportError:  # deal with GAE
             TEMPLATE_ENV = Environment(loader=FileSystemLoader(template_path))
         TEMPLATE_ENV.filters['uri'] = uri
-        TEMPLATE_ENV.filters['format_modified'] = uri
+        TEMPLATE_ENV.filters['format_modified'] = format_modified
     return TEMPLATE_ENV.get_template(template_name)
