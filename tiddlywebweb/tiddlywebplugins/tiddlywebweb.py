@@ -84,7 +84,7 @@ class Store(StorageInterface):
         self.authorization = None
         if user and password:
             self.authorization = b64encode('%s:%s' % (user, password))
-        self.serializer = Serializer('json', environ))
+        self.serializer = Serializer('json', environ)
 
     def _request(self, method, url, data=None):
         headers = {}
