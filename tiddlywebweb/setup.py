@@ -2,7 +2,7 @@ AUTHOR = 'Chris Dent'
 AUTHOR_EMAIL = 'cdent@peermore.com'
 NAME = 'tiddlywebplugins.tiddlywebweb'
 DESCRIPTION = 'A TiddlyWeb store that proxies to another TiddlyWeb server.'
-VERSION = '0.7' # duplicated in the plugin too
+VERSION = '0.8' # duplicated in the plugin too
 
 
 import os
