@@ -1,3 +1,4 @@
+import mangler
 config = {
         'log_level': 'DEBUG',
         'server_store': ['tiddlywebplugins.tiddlywebweb', {'use_cache': True,
