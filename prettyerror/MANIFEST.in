@@ -1,3 +1,0 @@
-include README Makefile
-recursive-include test *
-recursive-include tiddlywebplugins/prettyerror/resources *
