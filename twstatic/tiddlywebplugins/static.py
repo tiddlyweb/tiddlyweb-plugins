@@ -39,7 +39,7 @@ Here is sample configuration to put in tiddlywebconfig.py
 import mimetypes
 import os
 
-from tiddlyweb.web.http import HTTP404
+from httpexceptor import HTTP404
 
 DEFAULT_MIME_TYPE = 'application/octet-stream'
 

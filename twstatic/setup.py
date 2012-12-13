@@ -2,7 +2,7 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = '0.9'
+VERSION = '1.0'
 
 setup(
         namespace_packages = ['tiddlywebplugins'],
@@ -15,6 +15,6 @@ setup(
         packages = find_packages(exclude=['test']),
         author_email = 'cdent@peermore.com',
         platforms = 'Posix; MacOS X; Windows',
-        install_requires = ['setuptools', 'tiddlyweb'],
+        install_requires = ['setuptools', 'httpexceptor', 'tiddlyweb>=1.3.0'],
         zip_safe = False,
         )
