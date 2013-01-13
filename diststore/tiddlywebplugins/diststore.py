@@ -16,7 +16,7 @@ or tuple of two items:
     * A dictionary with the configuration information the store needs.
 """
 
-__version__ = '0.7' 
+__version__ = '0.8' 
 
 import copy
 import re
