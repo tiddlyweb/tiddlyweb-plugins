@@ -21,6 +21,7 @@ __version__ = '0.7'
 import copy
 import re
 
+
 from tiddlyweb.store import Store as Storer, StoreMethodNotImplemented
 from tiddlyweb.stores import StorageInterface
 
@@ -34,19 +35,16 @@ class Store(StorageInterface):
 
     def _init_store(self):
         server_store = self.environ['tiddlyweb.config']['server_store']
-        server_store_copy = copy.deepcopy(server_store)
         extra_store_config = server_store[1]['extras']
         main_store_config = server_store[1]['main']
 
-        self.environ['tiddlyweb.config']['server_store'] = main_store_config
-        self.main_store = Storer(main_store_config[0], main_store_config[1], self.environ)
+        self.main_store = Storer(main_store_config[0], main_store_config[1],
+                self.environ)
 
         for rule, store in extra_store_config:
             pattern = re.compile(rule)
-            self.environ['tiddlyweb.config']['server_store'] = store
-            self.environ['tiddlyweb.config']['main_store'] = self.main_store
-            self.stores.append((pattern, Storer(store[0], store[1], self.environ)))
-        self.environ['tiddlyweb.config']['server_store'] = server_store_copy
+            self.stores.append((pattern, Storer(store[0], store[1],
+                self.environ)))
 
     def recipe_delete(self, recipe):
         self.main_store.delete(recipe)
