@@ -3,16 +3,17 @@ A plugin providing a web app for generating a
 TiddlyWiki-based editor for a single tiddler.
 """
 
-from tiddlyweb import control
-from tiddlyweb.web.http import HTTP400, HTTP404
+from httpexceptor import HTTP400, HTTP404
+
+from tiddlyweb.control import determine_bag_from_recipe
 from tiddlyweb.model.bag import Bag
+from tiddlyweb.model.collections import Tiddlers
 from tiddlyweb.model.recipe import Recipe
 from tiddlyweb.model.tiddler import Tiddler
 from tiddlyweb.store import NoTiddlerError, NoBagError, NoRecipeError
+from tiddlyweb.serializations.html import Serialization as HTML
 from tiddlyweb.web.sendtiddlers import send_tiddlers
 from tiddlyweb.web.util import tiddler_url
-
-from tiddlyweb.web.wsgi import HTMLPresenter
 
 
 def get(environ, start_response):
@@ -37,10 +38,12 @@ def get(environ, start_response):
         recipe = Recipe(recipe_name)
         try:
             recipe = store.get(recipe)
-            tiddler.bag = control.determine_tiddler_bag_from_recipe(recipe, tiddler).name
+            tiddler.bag = determine_bag_from_recipe(recipe,
+                    tiddler).name
             tiddler.recipe = recipe.name
         except NoRecipeError, exc:
-            raise HTTP404('unable to edit %s, recipe %s not found: %s' % (tiddler.title, recipe_name, exc))
+            raise HTTP404('unable to edit %s, recipe %s not found: %s'
+                    % (tiddler.title, recipe_name, exc))
         except NoBagError, exc:
             raise HTTP404('unable to edit %s: %s' % (tiddler.title, exc))
 
@@ -53,49 +56,68 @@ def get(environ, start_response):
 
     bag.policy.allows(usersign, 'write')
 
-    output_bag = Bag('output', tmpbag=True)
-    output_bag.add_tiddler(tiddler)
+    output_tiddlers = Tiddlers()
+    output_tiddlers.add(tiddler)
 
-    def add_magic_tiddler(bag, title, text):
+    def add_magic_tiddler(title, text):
         tiddler = Tiddler(title, 'tmp')
         tiddler.text = text
         tiddler.tags = ['excludeLists']
-        bag.add_tiddler(tiddler)
+        output_tiddlers.add(tiddler)
 
-    add_magic_tiddler(output_bag, 'MainMenu', '[[Back to TiddlyWeb|%s]]' % tiddler_url(environ, tiddler))
-    add_magic_tiddler(output_bag, 'DefaultTiddlers', '[[%s]]' % tiddler_name)
-    add_magic_tiddler(output_bag, 'SiteTitle', 'Editor for %s' % tiddler_name)
-    add_magic_tiddler(output_bag, 'SiteSubtitle', '')
-    add_magic_tiddler(output_bag, 'SideBarOptions', '')
+    add_magic_tiddler('MainMenu',
+            '[[Back to TiddlyWeb|%s]]' % tiddler_url(environ, tiddler))
+    add_magic_tiddler('DefaultTiddlers', '[[%s]]' % tiddler_name)
+    add_magic_tiddler('SiteTitle', 'Editor for %s' % tiddler_name)
+    add_magic_tiddler('SiteSubtitle', '')
+    add_magic_tiddler('SideBarOptions', '')
 
-    for required_tiddler in environ['tiddlyweb.config'].get('tiddlyeditor_tiddlers', []):
+    for required_tiddler in environ['tiddlyweb.config'].get(
+            'tiddlyeditor_tiddlers', []):
         r_tiddler = Tiddler(required_tiddler[1], required_tiddler[0])
         r_tiddler = store.get(r_tiddler)
         if 'excludeLists' not in r_tiddler.tags:
             r_tiddler.tags.append('excludeLists')
-        output_bag.add_tiddler(r_tiddler)
+        output_tiddlers.add(r_tiddler)
 
     environ['tiddlyweb.type'] = 'text/x-tiddlywiki'
-    return send_tiddlers(environ, start_response, output_bag)
+    return send_tiddlers(environ, start_response, output_tiddlers)
 
 
-original_footer_extra = HTMLPresenter.footer_extra
+class Serialization(HTML):
 
-def edit_link(self, environ):
-    output = original_footer_extra(self, environ)
-    if 'tiddlyeditor_tiddlers' in environ['tiddlyweb.config']:
-        tiddler_name = environ['wsgiorg.routing_args'][1].get('tiddler_name', None)
-        recipe_name = environ['wsgiorg.routing_args'][1].get('recipe_name', '')
-        bag_name = environ['wsgiorg.routing_args'][1].get('bag_name', '')
-        revision = environ['wsgiorg.routing_args'][1].get('revision', None)
-        server_prefix = environ['tiddlyweb.config']['server_prefix']
+    def _footer(self):
+        """
+        Add editor to the footer.
+        """
 
-        if tiddler_name and not revision:
-            return output + '<div id="edit"><a href="%s/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">TiddlyEdit</a></div>' \
-                    % (server_prefix, tiddler_name, bag_name, recipe_name)
-    return output
+        output = ''
+        # Not using tiddlyweb.web.util:get_route_value to avoid
+        # ValueError
+        routing_args = self.environ['wsgiorg.routing_args'][1]
+        config = self.environ['tiddlyweb.config']
+        if 'tiddlyeditor_tiddlers' in config:
+            tiddler_name = routing_args.get('tiddler_name', None)
+            recipe_name = routing_args.get('recipe_name', '')
+            bag_name = routing_args.get('bag_name', '')
+            revision = routing_args.get('revision', None)
+            server_prefix = config['server_prefix']
 
-HTMLPresenter.footer_extra = edit_link
+            if tiddler_name and not revision:
+                output = """
+<div id="edit">
+    <a href="%s/tiddlyeditor?tiddler=%s;bag=%s;recipe=%s">TiddlyEdit</a>
+</div>
+""" % (server_prefix, tiddler_name, bag_name, recipe_name)
+        original_footer = HTML._footer(self)
+        if output:
+            head, sep, tail = original_footer.partition('<div id="badge">')
+            return head + output + sep + tail
+        return original_footer
+
 
 def init(config):
-    config['selector'].add('/tiddlyeditor', GET=get)
+    if 'selector' in config:
+        config['selector'].add('/tiddlyeditor', GET=get)
+        config['serializers']['text/html'] = [__name__,
+                'text/html; charset=UTF-8']
