@@ -49,7 +49,7 @@ from tiddlyweb.model.bag import Bag
 
 EXTENSION_TYPES = { 's5': 'application/x-s5+html' }
 SERIALIZERS = {
-        'application/x-s5+html': ['s5', 'text/html; charset=UTF-8']
+        'application/x-s5+html': ['tiddlywebplugins.s5', 'text/html; charset=UTF-8']
         }
 
 DEFAULT_TITLE = 'S5 Title'
