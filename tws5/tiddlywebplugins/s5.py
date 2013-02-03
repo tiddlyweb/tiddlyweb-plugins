@@ -22,6 +22,8 @@ text content is used for some things:
     * S5Presenter: The person giving the presentation
     * S5Affiliation: Their affiliation
     * S5TimeLocation: when and where of the presentation
+    * S5Sort: A newline separated list of tiddlers ordering 
+              the presentation.
 
 If multiple tiddlers of the same name (only possible when
 viewing revisons) the last is used. Using the S5 serialization
@@ -73,8 +75,7 @@ class Serialization(SerializationInterface):
         bag.add_tiddler(tiddler)
         return self.list_tiddlers(bag)
 
-    def list_tiddlers(self, bag):
-        tiddlers = bag.list_tiddlers()
+    def list_tiddlers(self, tiddlers):
         title = DEFAULT_TITLE
         subtitle = DEFAULT_SUBTITLE
         presenter = DEFAULT_PRESENTER

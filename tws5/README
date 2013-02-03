@@ -1,18 +1,9 @@
 
 A plugin that adds an S5 serializer to TiddlyWeb, for
 use when viewing a list of tiddlers. See the docstring
-for more details.
+for more details on how to make it go.
 
 See http://meyerweb.com/eric/tools/s5/ for more on S5.
-
-Issues:
-
-* The path to the static stuff needs to be templatized to
-  deal with people who have a prefix or are using a different
-  location for static content.
-* There's currently no way to control the order of slides,
-  which is a bit of a bummer.
-* Incremental exposure of slides has not yet been explored.
 
 Chris Dent
 <cdent @t peermore d0t com>
