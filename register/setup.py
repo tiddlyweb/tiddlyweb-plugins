@@ -16,7 +16,7 @@ setup(
         long_description=file(os.path.join(os.path.dirname(__file__), 'README')).read(),
         author = AUTHOR,
         url = 'http://pypi.python.org/pypi/%s' % NAME,
-        packages = find_packages(exclude='test'),
+        packages = find_packages(exclude=['test']),
         include_package_data = True,
         zip_safe = False,
         author_email = AUTHOR_EMAIL,
