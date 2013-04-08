@@ -2,13 +2,13 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = '0.9.1'
+VERSION = '1.0.0'
 
 setup(
         namespace_packages = ['tiddlywebplugins'],
         name = 'tiddlywebplugins.pathinfohack',
         version = VERSION,
-        description = 'A TiddlyWeb plugin providing support for / in entity names under Apache.',
+        description = 'A TiddlyWeb plugin providing support for / in entity names under path info decoding web servers.',
         long_description=file(os.path.join(os.path.dirname(__file__), 'README')).read(),
         author = 'Oveek',
         url = 'http://pypi.python.org/pypi/tiddlywebplugins.pathinfohack',
