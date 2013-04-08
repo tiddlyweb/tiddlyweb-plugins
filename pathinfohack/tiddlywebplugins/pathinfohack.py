@@ -7,7 +7,9 @@ to its undecoded form.
 The problem being addressed occurs with URIs containing
 %2F characters (encoded forward slashes).
 
-Currently Apache supplies the PATH_INFO variable in decoded form.
+Currently Apache and many other servers supply the PATH_INFO
+variable in decoded form.
+
 As a result, all instances of %2F in the URI are replaced
 with a / character in PATH_INFO. The Selector is then
 thrown off since it depends on forward slashes to match
@@ -36,10 +38,16 @@ class PathInfoHack(object):
         self.application = application
 
     def __call__(self, environ, start_response):
-	self._undecode_path_info(environ)
+        self._undecode_path_info(environ)
         return self.application(environ, start_response)
 
     def _undecode_path_info(self, environ):
+        """
+        Compare the request URI with PATH_INFO and use
+        the non-SCRIPT_NAME part of it directly.
+
+        Yes, we really do want the actual URI.
+        """
         request_uri = environ.get('REQUEST_URI', environ.get('RAW_URI', ''))
         if '%2F' in request_uri or '%2f' in request_uri:
             path_info = environ.get('PATH_INFO', '')
@@ -52,6 +60,9 @@ class PathInfoHack(object):
 
 
 def init(config):
+    """
+    Add the middleware to the WSGI stack.
+    """
     if PathInfoHack not in config['server_request_filters']:
         config['server_request_filters'].insert(
                 config['server_request_filters'].index(Query) + 1,
