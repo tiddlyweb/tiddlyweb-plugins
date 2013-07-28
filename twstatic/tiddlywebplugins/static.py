@@ -41,7 +41,9 @@ import os
 
 from httpexceptor import HTTP404
 
+
 DEFAULT_MIME_TYPE = 'application/octet-stream'
+
 
 def static(environ, start_response):
     pathname = environ['tiddlyweb.config'].get('static_file_dir', 'static')
@@ -54,7 +56,7 @@ def static(environ, start_response):
     if not os.path.exists(full_path):
         raise HTTP404('%s not found' % full_path)
 
-    (mime_type, encoding) = mimetypes.guess_type(full_path)
+    mime_type, encoding = mimetypes.guess_type(full_path)
     if not mime_type:
         mime_type = DEFAULT_MIME_TYPE
 
@@ -63,9 +65,7 @@ def static(environ, start_response):
     except IOError, exc:
         raise HTTP404('%s not found: %s' % (full_path, exc))
 
-    start_response('200 OK', [
-        ('Content-Type', mime_type)
-        ])
+    start_response('200 OK', [('Content-Type', mime_type)])
 
     return static_file
 
