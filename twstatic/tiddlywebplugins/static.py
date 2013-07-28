@@ -48,7 +48,7 @@ def static(environ, start_response):
     filename = environ['wsgiorg.routing_args'][1]['static_file']
 
     if '../' in filename:
-        raise HTTP404('%s inavlid' % filename)
+        raise HTTP404('%s invalid' % filename)
 
     full_path = os.path.join(pathname, filename)
     (mime_type, encoding) = mimetypes.guess_type(full_path)
@@ -59,7 +59,7 @@ def static(environ, start_response):
         raise HTTP404('%s not found' % full_path)
 
     try:
-        static_file = file(full_path)
+        static_file = open(full_path)
     except IOError, exc:
         raise HTTP404('%s not found: %s' % (full_path, exc))
 
