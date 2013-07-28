@@ -51,12 +51,12 @@ def static(environ, start_response):
         raise HTTP404('%s invalid' % filename)
 
     full_path = os.path.join(pathname, filename)
+    if not os.path.exists(full_path):
+        raise HTTP404('%s not found' % full_path)
+
     (mime_type, encoding) = mimetypes.guess_type(full_path)
     if not mime_type:
         mime_type = DEFAULT_MIME_TYPE
-
-    if not os.path.exists(full_path):
-        raise HTTP404('%s not found' % full_path)
 
     try:
         static_file = open(full_path)
