@@ -54,7 +54,7 @@ def static(environ, start_response):
 
     full_path = os.path.join(pathname, filename)
     if not os.path.exists(full_path):
-        raise HTTP404('%s not found' % full_path)
+        raise HTTP404('%s not found' % filename)
 
     mime_type, encoding = mimetypes.guess_type(full_path)
     if not mime_type:
