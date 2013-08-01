@@ -41,31 +41,31 @@ import os
 
 from httpexceptor import HTTP404
 
+
 DEFAULT_MIME_TYPE = 'application/octet-stream'
+
 
 def static(environ, start_response):
     pathname = environ['tiddlyweb.config'].get('static_file_dir', 'static')
     filename = environ['wsgiorg.routing_args'][1]['static_file']
 
     if '../' in filename:
-        raise HTTP404('%s inavlid' % filename)
+        raise HTTP404('%s invalid' % filename)
 
     full_path = os.path.join(pathname, filename)
-    (mime_type, encoding) = mimetypes.guess_type(full_path)
+    if not os.path.exists(full_path):
+        raise HTTP404('%s not found' % filename)
+
+    mime_type, encoding = mimetypes.guess_type(full_path)
     if not mime_type:
         mime_type = DEFAULT_MIME_TYPE
 
-    if not os.path.exists(full_path):
-        raise HTTP404('%s not found' % full_path)
-
     try:
-        static_file = file(full_path)
+        static_file = open(full_path)
     except IOError, exc:
         raise HTTP404('%s not found: %s' % (full_path, exc))
 
-    start_response('200 OK', [
-        ('Content-Type', mime_type)
-        ])
+    start_response('200 OK', [('Content-Type', mime_type)])
 
     return static_file
 
