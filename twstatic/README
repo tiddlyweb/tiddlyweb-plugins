@@ -1,14 +1,15 @@
-tiddlyweb.static is a simple plugin for TiddlyWeb to deliver static
-content read from disk. This is only useful if the web server you are
-using does not include it's own system for delivering static content. If
-it does, for example if you are using Apache, then have that web server
-deliver static content. It will be much more efficient.
+tiddlywebplugins.static is a simple plugin for TiddlyWeb to deliver
+static content read from disk. This is only useful if the web server you
+are using does not include it's own system for delivering static
+content. If it does, for example if you are using Apache or nginx, then
+have that web server deliver static content. It will be much more
+efficient.
 
 See the code documentation for installation and configuration
 information.
 
 If you are not familiar with TiddlyWeb plugins see:
 
-   http://tiddlyweb.peermore.com/wiki/#plugins
+   http://tiddlyweb.tiddlyspace.com/plugins
 
 For more information on TiddlyWeb see http://tiddlyweb.com/

@@ -16,7 +16,7 @@ to a url path relative to the base or your tiddlyweb URL
 space. server_prefix and '/' will be prepended to the path.
 If you do not set static_url_dir, then 'static' will be used.
 
-Add 'static' to the system_plugins list.
+Add 'tiddlywebplugins.static' to the system_plugins list.
 
 The URL of the static files will be
 
