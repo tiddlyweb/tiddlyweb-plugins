@@ -2,7 +2,7 @@
 # Simple Makefile for some common tasks. This will get 
 # fleshed out with time to make things easier on developer
 # and tester types.
-.PHONY: test dist upload
+.PHONY: test dist release
 
 clean:
 	find . -name "*.pyc" |xargs rm || true
@@ -16,7 +16,7 @@ test:
 dist: test
 	python setup.py sdist
 
-upload: clean pypi
+release: clean pypi
 
 pypi:
 	python setup.py sdist upload
